@@ -1,26 +1,13 @@
-# Book Review Website
+# book-review-website
+PHP back-end and Bootstrap front-end book review site for Advanced Website class.
 
-A collaborative web application for book reviews and recommendations.
+PHP back-end for database and APIs, Bootstrap front-end for UI.
 
-## Team Members
-- Tracy Nguyen - Backend Development
-- Gakey1 - Frontend Development
+## Setup
+1. Clone this repo.
+2. Install XAMPP for local PHP/MySQL.
+3. Import database/schema.sql.
 
-## Technologies
-- PHP
-- MySQL
-- Bootstrap
-- JavaScript
-
-## Setup Instructions
-1. Clone the repository
-2. Set up local server (XAMPP/MAMP)
-3. Import database schema
-4. Configure database connection
-
-## Features
-- User authentication
-- Book browsing and search
-- Review system
-- User favorites
-- Responsive design
+## Roles
+- Back-end: Tracy Nguyen (PHP, DB)
+- Front-end: Yvonne Gitonga (Bootstrap, HTML/JS)
