@@ -1,9 +1,12 @@
 <?php
 // index.php - Homepage for Book Review Website
 // This tests PHP is working. Add DB later.
+require 'config/db.php';
 
 $pageTitle = "Welcome to Book Review Website";
 $message = "Back-end setup by Tracy Nguyen. Front-end by Yvonne Gitonga.";
+$stmt = $pdo->query("SELECT * FROM books ORDER BY RAND() LIMIT 5");
+$books = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,6 +21,23 @@ $message = "Back-end setup by Tracy Nguyen. Front-end by Yvonne Gitonga.";
     <div class="container mt-5">
         <h1 class="text-center text-primary"><?php echo $pageTitle; ?></h1>
         <p class="lead text-center"><?php echo $message; ?></p>
+        
+        <!-- test Boostrap code -->
+        <div class="row mt-5">
+            <?php foreach ($books as $book): ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="assets/images/<?= $book['cover_image'] ?>" class="card-img-top" alt="<?= $book['title'] ?>">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= $book['title'] ?></h5>
+                            <p class="card-text">By <?= $book['author'] ?></p>
+                            <a href="book.php?id=<?= $book['id'] ?>" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card">
@@ -35,7 +55,7 @@ $message = "Back-end setup by Tracy Nguyen. Front-end by Yvonne Gitonga.";
             </div>
         </div>
         <footer class="text-center mt-5 p-3 bg-white">
-            <small>Local server: XAMPP | URL: http://localhost/adv_web/book-review-website/</small>
+            <small>Local server: XAMPP | URL:       http://localhost/adv_web/14733_14783/book-review-website/</small>
         </footer>
     </div>
 </body>
