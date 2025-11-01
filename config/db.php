@@ -41,7 +41,7 @@ switch ($environment) {
 
     case 'XAMPP':
         $host = 'localhost';
-        $port = '3306'; // XAMPP default MySQL port
+        $port = '3307'; // XAMPP MySQL port
         $user = 'root';
         $pass = ''; // XAMPP default (no password)
         break;
@@ -49,7 +49,7 @@ switch ($environment) {
     default:
         // Fallback - try common settings
         $host = 'localhost';
-        $port = '3306';
+        $port = '3307';
         $user = 'root';
         $pass = '';
         break;

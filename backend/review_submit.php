@@ -1,36 +1,64 @@
 <?php
+// REVIEW SUBMISSION API LOGIC (Adapted for Frontend JSON Submission)
+
+// Include database connection (this ensures $pdo is available)
+require '../config/db.php'; 
 session_start();
-require '../config/db.php';
 
-// 1. Check if user is logged in
+// Set JSON header for API response
+header('Content-Type: application/json');
+$response = ['success' => false, 'message' => ''];
+
+// Authentication Check
 if (!isset($_SESSION['user_id'])) {
-    die("You must be logged in to submit a review.");
+    http_response_code(401); 
+    $response['message'] = 'You must be logged in to submit a review.';
+    echo json_encode($response);
+    exit;
 }
 
-// 2. Validate POST data
-if (!isset($_POST['book_id'], $_POST['rating'], $_POST['comment'])) {
-    die("Invalid form submission.");
-}
-
-$book_id = (int)$_POST['book_id'];
 $user_id = (int)$_SESSION['user_id'];
-$rating = (int)$_POST['rating'];
-$comment = trim($_POST['comment']);
 
-// Optional: validate rating range
-if ($rating < 1 || $rating > 5) {
-    die("Rating must be between 1 and 5.");
+// Read and Validate JSON Input
+$input = json_decode(file_get_contents('php://input'), true);
+
+$book_id = isset($input['book_id']) ? (int)$input['book_id'] : 0;
+$rating = isset($input['rating']) ? (int)$input['rating'] : 0;
+$comment = isset($input['review_text']) ? trim($input['review_text']) : ''; // Assuming frontend uses 'review_text'
+
+if ($book_id <= 0 || $rating < 1 || $rating > 5 || empty($comment)) {
+    http_response_code(400);
+    $response['message'] = 'Invalid book ID, rating, or empty review.';
+    echo json_encode($response);
+    exit;
 }
 
-// 3. Insert review into database
+// Prevent Duplicates
+// Check if the user has already reviewed this book (Optional)
+$stmt_check = $pdo->prepare("SELECT review_id FROM reviews WHERE user_id = ? AND book_id = ?");
+$stmt_check->execute([$user_id, $book_id]);
+if ($stmt_check->fetch()) {
+    http_response_code(409); 
+    $response['message'] = 'You have already reviewed this book.';
+    echo json_encode($response);
+    exit;
+}
+
+// Insert Review into Database
 try {
     $stmt = $pdo->prepare("INSERT INTO reviews (book_id, user_id, rating, comment, created_at) VALUES (?, ?, ?, ?, NOW())");
     $stmt->execute([$book_id, $user_id, $rating, $comment]);
+
+    $response['success'] = true;
+    $response['message'] = 'Review successfully submitted!';
+    http_response_code(200);
+
 } catch (PDOException $e) {
-    die("Error saving review: " . $e->getMessage());
+    error_log("Review insertion failed: " . $e->getMessage());
+    http_response_code(500);
+    $response['message'] = 'A server error occurred during submission.';
 }
 
-// 4. Redirect back to the book page
-header("Location: ../frontend/book.php?id=$book_id");
+echo json_encode($response);
 exit;
 ?>

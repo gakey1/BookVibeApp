@@ -8,20 +8,20 @@ require '../config/db.php';
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
+    $login_identifier = trim($_POST['username']);
     $password = $_POST['password'];
 
-    $stmt = $pdo->prepare("SELECT id, password_hash FROM users WHERE username = ?");
-    $stmt->execute([$username]);
+    $stmt = $pdo->prepare("SELECT user_id, password_hash, full_name FROM users WHERE full_name = ?");
+    $stmt->execute([$login_identifier]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password_hash'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $username;
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['full_name'] = $user['full_name'];
         header('Location: ../frontend/index.php'); // redirect to homepage
         exit;
     } else {
-        $message = "Invalid username or password.";
+        $message = "Invalid name or password.";
     }
 }
 ?>

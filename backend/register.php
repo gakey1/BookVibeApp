@@ -5,24 +5,24 @@ require '../config/db.php';
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
+    $full_name_input = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
-    $role = 'user'; // default role
+    //$role = 'user'; // the column doesn't exist
 
-    if ($username === '' || $password === '') {
-        $message = "Username and password are required.";
+    if ($full_name_input === '' || $password === '') {
+        $message = "Name and password are required.";
     } else {
         // Check if username already exists
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
-        $stmt->execute([$username]);
+        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE full_name = ?");
+        $stmt->execute([$full_name_input]);
         if ($stmt->fetch()) {
-            $message = "Username already taken.";
+            $message = "Name already taken.";
         } else {
             // Insert user with hashed password
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$username, $email, $password_hash, $role]);
+            $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash) VALUES (?, ?, ?)");
+            $stmt->execute([$full_name_input, $email, $password_hash]);
             $message = "Registration successful! You can now <a href='login.php'>login</a>.";
         }
     }
