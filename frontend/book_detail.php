@@ -4,34 +4,113 @@ define('BOOK_REVIEW_APP', true);
 
 // Include header
 include 'includes/header.php';
+?>
 
-// Get book ID from URL
-$bookId = isset($_GET['id']) ? intval($_GET['id']) : 1;
+// Database logic
+<?php
+// Include the database connection setup
+require_once __DIR__ . '/../config/db.php'; 
+$db = Database::getInstance();
 
-// Static book data using existing images
-$books = [
-    1 => ['id' => 1, 'title' => '1984', 'author' => 'George Orwell', 'cover' => '1984.jpg', 'rating' => 4.5, 'reviews' => 2847, 'genre' => 'Dystopian Fiction', 'year' => 1949, 'pages' => 328, 'isbn' => '978-0-452-28423-4', 'publisher' => 'Penguin Classics', 'description' => 'A dystopian social science fiction novel that follows the life of Winston Smith, a low-ranking member of "the Party", who is frustrated by the omnipresent eyes of the party, and its ominous ruler Big Brother. Winston Smith works in the Ministry of Truth where he rewrites historical records to conform to the state\'s ever-changing version of history.'],
-    2 => ['id' => 2, 'title' => 'Atomic Habits', 'author' => 'James Clear', 'cover' => 'atomic_habits.jpg', 'rating' => 4.8, 'reviews' => 3214, 'genre' => 'Self-Help', 'year' => 2018, 'pages' => 320, 'isbn' => '978-0-7352-1129-2', 'publisher' => 'Avery', 'description' => 'An Easy & Proven Way to Build Good Habits & Break Bad Ones. No matter your goals, Atomic Habits offers a proven framework for improving--every day. James Clear, one of the world\'s leading experts on habit formation, reveals practical strategies that will teach you exactly how to form good habits, break bad ones, and master the tiny behaviors that lead to remarkable results.'],
-    3 => ['id' => 3, 'title' => 'The Great Gatsby', 'author' => 'F. Scott Fitzgerald', 'cover' => 'gatsby.jpg', 'rating' => 4.2, 'reviews' => 1892, 'genre' => 'Classic Literature', 'year' => 1925, 'pages' => 180, 'isbn' => '978-0-7432-7356-5', 'publisher' => 'Scribner', 'description' => 'The story of the mysteriously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan, of lavish parties on Long Island at a time when The New York Times noted "gin was the national drink and sex the national obsession," it is an exquisitely crafted tale of America in the 1920s.'],
-    4 => ['id' => 4, 'title' => 'Gone Girl', 'author' => 'Gillian Flynn', 'cover' => 'gone_girl.jpg', 'rating' => 4.3, 'reviews' => 2156, 'genre' => 'Psychological Thriller', 'year' => 2012, 'pages' => 419, 'isbn' => '978-0-307-58836-4', 'publisher' => 'Crown Publishers', 'description' => 'On a warm summer morning in North Carthage, Missouri, it is Nick and Amy Dunne\'s fifth wedding anniversary. Presents are being wrapped and reservations are being made when Nick\'s clever and beautiful wife disappears. Husband-of-the-year Nick isn\'t doing himself any favors with cringe-worthy daydreams about the slope and shape of his wife\'s head.'],
-    5 => ['id' => 5, 'title' => 'Little Women', 'author' => 'Louisa May Alcott', 'cover' => 'little_women.jpg', 'rating' => 4.1, 'reviews' => 1678, 'genre' => 'Coming-of-Age', 'year' => 1868, 'pages' => 449, 'isbn' => '978-0-14-143960-1', 'publisher' => 'Penguin Classics', 'description' => 'Four sisters--Meg, Jo, Beth, and Amy March--detail their lives growing up during the Civil War. Despite harsh times, they cling to optimism, often finding themselves getting into trouble and learning the hard way. Their father is away at war, and they rely on their mother, fondly dubbed Marmee, to raise them.']
-];
+// Get the Book ID securely from the URL
+$bookId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($bookId === 0) {
+    die("Error: Book ID is required.");
+}
+$params = [$bookId];
 
-// Get book or default to first book
-$book = $books[$bookId] ?? $books[1];
-$book['cover'] = 'assets/images/books/' . $book['cover'];
+// Fetch Single Book Metadata
+// Join with genres to get the genre name
+$sql_book = "
+    SELECT 
+        b.*, 
+        g.name AS genre_name 
+    FROM 
+        books b
+    JOIN
+        genres g ON b.genre_id = g.genre_id
+    WHERE 
+        b.book_id = ?";
+$book = $db->fetch($sql_book, $params); 
 
-// Static reviews data
-$reviews = [
-    ['user_name' => 'Sarah Johnson', 'avatar' => 'https://via.placeholder.com/50', 'rating' => 5, 'date' => '2 days ago', 'review_text' => 'Absolutely mind-blowing! This book changed my perspective completely. The writing is brilliant and the story stays with you long after you finish reading.'],
-    ['user_name' => 'Mike Chen', 'avatar' => 'https://via.placeholder.com/50', 'rating' => 4, 'date' => '1 week ago', 'review_text' => 'Really enjoyed this one. Great character development and an engaging plot. Would definitely recommend to others.'],
-    ['user_name' => 'Emma Wilson', 'avatar' => 'https://via.placeholder.com/50', 'rating' => 5, 'date' => '2 weeks ago', 'review_text' => 'One of my all-time favorites! The author has such a unique voice and the themes are so relevant to today\'s world.']
-];
+if (!$book) {
+    die("Error: Book not found.");
+}
 
-// Static ratings breakdown
-$ratingsBreakdown = [5 => 45, 4 => 30, 3 => 15, 2 => 7, 1 => 3];
+// Fetch Aggregate Rating and Count
+$sql_rating = "
+    SELECT 
+        COUNT(r.review_id) AS total_reviews,
+        IFNULL(AVG(r.rating), 0) AS average_rating
+    FROM 
+        reviews r
+    WHERE 
+        r.book_id = ?";
+
+$rating_data = $db->fetch($sql_rating, $params); 
+
+// Process the fetched data for the frontend
+$book['rating'] = round($rating_data['average_rating'], 1); // Dynamic Rating
+$book['reviews'] = $rating_data['total_reviews'];         // Dynamic Count
+$book['cover'] = 'assets/images/books/' . $book['cover_image']; 
+
+// Fetch Individual Reviews
+$sql_reviews = "
+    SELECT 
+        r.*, 
+        u.full_name AS user_name,
+        u.profile_picture AS avatar
+    FROM 
+        reviews r
+    JOIN 
+        users u ON r.user_id = u.user_id
+    WHERE 
+        r.book_id = ?
+    ORDER BY 
+        r.created_at DESC
+";
+$reviews = $db->fetchAll($sql_reviews, $params); 
+
+// Fetch Ratings Breakdown
+// Count reviews per star level (1 to 5)
+$ratingsBreakdown = [];
+$sql_breakdown = "
+    SELECT 
+        rating, 
+        COUNT(review_id) AS count
+    FROM 
+        reviews
+    WHERE 
+        book_id = ?
+    GROUP BY 
+        rating
+    ORDER BY 
+        rating DESC";
+$breakdown_results = $db->fetchAll($sql_breakdown, $params);
+
+// Convert results to the required format (5 => percentage, 4 => percentage, etc.)
+$total_reviews_count = $book['reviews'];
+for ($i = 5; $i >= 1; $i--) {
+    $found = false;
+    foreach ($breakdown_results as $row) {
+        if ($row['rating'] == $i) {
+            // Calculate percentage
+            $ratingsBreakdown[$i] = $total_reviews_count > 0 ? 
+                                    round(($row['count'] / $total_reviews_count) * 100) : 0;
+            $found = true;
+            break;
+        }
+    }
+    if (!$found) {
+        $ratingsBreakdown[$i] = 0;
+    }
+}
 
 $pageTitle = htmlspecialchars($book['title']) . ' - Book Review Website';
+?>
+
+<?php 
+include 'includes/header.php';
 ?>
 
 <!-- Breadcrumb -->
@@ -127,9 +206,9 @@ $pageTitle = htmlspecialchars($book['title']) . ' - Book Review Website';
                         <tr>
                             <td class="text-muted">Genre:</td>
                             <td>
-                                <a href="browse.php?genre=<?php echo urlencode(strtolower(str_replace(' ', '-', $book['genre']))); ?>" 
+                                <a href="browse.php?genre=<?php echo urlencode(strtolower(str_replace(' ', '-', $book['genre_name']))); ?>" 
                                    class="badge bg-secondary text-decoration-none">
-                                    <?php echo htmlspecialchars($book['genre']); ?>
+                                    <?php echo htmlspecialchars($book['genre_name']); ?>
                                 </a>
                             </td>
                         </tr>
@@ -196,7 +275,7 @@ $pageTitle = htmlspecialchars($book['title']) . ' - Book Review Website';
                                     <?php for ($i = 1; $i <= 5; $i++): ?>
                                         <i class="fas fa-star <?php echo $i <= $review['rating'] ? 'text-warning' : 'text-muted'; ?> small"></i>
                                     <?php endfor; ?>
-                                    <span class="text-muted ms-2"><?php echo $review['date']; ?></span>
+                                    <span class="text-muted ms-2"><?php echo $review['created_at']; ?></span>
                                 </div>
                             </div>
                         </div>

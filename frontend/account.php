@@ -5,6 +5,65 @@ define('BOOK_REVIEW_APP', true);
 $pageTitle = 'My Account - Book Review Website';
 include 'includes/header.php';
 
+require_once __DIR__ . '/../config/db.php'; 
+$db = Database::getInstance();
+
+// Check if user is logged in
+$isLoggedIn = isset($_SESSION['user_id']); 
+$pageTitle = 'My Account - Book Review Website';
+
+if (!$isLoggedIn) {
+    // Redirect to login if not authenticated
+    header('Location: login.php'); 
+    exit;
+}
+
+$user_id = $_SESSION['user_id']; 
+
+// Fetch User Data (Dynamic Replacement for the static $user array)
+$sql_user = "
+    SELECT 
+        user_id, full_name, email, profile_picture, bio, created_at
+    FROM 
+        users
+    WHERE 
+        user_id = ?";
+$user = $db->fetch($sql_user, [$user_id]);
+
+if (!$user) {
+    // User deleted or session invalid, destroy session
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+
+// Fetch Dynamic Stats 
+$sql_stats = "
+    SELECT 
+        COUNT(review_id) AS total_reviews,
+        IFNULL(AVG(rating), 0) AS avg_rating_given
+    FROM 
+        reviews
+    WHERE 
+        user_id = ?";
+$stats = $db->fetch($sql_stats, [$user_id]);
+
+// Fetch Favourites Count
+$user['total_reviews'] = $stats['total_reviews'];
+$user['avg_rating_given'] = round($stats['avg_rating_given'], 1);
+$user['total_favorites'] = $db->fetch("SELECT COUNT(favorite_id) AS count FROM favorites WHERE user_id = ?", [$user_id])['count'];
+
+// Reading stats
+$readingStats = [
+    'books_read_this_year' => $user['total_reviews'], /* Using total reviews as a proxy */
+    'pages_read_this_year' => 0,
+    'reading_goal' => 50, // Default goal
+    'favorite_genre' => 'N/A', 
+    'reading_streak' => 0 
+];
+
+/* 
+
 // Static user data for demonstration
 $user = [
     'id' => 1,
@@ -32,6 +91,7 @@ $readingStats = [
 
 // Check if user is logged in (simulate login for demo)
 $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purposes
+*/
 ?>
 
 <div class="container my-5">
@@ -60,8 +120,8 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                 <?php endif; ?>
             </div>
             <h2><?php echo htmlspecialchars($user['full_name']); ?></h2>
-            <p class="text-muted">@<?php echo htmlspecialchars($user['username']); ?></p>
-            <p class="text-muted">Member since <?php echo $user['joined_date']; ?></p>
+            <p class="text-muted">@<?php echo htmlspecialchars($user['full_name']); ?></p>
+            <p class="text-muted">Member since <?php echo date('M d, Y', strtotime($user['created_at'])); ?></p>
             <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                 <i class="fas fa-edit me-2"></i>Edit Profile
             </button>
@@ -90,7 +150,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                     <div class="card text-center h-100">
                         <div class="card-body">
                             <i class="fas fa-book text-success fa-2x mb-2"></i>
-                            <h4><?php echo $readingStats['books_read_this_year']; ?></h4>
+                            <h4><?php echo $user['total_reviews']; ?></h4>
                             <small class="text-muted">Books Read This Year</small>
                         </div>
                     </div>
@@ -99,7 +159,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                     <div class="card text-center h-100">
                         <div class="card-body">
                             <i class="fas fa-fire text-orange fa-2x mb-2"></i>
-                            <h4><?php echo $readingStats['reading_streak']; ?></h4>
+                            <h4><?php echo $user['total_reviews']; ?></h4>
                             <small class="text-muted">Day Reading Streak</small>
                         </div>
                     </div>
@@ -184,11 +244,25 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                         </div>
                         <div class="card-body">
                             <p><?php echo nl2br(htmlspecialchars($user['bio'])); ?></p>
-                            <?php if ($user['location']): ?>
-                            <p><i class="fas fa-map-marker-alt me-2"></i><?php echo htmlspecialchars($user['location']); ?></p>
+    
+                            <?php 
+                            // CORRECT LOCATION CHECK: Uses isset() for safety and fully closes the conditional
+                            if (isset($user['location']) && !empty($user['location'])): 
+                            ?>
+                            <p>
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <?php echo htmlspecialchars($user['location']); ?>
+                            </p>
                             <?php endif; ?>
-                            <?php if ($user['website']): ?>
-                            <p><i class="fas fa-globe me-2"></i><a href="<?php echo htmlspecialchars($user['website']); ?>" target="_blank">Website</a></p>
+
+                            <?php 
+                            // CORRECT WEBSITE CHECK: Uses isset() for safety and fully closes the conditional
+                            if (isset($user['website']) && !empty($user['website'])): 
+                            ?>
+                            <p>
+                                <i class="fas fa-globe me-2"></i>
+                                <a href="<?php echo htmlspecialchars($user['website']); ?>" target="_blank">Website</a>
+                            </p>
                             <?php endif; ?>
                         </div>
                     </div>
