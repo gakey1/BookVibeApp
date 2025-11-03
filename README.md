@@ -99,7 +99,7 @@ BookVibeApp/
 ## Database Configuration
 
 The application includes intelligent environment detection:
-- **XAMPP**: `localhost:3306`, user: `root`, password: (empty)
+- **XAMPP**: `localhost:3307`, user: `root`, password: (empty)
 - **MAMP**: `localhost:8889`, user: `root`, password: `root`
 - **Custom**: Modify `config/db.php` for other setups
 
