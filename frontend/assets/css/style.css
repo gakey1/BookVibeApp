@@ -206,15 +206,23 @@ a:hover {
     background: var(--bg-light);
 }
 
-/* Override Bootstrap Primary Button to Purple Theme */
-.btn-primary {
+/* Override Bootstrap Primary Button to Purple Theme - NUCLEAR */
+.btn-primary,
+.btn.btn-primary,
+button.btn-primary,
+a.btn-primary {
     background: var(--primary-purple) !important;
+    background-color: var(--primary-purple) !important;
     border-color: var(--primary-purple) !important;
     color: white !important;
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn.btn-primary:hover,
+button.btn-primary:hover,
+a.btn-primary:hover {
     background: var(--purple-dark) !important;
+    background-color: var(--purple-dark) !important;
     border-color: var(--purple-dark) !important;
     color: white !important;
 }
@@ -222,8 +230,15 @@ a:hover {
 .btn-primary:focus,
 .btn-primary:active,
 .btn-primary.active,
-.btn-primary.focus {
+.btn-primary.focus,
+.btn.btn-primary:focus,
+.btn.btn-primary:active,
+button.btn-primary:focus,
+button.btn-primary:active,
+a.btn-primary:focus,
+a.btn-primary:active {
     background: var(--purple-dark) !important;
+    background-color: var(--purple-dark) !important;
     border-color: var(--purple-dark) !important;
     color: white !important;
     box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
@@ -334,8 +349,18 @@ a:hover {
     box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
 }
 
-/* Override Bootstrap List Group Active State */
-.list-group-item.active {
+/* Override Bootstrap List Group Active State - AGGRESSIVE */
+.list-group-item.active,
+.list-group-item.active:hover,
+.list-group-item.active:focus {
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    color: white !important;
+    z-index: 2;
+}
+
+/* Force override any blue list group items */
+.list-group .list-group-item.active {
     background-color: var(--primary-purple) !important;
     border-color: var(--primary-purple) !important;
     color: white !important;
@@ -381,6 +406,7 @@ a:hover {
     border-color: var(--primary-purple) !important;
     color: white !important;
 }
+
 
 /* Book Cards */
 .book-card {
