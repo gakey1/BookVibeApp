@@ -349,6 +349,38 @@ a:hover {
     box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
 }
 
+/* Override Form Check Inputs (Radio/Checkbox) */
+.form-check-input:checked {
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+}
+
+.form-check-input:focus {
+    border-color: var(--primary-purple) !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Override Bootstrap Pagination */
+.pagination .page-link {
+    color: var(--primary-purple) !important;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--purple-light) !important;
+    border-color: var(--primary-purple) !important;
+    color: var(--purple-dark) !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    color: white !important;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--text-medium) !important;
+}
+
 /* Override Bootstrap List Group Active State - AGGRESSIVE */
 .list-group-item.active,
 .list-group-item.active:hover,
