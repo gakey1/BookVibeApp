@@ -1,8 +1,8 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
 
-$pageTitle = 'Browse Books - Book Review Website';
+$pageTitle = 'Browse Books - BookVibe';
 include 'includes/header.php';
 
 // Static book data using existing images
