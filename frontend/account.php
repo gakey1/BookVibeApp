@@ -1,16 +1,15 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
 
-$pageTitle = 'My Account - Book Review Website';
+$pageTitle = 'My Account - BookVibe';
 include 'includes/header.php';
 
 require_once __DIR__ . '/../config/db.php'; 
 $db = Database::getInstance();
 
 // Check if user is logged in
-$isLoggedIn = isset($_SESSION['user_id']); 
-$pageTitle = 'My Account - Book Review Website';
+$isLoggedIn = isset($_SESSION['user_id']);
 
 if (!$isLoggedIn) {
     // Redirect to login if not authenticated
@@ -461,7 +460,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="editUsername" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="editUsername" value="<?php echo htmlspecialchars($user['username']); ?>">
+                            <input type="text" class="form-control" id="editUsername" value="<?php echo htmlspecialchars($user['email']); ?>" placeholder="Username not available">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -475,11 +474,11 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="editLocation" class="form-label">Location</label>
-                            <input type="text" class="form-control" id="editLocation" value="<?php echo htmlspecialchars($user['location']); ?>">
+                            <input type="text" class="form-control" id="editLocation" value="<?php echo isset($user['location']) ? htmlspecialchars($user['location']) : ''; ?>" placeholder="Add your location">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="editWebsite" class="form-label">Website</label>
-                            <input type="url" class="form-control" id="editWebsite" value="<?php echo htmlspecialchars($user['website']); ?>">
+                            <input type="url" class="form-control" id="editWebsite" value="<?php echo isset($user['website']) ? htmlspecialchars($user['website']) : ''; ?>" placeholder="Add your website">
                         </div>
                     </div>
                 </form>
@@ -495,8 +494,9 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
 <script>
 // Save profile changes
 function saveProfile() {
-    // Static demo - would make API call here
-    alert('Profile updated successfully! (Demo mode - changes not actually saved)');
+    // TODO: Send AJAX request to Tracy's profile update API
+    // Ready for integration when backend API is available
+    alert('Profile update ready for Tracy\'s API integration');
     document.querySelector('[data-bs-dismiss="modal"]').click();
 }
 
@@ -512,16 +512,16 @@ document.getElementById('changePasswordForm')?.addEventListener('submit', functi
         return;
     }
     
-    // Static demo - would make API call here
-    alert('Password updated successfully! (Demo mode - not actually changed)');
+    // TODO: Send AJAX request to Tracy's password change API
+    alert('Password change ready for Tracy\'s API integration');
     this.reset();
 });
 
 // Settings checkboxes
 document.querySelectorAll('.form-check-input').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
-        // Static demo - would save settings here
-        console.log(`Setting ${this.id} changed to:`, this.checked);
+        // TODO: Send AJAX request to Tracy's settings API
+        console.log(`Setting ${this.id} ready for API integration:`, this.checked);
     });
 });
 </script>
@@ -530,6 +530,15 @@ document.querySelectorAll('.form-check-input').forEach(checkbox => {
 .activity-item {
     border-left: 3px solid #e9ecef;
     padding-left: 15px;
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    border-left-color: #7C3AED;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: -5px 0;
 }
 
 .stat-item {
@@ -540,6 +549,81 @@ document.querySelectorAll('.form-check-input').forEach(checkbox => {
 
 .text-orange {
     color: #fd7e14 !important;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.profile-avatar img, .profile-avatar > div {
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover img, .profile-avatar:hover > div {
+    transform: scale(1.05);
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: #7C3AED;
+    color: #7C3AED;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: transparent;
+    border-bottom-color: #7C3AED;
+    color: #7C3AED;
+    font-weight: 600;
+}
+
+.progress-bar {
+    background: linear-gradient(45deg, #7C3AED, #A855F7);
+    transition: width 0.6s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #7C3AED, #A855F7);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #6D28D9, #9333EA);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
+}
+
+.form-control:focus {
+    border-color: #7C3AED;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: #7C3AED;
+    border-color: #7C3AED;
+}
+
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .profile-avatar {
+        margin-bottom: 2rem;
+    }
 }
 </style>
 
