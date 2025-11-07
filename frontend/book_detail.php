@@ -135,11 +135,22 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
             <!-- Action Buttons -->
             <div class="d-grid gap-2 mt-4">
                 <?php if (isset($_SESSION['user_id'])): ?>
-                <button class="btn btn-primary btn-lg" onclick="addToFavorites(<?php echo $book['book_id']; ?>)">
-                    <i class="fas fa-heart me-2"></i>Add to Favorites
-                </button>
+                    <?php 
+                    // Check if book is already favorited
+                    $fav_check = $pdo->prepare("SELECT favorite_id FROM favorites WHERE user_id = ? AND book_id = ?");
+                    $fav_check->execute([$_SESSION['user_id'], $book['book_id']]);
+                    $is_favorited = $fav_check->fetch();
+                    ?>
+                    <button class="btn btn-primary btn-lg favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" 
+                            data-book-id="<?php echo $book['book_id']; ?>">
+                        <?php if ($is_favorited): ?>
+                            <i class="fas fa-heart text-danger me-2"></i>Favorited
+                        <?php else: ?>
+                            <i class="far fa-heart me-2"></i>Add to Favorites
+                        <?php endif; ?>
+                    </button>
                 <?php else: ?>
-                <a href="login.php" class="btn btn-primary btn-lg">
+                <a href="../backend/login.php" class="btn btn-primary btn-lg">
                     <i class="fas fa-sign-in-alt me-2"></i>Login to Save
                 </a>
                 <?php endif; ?>
@@ -188,16 +199,16 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
                             <td><?php echo htmlspecialchars($book['publisher']); ?></td>
                         </tr>
                         <?php endif; ?>
-                        <?php if ($book['year']): ?>
+                        <?php if ($book['publication_year']): ?>
                         <tr>
                             <td class="text-muted">Year:</td>
-                            <td><?php echo htmlspecialchars($book['year']); ?></td>
+                            <td><?php echo htmlspecialchars($book['publication_year']); ?></td>
                         </tr>
                         <?php endif; ?>
-                        <?php if ($book['pages'] && $book['pages'] > 0): ?>
+                        <?php if ($book['page_count'] && $book['page_count'] > 0): ?>
                         <tr>
                             <td class="text-muted">Pages:</td>
-                            <td><?php echo number_format($book['pages']); ?></td>
+                            <td><?php echo number_format($book['page_count']); ?></td>
                         </tr>
                         <?php endif; ?>
                     </table>
