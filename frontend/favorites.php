@@ -138,14 +138,8 @@ if ($totalBooks > 0) {
                 </button>
                 <h6 class="book-title"><?php echo htmlspecialchars($book['title']); ?></h6>
                 <p class="book-author"><?php echo htmlspecialchars($book['author']); ?></p>
-                <div class="book-rating">
-                    <div class="stars">
-                        <?php 
-                        $rating = $book['avg_rating'] ? round($book['avg_rating']) : 0;
-                        for ($i = 1; $i <= 5; $i++): ?>
-                            <i class="fas fa-star star <?php echo $i <= $rating ? 'filled' : ''; ?>"></i>
-                        <?php endfor; ?>
-                    </div>
+                <div class="book-rating" data-rating="<?php echo $book['avg_rating'] ? $book['avg_rating'] : 0; ?>">
+                    <!-- Stars will be updated by JavaScript -->
                     <span class="rating-text"><?php echo $book['avg_rating'] ? number_format($book['avg_rating'], 1) : 'N/A'; ?> (<?php echo number_format($book['review_count']); ?>)</span>
                 </div>
                 <div class="book-meta">

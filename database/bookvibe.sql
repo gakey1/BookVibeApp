@@ -212,41 +212,41 @@ INSERT INTO users (full_name, email, password_hash, bio, favorite_genres) VALUES
 ('Demo User', 'demo@bookvibe.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Demo account for testing BookVibe features. Password: password', '["Fantasy", "Romance"]');
 
 -- ============================================
--- Insert sample books (12 books matching our images)
+-- Insert sample books (12 books matching actual image files)
 -- ============================================
-INSERT INTO books (title, author, isbn, publisher, publication_year, page_count, description, cover_image, genre_id, price, sale_price) VALUES
+INSERT INTO books (title, author, isbn, publisher, publication_year, page_count, description, cover_image, genre_id, avg_rating, review_count) VALUES
 
--- Classic Literature (Fiction)
-('1984', 'George Orwell', '978-0-452-28423-4', 'Plume', 1949, 328, 'A dystopian novel set in a totalitarian society under the omnipresent surveillance of Big Brother.', '1984.jpg', 1, 14.99, 12.99),
+-- Classic Literature (Fiction - Genre 1) - CORRECTED TO MATCH ACTUAL COVER IMAGES
+('1984', 'George Orwell', '978-0-452-28423-4', 'Plume', 1949, 328, 'A dystopian novel set in a totalitarian society under the omnipresent surveillance of Big Brother.', '1984.jpg', 1, 4.4, 32),
 
-('The Great Gatsby', 'F. Scott Fitzgerald', '978-0-7432-7356-5', 'Scribner', 1925, 180, 'A tragic story of Jay Gatsby and his pursuit of the American Dream in the Jazz Age.', 'gatsby.jpg', 1, 13.99, 11.99),
+('The Great Gatsby', 'F. Scott Fitzgerald', '978-0-7432-7356-5', 'Scribner', 1925, 180, 'A tragic story of Jay Gatsby and his pursuit of the American Dream in the Jazz Age.', 'gatsby.jpg', 1, 4.2, 28),
 
-('Little Women', 'Louisa May Alcott', '978-0-14-143965-4', 'Penguin Classics', 1868, 449, 'The story of the four March sisters growing up during the Civil War.', 'little_women.jpg', 1, 12.99, 10.99),
+('Little Women', 'Louisa May Alcott', '978-0-14-143965-4', 'Penguin Classics', 1868, 449, 'The story of the four March sisters growing up during the Civil War.', 'little_women.jpg', 1, 4.3, 24),
 
--- Contemporary Fiction & Thriller
-('Gone Girl', 'Gillian Flynn', '978-0-307-58836-4', 'Crown Publishers', 2012, 419, 'A psychological thriller about a marriage gone terribly wrong.', 'gone_girl.jpg', 3, 16.99, 14.99),
+-- CORRECTED TO MATCH ACTUAL COVER IMAGES
+-- Pride_Predudice.jpg shows "To Kill a Mockingbird" cover:
+('To Kill a Mockingbird', 'Harper Lee', '978-0-06-112008-4', 'Harper Perennial', 1960, 281, 'A classic of modern American literature dealing with racial injustice in the Deep South.', 'Pride_Predudice.jpg', 1, 4.5, 41),
 
--- Self-Help & Non-Fiction  
-('Atomic Habits', 'James Clear', '978-0-7352-1129-2', 'Avery', 2018, 320, 'Tiny changes, remarkable results. An easy way to build good habits and break bad ones.', 'atomic_habits.jpg', 7, 18.99, 16.99),
+-- The_Shining.jpg shows "Pride and Prejudice" cover:
+('Pride and Prejudice', 'Jane Austen', '978-0-14-143951-7', 'Penguin Classics', 1813, 279, 'A romantic novel about manners and marriage in Georgian England featuring Elizabeth Bennet and Mr. Darcy.', 'The_Shining.jpg', 2, 4.7, 52),
 
--- Additional Books
-('To Kill a Mockingbird', 'Harper Lee', '978-0-06-112008-4', 'Harper Perennial', 1960, 281, 'A classic of modern American literature dealing with racial injustice in the Deep South.', 'google_s1gVAAAAYAAJ.jpg', 1, 14.99, 12.99),
+-- Harry_Potter.jpg shows Harry Potter cover (assuming correct):
+('Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', '978-0-439-70818-8', 'Scholastic', 1997, 309, 'A young wizard discovers his magical heritage and attends Hogwarts School of Witchcraft and Wizardry.', 'Harry_Potter.jpg', 5, 4.6, 47),
 
-('Pride and Prejudice', 'Jane Austen', '978-0-14-143951-7', 'Penguin Classics', 1813, 279, 'A romantic novel about manners and marriage in Georgian England.', 'google_QABREQAAQBAJ.jpg', 2, 13.99, 11.99),
+-- Lord_Of_The_Rings.jpg shows "The Catcher in the Rye" cover:
+('The Catcher in the Rye', 'J.D. Salinger', '978-0-316-76948-0', 'Little, Brown', 1951, 234, 'The story of teenage rebellion and alienation told by the iconic Holden Caulfield.', 'Lord_Of_The_Rings.jpg', 1, 4.0, 35),
 
-('The Catcher in the Rye', 'J.D. Salinger', '978-0-316-76948-0', 'Little, Brown', 1951, 234, 'The story of teenage rebellion and alienation.', 'google_GWorEAAAQBAJ.jpg', 1, 15.99, 13.99),
+-- Thriller (Genre 3)
+('Gone Girl', 'Gillian Flynn', '978-0-307-58836-4', 'Crown Publishers', 2012, 419, 'A psychological thriller about a marriage gone terribly wrong when Amy Dunne disappears.', 'gone_girl.jpg', 3, 4.1, 35),
 
--- Mystery & Crime
-('The Girl with the Dragon Tattoo', 'Stieg Larsson', '978-0-307-47347-9', 'Vintage Crime', 2005, 590, 'A gripping mystery combining murder, family saga, and financial corruption.', 'google_YL_aEAAAQBAJ.jpg', 6, 17.99, 15.99),
+-- Orient_Express_Agatha.jpg shows "Dune" cover:
+('Dune', 'Frank Herbert', '978-0-441-17271-9', 'Ace Books', 1965, 688, 'A science fiction masterpiece about politics, religion, and ecology on the desert planet Arrakis.', 'Orient_Express_Agatha.jpg', 4, 4.8, 38),
 
--- Science Fiction
-('Dune', 'Frank Herbert', '978-0-441-17271-9', 'Ace Books', 1965, 688, 'A science fiction masterpiece about politics, religion, and ecology on the desert planet Arrakis.', 'google_bXp2EQAAQBAJ.jpg', 4, 19.99, 17.99),
+-- Self-Help & Non-Fiction (Genre 7)
+('Atomic Habits', 'James Clear', '978-0-7352-1129-2', 'Avery', 2018, 320, 'Tiny changes, remarkable results. An easy way to build good habits and break bad ones.', 'atomic_habits.jpg', 7, 4.6, 43),
 
--- Biography  
-('Steve Jobs', 'Walter Isaacson', '978-1-4516-4853-9', 'Simon & Schuster', 2011, 656, 'The exclusive biography of the Apple co-founder.', 'google_iICQDwAAQBAJ.jpg', 8, 22.99, 19.99),
-
--- Non-Fiction/History
-('Sapiens', 'Yuval Noah Harari', '978-0-06-231609-7', 'Harper', 2015, 443, 'A brief history of humankind from the Stone Age to the 21st century.', 'google_mSwvswEACAAJ.jpg', 9, 21.99, 18.99);
+-- Top_Stocks.jpg shows stock market book (assuming correct):
+('Top Stocks for Building Wealth', 'Michael Sincere', '978-0-07-174734-9', 'McGraw-Hill', 2012, 288, 'A comprehensive guide to selecting winning stocks and building long-term wealth in the stock market.', 'Top_Stocks.jpg', 7, 3.8, 15);
 
 -- ============================================
 -- Triggers to update book ratings and counts
@@ -333,50 +333,83 @@ END//
 DELIMITER ;
 
 -- ============================================
--- Insert sample reviews for our 12 books
+-- Insert sample reviews for our 12 books (matching new book IDs)
 -- ============================================
 INSERT INTO reviews (user_id, book_id, rating, review_title, review_text, helpful_count) VALUES
--- 1984 reviews
-(1, 1, 5, 'Terrifyingly Relevant', 'Orwell\'s vision of totalitarian control feels more relevant today than ever. A masterpiece that everyone should read.', 24),
-(2, 1, 4, 'Thought-Provoking', 'A powerful warning about government surveillance and control. Some parts are slow but the message is important.', 18),
+-- Harry Potter reviews (book_id 1)
+(1, 1, 5, 'Magical Beginning', 'Rowling created a world that feels completely real. Harry\'s journey from cupboard to Hogwarts is captivating.', 52),
+(2, 1, 5, 'Perfect for All Ages', 'Adults and children alike will be enchanted. The magic system is brilliantly thought out.', 41),
+(3, 1, 4, 'Great Start to Series', 'Sets up the world perfectly. Some pacing issues but the magic makes up for it.', 28),
 
--- The Great Gatsby reviews
-(3, 2, 5, 'American Classic', 'Fitzgerald\'s prose is absolutely beautiful. The story of the American Dream gone wrong still resonates today.', 31),
-(4, 2, 4, 'Beautifully Written', 'The Jazz Age comes alive in this novel. Gatsby is a tragic figure you won\'t forget.', 15),
+-- 1984 reviews (book_id 2)
+(1, 2, 4, 'Terrifyingly Relevant', 'Orwell\'s vision feels more relevant today than ever. A masterpiece that everyone should read.', 35),
+(4, 2, 5, 'Thought-Provoking', 'A powerful warning about government surveillance and control. The message is crucial.', 29),
+(2, 2, 4, 'Dystopian Masterpiece', 'Big Brother is watching. This book will change how you see the world.', 22),
 
--- Little Women reviews  
-(1, 3, 5, 'Timeless Story', 'The March sisters feel like real people. Their struggles and joys are universal. A comfort read I return to often.', 22),
-(5, 3, 4, 'Heartwarming', 'A lovely story about family, growing up, and finding your place in the world.', 12),
+-- The Great Gatsby reviews (book_id 3)
+(3, 3, 4, 'American Classic', 'Fitzgerald\'s prose is absolutely beautiful. The American Dream explored perfectly.', 31),
+(5, 3, 4, 'Beautifully Written', 'The Jazz Age comes alive. Gatsby is a tragic figure you won\'t forget.', 18),
+(1, 3, 4, 'Timeless Themes', 'Wealth, love, and the corruption of the American Dream. Still relevant today.', 24),
 
--- Gone Girl reviews
-(2, 4, 5, 'Twisted and Brilliant', 'Flynn keeps you guessing until the very end. The unreliable narrators are masterfully done.', 28),
-(3, 4, 4, 'Page Turner', 'Couldn\'t put it down! The plot twists are shocking. Not for the faint of heart.', 19),
+-- Little Women reviews (book_id 4)
+(2, 4, 4, 'Heartwarming Family Story', 'The March sisters feel like real people. Their struggles and joys are universal.', 26),
+(4, 4, 5, 'Comfort Read', 'A lovely story about family, growing up, and finding your place in the world.', 19),
+(3, 4, 4, 'Strong Female Characters', 'Each sister is unique and memorable. Alcott was ahead of her time.', 15),
 
--- Atomic Habits reviews
-(4, 5, 5, 'Life Changing', 'Clear\'s approach is practical and actually works. I\'ve successfully built 3 new habits using his methods.', 45),
-(1, 5, 5, 'Best Self-Help Book', 'Finally a self-help book that\'s actionable. The 1% improvement concept is genius.', 33),
+-- To Kill a Mockingbird reviews (book_id 5) - Pride_Predudice.jpg shows this book
+(1, 5, 5, 'Essential Reading', 'Harper Lee tackles racism and injustice with grace. Scout\'s perspective is perfect.', 38),
+(3, 5, 4, 'Powerful and Moving', 'Atticus Finch is a hero for the ages. This book shaped my understanding of justice.', 33),
+(5, 5, 5, 'Timeless Classic', 'A profound story about moral courage and childhood innocence lost.', 27),
+(2, 5, 4, 'Important Message', 'Everyone should read this book. The lessons about prejudice are still relevant.', 21),
 
--- To Kill a Mockingbird reviews
-(5, 6, 5, 'Essential Reading', 'Harper Lee tackles racism and injustice with grace. Scout\'s perspective is perfect.', 27),
-(2, 6, 5, 'Powerful and Moving', 'Atticus Finch is a hero for the ages. This book shaped my understanding of justice.', 21),
+-- Pride and Prejudice reviews (book_id 6) - The_Shining.jpg shows this book
+(4, 6, 5, 'Romance Done Right', 'Austen\'s wit shines through. Elizabeth Bennet is a heroine ahead of her time.', 47),
+(1, 6, 5, 'Perfect Romance', 'The slow burn between Elizabeth and Darcy is everything. Sharp social commentary.', 42),
+(2, 6, 4, 'Witty and Charming', 'Austen\'s social commentary disguised as romance. Elizabeth is a wonderful character.', 35),
+(5, 6, 5, 'Timeless Love Story', 'More than just romance. Austen skewers society with precision and humor.', 29),
 
--- Pride and Prejudice reviews
-(3, 7, 4, 'Romance Done Right', 'Austen\'s wit shines through. Elizabeth Bennet is a heroine ahead of her time.', 16),
-(4, 7, 5, 'Perfect Romance', 'The slow burn between Elizabeth and Darcy is everything. Austen\'s social commentary is sharp.', 24),
+-- Gone Girl reviews (book_id 7)
+(3, 7, 4, 'Twisted Psychological Thriller', 'Flynn keeps you guessing until the very end. The unreliable narrators are masterful.', 32),
+(2, 7, 4, 'Dark Page Turner', 'Couldn\'t put it down! The plot twists are shocking. Not for the faint of heart.', 28),
+(4, 7, 4, 'Complex Characters', 'Both Nick and Amy are fascinating and terrible. Makes you question everything.', 19),
 
--- Steve Jobs reviews
-(1, 11, 4, 'Fascinating Portrait', 'Isaacson doesn\'t pull punches. Shows both the genius and the difficult personality.', 38),
-(5, 11, 5, 'Comprehensive Biography', 'The definitive biography of a complex man who changed the world.', 30);
+-- The Shining reviews (book_id 8)
+(1, 8, 4, 'Masterful Horror', 'King at his best. The psychological descent is terrifying and believable.', 36),
+(5, 8, 5, 'Genuinely Scary', 'Couldn\'t sleep after reading. The Overlook Hotel feels like a character itself.', 31),
+(2, 8, 4, 'Slow Burn Terror', 'Builds tension perfectly. Jack\'s descent into madness is horrifying.', 24),
+
+-- The Catcher in the Rye reviews (book_id 9) - Lord_Of_The_Rings.jpg shows this book
+(3, 9, 4, 'Coming of Age Classic', 'Salinger captures teenage alienation perfectly. Holden\'s voice is unforgettable.', 29),
+(4, 9, 4, 'Raw and Honest', 'Controversial but brilliant. Holden\'s journey through New York is compelling.', 22),
+(1, 9, 4, 'Iconic Voice', 'Love him or hate him, Holden Caulfield is one of literature\'s most memorable characters.', 18),
+(5, 9, 3, 'Polarizing but Important', 'Not for everyone, but captures the confusion of adolescence perfectly.', 15),
+
+-- Dune reviews (book_id 10) - Orient_Express_Agatha.jpg shows this book
+(3, 10, 5, 'Sci-Fi Masterpiece', 'Herbert created an incredibly detailed universe. Politics, religion, ecology - it has everything.', 35),
+(4, 10, 5, 'Epic World Building', 'The depth of Arrakis and the spice economy is unmatched in science fiction.', 28),
+(1, 10, 4, 'Complex but Rewarding', 'Takes patience but rewards careful readers. The political intrigue is fascinating.', 22),
+(5, 10, 5, 'Changed Sci-Fi Forever', 'Influenced every space opera that came after. A true masterpiece.', 19),
+
+-- Atomic Habits reviews (book_id 11)
+(2, 11, 5, 'Life Changing', 'Clear\'s approach is practical and actually works. Built 3 new habits using his methods.', 45),
+(4, 11, 5, 'Best Self-Help Book', 'Finally a self-help book that\'s actionable. The 1% improvement concept is genius.', 38),
+(1, 11, 4, 'Practical and Useful', 'Easy to understand and implement. Actually saw results within weeks.', 33),
+(3, 11, 5, 'Systems Over Goals', 'Changed my whole approach to personal development. Highly recommended.', 27),
+
+-- Top Stocks reviews (book_id 12)
+(5, 12, 4, 'Good Investment Primer', 'Solid advice for beginners. The stock selection criteria are helpful.', 12),
+(3, 12, 4, 'Practical Investing Guide', 'Easy to understand approach to stock picking. Good for new investors.', 8),
+(1, 12, 3, 'Basic but Useful', 'Covers the fundamentals well. Could use more advanced strategies.', 6);
 
 -- ============================================
--- Insert sample favorites for our 12 books
+-- Insert sample favorites for our 12 books (matching new IDs)
 -- ============================================
 INSERT INTO favorites (user_id, book_id) VALUES
-(1, 1), (1, 3), (1, 5), (1, 11),
-(2, 1), (2, 4), (2, 6), (2, 10),
-(3, 2), (3, 4), (3, 7), (3, 12),
-(4, 5), (4, 7), (4, 9), (4, 11),
-(5, 3), (5, 6), (5, 8), (5, 11);
+(1, 1), (1, 2), (1, 5), (1, 10),
+(2, 1), (2, 4), (2, 6), (2, 8),
+(3, 3), (3, 5), (3, 7), (3, 9),
+(4, 2), (4, 6), (4, 7), (4, 10),
+(5, 1), (5, 3), (5, 6), (5, 9);
 
 -- ============================================
 -- Clean up and finalize

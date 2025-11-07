@@ -156,7 +156,7 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
                 <?php endif; ?>
                 
                 <div class="btn-group" role="group">
-                    <button class="btn btn-outline-secondary">
+                    <button class="btn btn-outline-secondary" onclick="showComingSoon(event)">
                         <i class="fas fa-book-reader me-2"></i>Preview
                     </button>
                     <button class="btn btn-outline-secondary" onclick="shareBook()">
@@ -174,10 +174,8 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
             
             <!-- Rating -->
             <div class="d-flex align-items-center mb-3">
-                <div class="rating me-2">
-                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                        <i class="fas fa-star <?php echo $i <= $book['rating'] ? 'text-warning' : 'text-muted'; ?>"></i>
-                    <?php endfor; ?>
+                <div class="rating me-2" data-rating="<?php echo $book['rating']; ?>">
+                    <!-- Stars will be updated by JavaScript -->
                 </div>
                 <span class="me-3"><?php echo number_format($book['rating'], 1); ?> out of 5</span>
                 <span class="text-muted">(<?php echo number_format($book['reviews']); ?> reviews)</span>
@@ -283,10 +281,8 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
                                  class="rounded-circle me-3" width="50" height="50">
                             <div>
                                 <h6 class="mb-0"><?php echo htmlspecialchars($review['user_name']); ?></h6>
-                                <div class="rating">
-                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <i class="fas fa-star <?php echo $i <= $review['rating'] ? 'text-warning' : 'text-muted'; ?> small"></i>
-                                    <?php endfor; ?>
+                                <div class="rating" data-rating="<?php echo $review['rating']; ?>">
+                                    <!-- Stars will be updated by JavaScript -->
                                     <span class="text-muted ms-2"><?php echo $review['created_at']; ?></span>
                                 </div>
                             </div>

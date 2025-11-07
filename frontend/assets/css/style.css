@@ -492,6 +492,8 @@ a:hover {
 
 .star {
     font-size: 1rem;
+    position: relative;
+    display: inline-block;
 }
 
 .star.filled {
@@ -500,6 +502,29 @@ a:hover {
 
 .star.empty {
     color: #D1D5DB;
+}
+
+.star.half {
+    color: #D1D5DB;
+    position: relative;
+}
+
+.star.half:before {
+    content: '\2605';
+    position: absolute;
+    left: 0;
+    color: var(--star-gold);
+    width: 50%;
+    overflow: hidden;
+}
+
+/* Alternative half star approach using clip-path */
+.star.half-filled {
+    background: linear-gradient(90deg, var(--star-gold) 50%, #D1D5DB 50%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--star-gold);
 }
 
 .rating-number {
