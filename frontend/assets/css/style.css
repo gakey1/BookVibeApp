@@ -261,6 +261,46 @@ a:hover {
     color: var(--purple-dark) !important;
 }
 
+/* Override Bootstrap Navigation & Dropdown Colors */
+.nav-link:hover,
+.nav-link:focus {
+    color: var(--primary-purple) !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--purple-light) !important;
+    color: var(--purple-dark) !important;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: var(--primary-purple) !important;
+    color: white !important;
+}
+
+/* Override Bootstrap Links */
+a {
+    color: var(--primary-purple);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--purple-dark);
+    text-decoration: underline;
+}
+
+/* Override Bootstrap Form Focus Colors */
+.form-control:focus {
+    border-color: var(--primary-purple) !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+.form-select:focus {
+    border-color: var(--primary-purple) !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
 /* Book Cards */
 .book-card {
     background: white;
