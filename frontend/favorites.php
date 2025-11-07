@@ -155,7 +155,7 @@ if ($totalBooks > 0) {
         <div class="col-xl-2-4 col-lg-3 col-md-4 col-6 mb-4 favorite-item" data-genre="<?php echo strtolower(str_replace(' ', '-', $book['genre_name'])); ?>" id="favorite-<?php echo $book['book_id']; ?>">
             <div class="book-card position-relative" onclick="window.location.href='book_detail.php?id=<?php echo $book['book_id']; ?>'">
                 <img src="assets/images/books/<?php echo htmlspecialchars($book['cover_image']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover">
-                <button class="btn btn-sm btn-danger remove-favorite position-absolute" onclick="event.stopPropagation(); removeFavorite(<?php echo $book['book_id']; ?>, <?php echo $book['favorite_id']; ?>)" title="Remove from favorites" style="top: 10px; right: 10px; z-index: 10;">
+                <button class="btn btn-sm remove-favorite position-absolute" onclick="event.stopPropagation(); removeFavorite(<?php echo $book['book_id']; ?>, <?php echo $book['favorite_id']; ?>)" title="Remove from favorites" style="top: 10px; right: 10px; z-index: 10;">
                     <i class="fas fa-heart"></i>
                 </button>
                 <h6 class="book-title"><?php echo htmlspecialchars($book['title']); ?></h6>
@@ -316,7 +316,24 @@ function removeFavorite(bookId, favoriteId) {
 <style>
 .remove-favorite {
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-purple, #7C3AED);
+    backdrop-filter: blur(5px);
+}
+
+.remove-favorite:hover {
+    background: rgba(124, 58, 237, 0.1);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: var(--purple-dark, #5B21B6);
 }
 
 .book-card:hover .remove-favorite {
