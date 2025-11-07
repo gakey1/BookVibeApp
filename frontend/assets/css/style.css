@@ -220,11 +220,29 @@ a:hover {
 }
 
 .btn-primary:focus,
-.btn-primary:active {
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary.focus {
     background: var(--purple-dark) !important;
     border-color: var(--purple-dark) !important;
     color: white !important;
     box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Override any blue focus states that might appear */
+:focus {
+    outline: none !important;
+}
+
+*:focus,
+*:active {
+    outline: none !important;
+}
+
+button:focus,
+button:active {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Override Other Bootstrap Buttons for Theme Consistency */
@@ -279,6 +297,21 @@ a:hover {
     color: white !important;
 }
 
+/* Override Dropdown Toggle Active/Focus States */
+.dropdown-toggle:focus,
+.dropdown-toggle:active,
+.dropdown-toggle.show {
+    color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+.nav-link.dropdown-toggle:focus,
+.nav-link.dropdown-toggle:active,
+.nav-link.dropdown-toggle.show {
+    color: var(--primary-purple) !important;
+}
+
 /* Override Bootstrap Links */
 a {
     color: var(--primary-purple);
@@ -327,6 +360,26 @@ a:hover {
 
 .border-primary {
     border-color: var(--primary-purple) !important;
+}
+
+/* Aggressive override of ALL possible blue elements */
+.bg-primary {
+    background-color: var(--primary-purple) !important;
+}
+
+.table-primary {
+    background-color: var(--purple-light) !important;
+}
+
+.btn-outline-primary {
+    color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    color: white !important;
 }
 
 /* Book Cards */
