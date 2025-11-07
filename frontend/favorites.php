@@ -67,48 +67,51 @@ if ($totalBooks > 0) {
     <?php else: ?>
     
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <h1><i class="fas fa-heart text-danger me-2"></i>My Favorites</h1>
-            <p class="text-muted">Books you've saved for later reading</p>
+            <h1 class="mb-2">My Favorites</h1>
+            <p class="text-muted mb-0">Your personal collection of beloved books</p>
+            <small class="text-muted"><?php echo number_format($totalBooks); ?> books saved</small>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-purple" onclick="exportFavorites()">
+                <i class="fas fa-download me-2"></i>Export List
+            </button>
+        </div>
+    </div>
+    
+    <!-- Sort and Filter Controls -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex gap-3">
+            <div>
+                <label class="form-label mb-1">Sort by:</label>
+                <select class="form-select form-select-sm" style="width: auto;" id="sortFavorites">
+                    <option value="recent">Date Added</option>
+                    <option value="title">Title</option>
+                    <option value="author">Author</option>
+                    <option value="rating">Rating</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1">Genre:</label>
+                <select class="form-select form-select-sm" style="width: auto;" id="filterGenre">
+                    <option value="">All Genres</option>
+                    <option value="classic">Classic Literature</option>
+                    <option value="dystopian">Dystopian Fiction</option>
+                    <option value="self-help">Self-Help</option>
+                </select>
+            </div>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary btn-sm active" id="gridView" onclick="toggleView('grid')">
-                <i class="fas fa-th"></i> Grid
+                <i class="fas fa-th"></i>
             </button>
             <button class="btn btn-outline-secondary btn-sm" id="listView" onclick="toggleView('list')">
-                <i class="fas fa-list"></i> List
+                <i class="fas fa-list"></i>
             </button>
         </div>
     </div>
 
-    <!-- Stats -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-primary"><?php echo $totalBooks; ?></h4>
-                    <small class="text-muted">Favorite Books</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-success"><?php echo $uniqueGenres; ?></h4>
-                    <small class="text-muted">Unique Genres</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-warning"><?php echo $avgRating; ?></h4>
-                    <small class="text-muted">Avg Rating</small>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Favorites Content -->
     <?php if (empty($favoriteBooks)): ?>
@@ -123,31 +126,6 @@ if ($totalBooks > 0) {
     </div>
     <?php else: ?>
     
-    <!-- Filter and Sort -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-search"></i></span>
-                <input type="text" class="form-control" placeholder="Search your favorites..." id="searchFavorites">
-            </div>
-        </div>
-        <div class="col-md-3">
-            <select class="form-select" id="sortFavorites">
-                <option value="recent">Recently Added</option>
-                <option value="title">Title A-Z</option>
-                <option value="author">Author A-Z</option>
-                <option value="rating">Highest Rated</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select class="form-select" id="filterGenre">
-                <option value="">All Genres</option>
-                <option value="classic">Classic Literature</option>
-                <option value="dystopian">Dystopian Fiction</option>
-                <option value="self-help">Self-Help</option>
-            </select>
-        </div>
-    </div>
 
     <!-- Favorites Grid -->
     <div class="row" id="favoritesContainer">
@@ -156,7 +134,7 @@ if ($totalBooks > 0) {
             <div class="book-card position-relative" onclick="window.location.href='book_detail.php?id=<?php echo $book['book_id']; ?>'">
                 <img src="assets/images/books/<?php echo htmlspecialchars($book['cover_image']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover">
                 <button class="btn btn-sm remove-favorite position-absolute" onclick="event.stopPropagation(); removeFavorite(<?php echo $book['book_id']; ?>, <?php echo $book['favorite_id']; ?>)" title="Remove from favorites" style="top: 10px; right: 10px; z-index: 10;">
-                    <i class="fas fa-heart"></i>
+                    <i class="fas fa-heart text-danger"></i>
                 </button>
                 <h6 class="book-title"><?php echo htmlspecialchars($book['title']); ?></h6>
                 <p class="book-author"><?php echo htmlspecialchars($book['author']); ?></p>
@@ -177,6 +155,48 @@ if ($totalBooks > 0) {
             </div>
         </div>
         <?php endforeach; ?>
+    </div>
+    
+    <!-- Load More Button -->
+    <?php if (!empty($favoriteBooks)): ?>
+    <div class="text-center mt-4">
+        <button class="btn btn-outline-primary" onclick="loadMoreFavorites()">
+            Load More Books
+        </button>
+    </div>
+    <?php endif; ?>
+    <?php endif; ?>
+    
+    <!-- Reading Stats Section -->
+    <?php if (!empty($favoriteBooks)): ?>
+    <div class="mt-5">
+        <h4 class="text-center mb-4">Your Reading Stats</h4>
+        <div class="row text-center">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-item">
+                    <h2 class="text-primary mb-0"><?php echo $totalBooks; ?></h2>
+                    <small class="text-muted">Books Favorited</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-item">
+                    <h2 class="text-success mb-0"><?php echo $uniqueGenres; ?></h2>
+                    <small class="text-muted">Genres Explored</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-item">
+                    <h2 class="text-warning mb-0"><?php echo $avgRating; ?></h2>
+                    <small class="text-muted">Average Rating</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-item">
+                    <h2 class="text-info mb-0">24</h2>
+                    <small class="text-muted">Reviews Written</small>
+                </div>
+            </div>
+        </div>
     </div>
     <?php endif; ?>
     
@@ -311,6 +331,37 @@ function removeFavorite(bookId, favoriteId) {
         });
     }
 }
+
+// Export favorites function
+function exportFavorites() {
+    // Simple CSV export functionality
+    const favoriteItems = document.querySelectorAll('.favorite-item:not([style*="display: none"])');
+    let csvContent = 'Title,Author,Genre,Rating\\n';
+    
+    favoriteItems.forEach(item => {
+        const title = item.querySelector('.book-title').textContent;
+        const author = item.querySelector('.book-author').textContent;
+        const genre = item.querySelector('.genre-tag').textContent;
+        const rating = item.querySelector('.rating-text').textContent;
+        csvContent += `"${title}","${author}","${genre}","${rating}"\\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'my-favorite-books.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Load more books function (placeholder)
+function loadMoreFavorites() {
+    // This would normally load more books from the database
+    alert('Load more functionality would fetch additional favorite books from the database.');
+}
 </script>
 
 <style>
@@ -318,22 +369,25 @@ function removeFavorite(bookId, favoriteId) {
     opacity: 0;
     transition: all 0.2s ease;
     background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(124, 58, 237, 0.5);
+    border: 1px solid rgba(220, 53, 69, 0.3);
     border-radius: 50%;
     width: 36px;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary-purple, #7C3AED);
     backdrop-filter: blur(5px);
 }
 
 .remove-favorite:hover {
-    background: rgba(124, 58, 237, 0.1);
+    background: rgba(255, 255, 255, 1);
     transform: scale(1.1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    color: var(--purple-dark, #5B21B6);
+}
+
+.remove-favorite.favorited {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.5);
 }
 
 .book-card:hover .remove-favorite {
@@ -363,6 +417,27 @@ function removeFavorite(bookId, favoriteId) {
 .col-xl-2-4 {
     flex: 0 0 auto;
     width: 20%;
+}
+
+.stat-item {
+    padding: 1rem;
+}
+
+.stat-item h2 {
+    font-weight: 600;
+    font-size: 2rem;
+}
+
+.btn-purple {
+    background: var(--primary-purple, #7C3AED);
+    border-color: var(--primary-purple, #7C3AED);
+    color: white;
+}
+
+.btn-purple:hover {
+    background: var(--purple-dark, #5B21B6);
+    border-color: var(--purple-dark, #5B21B6);
+    color: white;
 }
 
 @media (max-width: 1200px) {

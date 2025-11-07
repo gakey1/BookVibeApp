@@ -144,9 +144,9 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
                     <button class="btn btn-primary btn-lg favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" 
                             data-book-id="<?php echo $book['book_id']; ?>">
                         <?php if ($is_favorited): ?>
-                            <i class="fas fa-heart me-2" style="color: var(--primary-purple, #7C3AED);"></i>Favorited
+                            <i class="fas fa-heart text-danger me-2"></i>Favorited
                         <?php else: ?>
-                            <i class="far fa-heart me-2" style="color: var(--text-light, #6B7280);"></i>Add to Favorites
+                            <i class="far fa-heart text-danger me-2"></i>Add to Favorites
                         <?php endif; ?>
                     </button>
                 <?php else: ?>
