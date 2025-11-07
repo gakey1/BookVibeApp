@@ -168,39 +168,53 @@ function formatNumber(num) {
 }
 
 /**
- * Create star rating display
+ * Create star rating display with proper half-star support
  * @param {number} rating - Rating value (0-5)
  * @param {boolean} showNumber - Whether to show numeric rating
  * @returns {string} HTML string for star rating
  */
 function createStarRating(rating, showNumber = true) {
     const fullStars = Math.floor(rating);
-    const hasHalfStar = rating - fullStars >= 0.5;
+    const decimal = rating - fullStars;
+    const hasHalfStar = decimal >= 0.3 && decimal < 0.8;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     
     let html = '<span class="star-rating">';
     
     // Full stars
     for (let i = 0; i < fullStars; i++) {
-        html += '<i class="fas fa-star"></i>';
+        html += '<i class="fas fa-star star filled"></i>';
     }
     
-    // Half star
+    // Half star (only show if rating is between .3 and .8)
     if (hasHalfStar) {
-        html += '<i class="fas fa-star-half-alt"></i>';
+        html += '<i class="fas fa-star star half-filled"></i>';
     }
     
     // Empty stars
     for (let i = 0; i < emptyStars; i++) {
-        html += '<i class="far fa-star"></i>';
+        html += '<i class="far fa-star star empty"></i>';
     }
     
     if (showNumber) {
-        html += ` <span class="ms-1">${rating.toFixed(1)}</span>`;
+        html += ` <span class="rating-number ms-1">${rating.toFixed(1)}</span>`;
     }
     
     html += '</span>';
     return html;
+}
+
+/**
+ * Update existing star rating elements on the page
+ * @param {string} selector - CSS selector for rating containers
+ */
+function updateStarRatings(selector = '[data-rating]') {
+    document.querySelectorAll(selector).forEach(element => {
+        const rating = parseFloat(element.dataset.rating);
+        if (rating && rating > 0) {
+            element.innerHTML = createStarRating(rating, false);
+        }
+    });
 }
 
 /**
@@ -223,6 +237,7 @@ function debounce(func, wait) {
 
 // Star Rating System
 function initializeStarRatings() {
+    // Initialize interactive star rating inputs
     const ratingContainers = document.querySelectorAll('.star-rating-input');
     
     ratingContainers.forEach(container => {
@@ -246,6 +261,9 @@ function initializeStarRatings() {
             updateStarDisplay(stars, currentRating);
         });
     });
+    
+    // Initialize display-only star ratings
+    updateStarRatings();
 }
 
 function updateStarDisplay(stars, rating) {
@@ -545,6 +563,7 @@ window.BookVibe = {
     addFavorite,
     removeFavorite,
     createStarRating,
+    updateStarRatings,
     formatNumber,
     debounce
 };

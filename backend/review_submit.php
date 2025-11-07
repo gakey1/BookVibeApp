@@ -46,7 +46,7 @@ if ($stmt_check->fetch()) {
 
 // Insert Review into Database
 try {
-    $stmt = $pdo->prepare("INSERT INTO reviews (book_id, user_id, rating, comment, created_at) VALUES (?, ?, ?, ?, NOW())");
+    $stmt = $pdo->prepare("INSERT INTO reviews (book_id, user_id, rating, review_text, created_at) VALUES (?, ?, ?, ?, NOW())");
     $stmt->execute([$book_id, $user_id, $rating, $comment]);
 
     $response['success'] = true;

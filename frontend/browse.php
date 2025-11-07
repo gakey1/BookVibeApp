@@ -243,12 +243,10 @@ try {
                                     <p class="book-genre mb-2"><small class="text-muted"><?php echo htmlspecialchars($book['genre']); ?></small></p>
                                     
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <div class="rating">
+                                        <div class="rating" data-rating="<?php echo $book['rating']; ?>">
                                             <?php if ($book['rating'] > 0): ?>
-                                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                    <i class="fas fa-star <?php echo $i <= $book['rating'] ? 'text-warning' : 'text-muted'; ?>"></i>
-                                                <?php endfor; ?>
-                                                <small class="text-muted ms-1"><?php echo $book['rating']; ?></small>
+                                                <!-- Stars will be updated by JavaScript -->
+                                                <span class="rating-number"><?php echo number_format($book['rating'], 1); ?></span>
                                             <?php else: ?>
                                                 <small class="text-muted">No ratings yet</small>
                                             <?php endif; ?>
