@@ -164,76 +164,56 @@ if ($totalReviews > 0) {
     <?php else: ?>
     
     <!-- Reviews List -->
-    <div id="reviewsContainer">
+    <div id="reviewsContainer" class="row g-4">
         <?php foreach ($myReviews as $review): ?>
-        <div class="review-item mb-4" data-visibility="<?php echo $review['is_public'] ? 'public' : 'private'; ?>" data-rating="<?php echo $review['rating']; ?>">
-            <div class="card">
+        <div class="col-lg-4 col-md-6 review-item" data-visibility="<?php echo $review['is_public'] ? 'public' : 'private'; ?>" data-rating="<?php echo $review['rating']; ?>">
+            <div class="card h-100 review-item">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-2">
-                            <img src="assets/images/books/<?php echo htmlspecialchars($review['cover_image']); ?>" alt="<?php echo htmlspecialchars($review['title']); ?>" 
-                                 class="img-fluid rounded shadow-sm">
-                        </div>
-                        <div class="col-md-10">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h5 class="mb-1">
-                                        <a href="book_detail.php?id=<?php echo $review['book_id']; ?>" class="text-decoration-none">
-                                            <?php echo htmlspecialchars($review['title']); ?>
-                                        </a>
-                                    </h5>
-                                    <p class="text-muted mb-2">by <?php echo htmlspecialchars($review['author']); ?></p>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" onclick="editReview(<?php echo $review['review_id']; ?>)">
-                                            <i class="fas fa-edit me-2"></i>Edit Review</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="toggleVisibility(<?php echo $review['review_id']; ?>)">
-                                            <i class="fas fa-<?php echo $review['is_public'] ? 'eye-slash' : 'eye'; ?> me-2"></i>
-                                            Make <?php echo $review['is_public'] ? 'Private' : 'Public'; ?></a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteReview(<?php echo $review['review_id']; ?>)">
-                                            <i class="fas fa-trash me-2"></i>Delete Review</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="rating me-3">
+                    <!-- Book Info -->
+                    <div class="d-flex mb-3">
+                        <img src="assets/images/books/<?php echo htmlspecialchars($review['cover_image']); ?>" alt="<?php echo htmlspecialchars($review['title']); ?>" 
+                             class="me-3" style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px;">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">
+                                <a href="book_detail.php?id=<?php echo $review['book_id']; ?>" class="text-decoration-none">
+                                    <?php echo htmlspecialchars($review['title']); ?>
+                                </a>
+                            </h6>
+                            <p class="text-muted mb-2 small">by <?php echo htmlspecialchars($review['author']); ?></p>
+                            <div class="book-rating">
+                                <div class="stars">
                                     <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <i class="fas fa-star <?php echo $i <= $review['rating'] ? 'text-warning' : 'text-muted'; ?>"></i>
+                                        <i class="fas fa-star star <?php echo $i <= $review['rating'] ? 'filled' : ''; ?>"></i>
                                     <?php endfor; ?>
                                 </div>
-                                <span class="badge <?php echo $review['is_public'] ? 'bg-success' : 'bg-secondary'; ?> me-2">
-                                    <?php echo $review['is_public'] ? 'Public' : 'Private'; ?>
-                                </span>
-                                <small class="text-muted">Written on <?php echo date('F j, Y', strtotime($review['created_at'])); ?></small>
                             </div>
-                            
-                            <div class="review-text mb-3">
-                                <p><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="review-stats">
-                                    <span class="me-3">
-                                        <i class="fas fa-thumbs-up text-primary me-1"></i>
-                                        <?php echo $review['likes']; ?> likes
-                                    </span>
-                                    <span>
-                                        <i class="fas fa-check-circle text-success me-1"></i>
-                                        <?php echo $review['helpful_votes']; ?> helpful
-                                    </span>
-                                </div>
-                                <div>
-                                    <a href="book_detail.php?id=<?php echo $review['book_id']; ?>" class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-eye me-1"></i>View Book
-                                    </a>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Review Content -->
+                    <div class="review-text mb-3">
+                        <p class="text-truncate-2"><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
+                    </div>
+                    
+                    <!-- Review Meta -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted"><?php echo date('M j, Y', strtotime($review['created_at'])); ?></small>
+                        <span class="badge <?php echo $review['is_public'] ? 'bg-success' : 'bg-secondary'; ?>">
+                            <?php echo $review['is_public'] ? 'Public' : 'Private'; ?>
+                        </span>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-thumbs-up me-1"></i><?php echo $review['likes']; ?> helpful
+                        </small>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editReview(<?php echo $review['review_id']; ?>)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteReview(<?php echo $review['review_id']; ?>)">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -426,22 +406,23 @@ document.getElementById('editReviewText')?.addEventListener('input', function() 
 </script>
 
 <style>
-.review-item {
-    transition: transform 0.2s;
+.review-item .card {
+    transition: transform 0.2s ease;
+    border: none;
+    box-shadow: var(--shadow-sm);
 }
 
-.review-item:hover {
+.review-item .card:hover {
     transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-.review-text {
-    max-height: 150px;
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    position: relative;
-}
-
-.review-stats i {
-    font-size: 0.875rem;
+    text-overflow: ellipsis;
 }
 
 .star-rating-input .star {
@@ -453,6 +434,12 @@ document.getElementById('editReviewText')?.addEventListener('input', function() 
 
 .star-rating-input .star:hover {
     color: #ffc107;
+}
+
+@media (max-width: 768px) {
+    .review-item {
+        margin-bottom: 1rem;
+    }
 }
 </style>
 
