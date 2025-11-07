@@ -206,6 +206,61 @@ a:hover {
     background: var(--bg-light);
 }
 
+/* Override Bootstrap Primary Button to Purple Theme */
+.btn-primary {
+    background: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background: var(--purple-dark) !important;
+    border-color: var(--purple-dark) !important;
+    color: white !important;
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+    background: var(--purple-dark) !important;
+    border-color: var(--purple-dark) !important;
+    color: white !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Override Other Bootstrap Buttons for Theme Consistency */
+.btn-success {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+    color: white !important;
+}
+
+.btn-success:hover {
+    background: #059669 !important;
+    border-color: #059669 !important;
+    color: white !important;
+}
+
+.btn-warning {
+    background: var(--warning) !important;
+    border-color: var(--warning) !important;
+    color: white !important;
+}
+
+.btn-warning:hover {
+    background: #D97706 !important;
+    border-color: #D97706 !important;
+    color: white !important;
+}
+
+/* Override Bootstrap Text Colors for Theme Consistency */
+.text-primary {
+    color: var(--primary-purple) !important;
+}
+
+.text-primary:hover {
+    color: var(--purple-dark) !important;
+}
+
 /* Book Cards */
 .book-card {
     background: white;
