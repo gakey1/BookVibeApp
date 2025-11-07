@@ -13,7 +13,6 @@ if (!$isLoggedIn) {
 
 // Database logic to fetch user's favorites
 require_once __DIR__ . '/../config/db.php'; 
-$db = Database::getInstance();
 
 $user_id = $_SESSION['user_id'];
 
@@ -21,9 +20,9 @@ $user_id = $_SESSION['user_id'];
 $sql_favorites = "
     SELECT 
         f.favorite_id,
-        f.created_at as date_added,
+        f.added_at as date_added,
         b.*,
-        g.name as genre_name,
+        g.genre_name,
         AVG(r.rating) as avg_rating,
         COUNT(r.review_id) as review_count
     FROM 
@@ -37,11 +36,18 @@ $sql_favorites = "
     WHERE 
         f.user_id = ?
     GROUP BY 
-        f.favorite_id, f.created_at, b.book_id, g.name
+        f.favorite_id, f.added_at, b.book_id, g.genre_name
     ORDER BY 
-        f.created_at DESC";
+        f.added_at DESC";
 
-$favoriteBooks = $db->fetchAll($sql_favorites, [$user_id]);
+try {
+    $stmt = $pdo->prepare($sql_favorites);
+    $stmt->execute([$user_id]);
+    $favoriteBooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Database error in favorites.php: " . $e->getMessage());
+    $favoriteBooks = [];
+}
 
 $totalBooks = count($favoriteBooks);
 $uniqueGenres = 0;
