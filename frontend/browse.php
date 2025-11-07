@@ -452,6 +452,38 @@ a.btn-primary:hover {
     border-color: #5B21B6 !important;
     color: white !important;
 }
+
+/* Override form check inputs (radio buttons) */
+.form-check-input:checked {
+    background-color: #7C3AED !important;
+    border-color: #7C3AED !important;
+}
+
+.form-check-input:focus {
+    border-color: #7C3AED !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Override pagination */
+.pagination .page-link {
+    color: #7C3AED !important;
+}
+
+.pagination .page-link:hover {
+    background-color: #C4B5FD !important;
+    border-color: #7C3AED !important;
+    color: #5B21B6 !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #7C3AED !important;
+    border-color: #7C3AED !important;
+    color: white !important;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6B7280 !important;
+}
 </style>
 
 <?php include 'includes/footer.php'; ?>
