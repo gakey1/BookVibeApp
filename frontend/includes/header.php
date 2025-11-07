@@ -47,7 +47,7 @@ if ($isLoggedIn && isset($_SESSION['login_time']) && (time() - $_SESSION['login_
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <!-- Navigation Header -->

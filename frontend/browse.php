@@ -425,6 +425,33 @@ function toggleView(view) {
 .book-card:hover {
     transform: translateY(-2px);
 }
+
+/* EMERGENCY OVERRIDE - Force purple theme on browse page */
+.list-group-item.active {
+    background-color: #7C3AED !important;
+    border-color: #7C3AED !important;
+    color: white !important;
+}
+
+.btn-primary,
+.btn.btn-primary,
+button.btn-primary,
+a.btn-primary {
+    background: #7C3AED !important;
+    background-color: #7C3AED !important;
+    border-color: #7C3AED !important;
+    color: white !important;
+}
+
+.btn-primary:hover,
+.btn.btn-primary:hover,
+button.btn-primary:hover,
+a.btn-primary:hover {
+    background: #5B21B6 !important;
+    background-color: #5B21B6 !important;
+    border-color: #5B21B6 !important;
+    color: white !important;
+}
 </style>
 
 <?php include 'includes/footer.php'; ?>
