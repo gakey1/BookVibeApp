@@ -216,6 +216,23 @@ try {
                             <div class="card book-card h-100">
                                 <div class="position-relative">
                                     <img src="<?php echo $book['cover']; ?>" class="card-img-top book-cover" alt="<?php echo htmlspecialchars($book['title']); ?>">
+                                    
+                                    <!-- Heart Icon for Favorites -->
+                                    <?php if ($isLoggedIn): ?>
+                                        <?php 
+                                        // Check if book is favorited
+                                        $fav_check = $pdo->prepare("SELECT favorite_id FROM favorites WHERE user_id = ? AND book_id = ?");
+                                        $fav_check->execute([$_SESSION['user_id'], $book['id']]);
+                                        $is_favorited = $fav_check->fetch();
+                                        ?>
+                                        <button class="btn btn-sm position-absolute heart-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" 
+                                                data-book-id="<?php echo $book['id']; ?>" 
+                                                onclick="toggleFavorite(this, event)"
+                                                style="top: 10px; right: 10px; z-index: 10;">
+                                            <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart text-danger"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                    
                                     <div class="book-overlay">
                                         <a href="book_detail.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">View Details</a>
                                     </div>
@@ -265,6 +282,85 @@ try {
 </div>
 
 <script>
+// Heart icon favorite toggle functionality
+function toggleFavorite(button, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const bookId = button.dataset.bookId;
+    const heart = button.querySelector('i');
+    const isFavorited = button.classList.contains('favorited');
+    const action = isFavorited ? 'remove' : 'add';
+    
+    // Show loading state
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin text-danger"></i>';
+    button.disabled = true;
+    
+    // Make AJAX request
+    fetch('../backend/api/favorites.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            book_id: parseInt(bookId),
+            action: action
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Toggle button state
+            if (action === 'add') {
+                button.classList.add('favorited');
+                heart.classList.remove('far');
+                heart.classList.add('fas');
+                button.innerHTML = '<i class="fas fa-heart text-danger"></i>';
+            } else {
+                button.classList.remove('favorited');
+                heart.classList.remove('fas');
+                heart.classList.add('far');
+                button.innerHTML = '<i class="far fa-heart text-danger"></i>';
+            }
+            
+            // Show success feedback
+            if (typeof showNotification === 'function') {
+                showNotification(data.message, 'success');
+            }
+        } else {
+            alert(data.message || 'Failed to update favorites');
+            button.innerHTML = originalHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error updating favorite:', error);
+        alert('Failed to update favorites. Please try again.');
+        button.innerHTML = originalHTML;
+    })
+    .finally(() => {
+        button.disabled = false;
+    });
+}
+
+function showNotification(message, type) {
+    // Simple notification - could be enhanced with toast library
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const notification = `<div class="alert ${alertClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        const alert = document.querySelector('.alert:last-child');
+        if (alert) {
+            alert.remove();
+        }
+    }, 3000);
+}
+
 function updateSort() {
     const sortValue = document.getElementById('sortBy').value;
     // Static page - just reload with sort parameter for demonstration
@@ -295,5 +391,40 @@ function toggleView(view) {
     }
 }
 </script>
+
+<style>
+.heart-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(5px);
+}
+
+.heart-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.heart-btn.favorited {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.5);
+}
+
+.book-card {
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-2px);
+}
+</style>
 
 <?php include 'includes/footer.php'; ?>
