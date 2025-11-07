@@ -229,7 +229,7 @@ try {
                                                 data-book-id="<?php echo $book['id']; ?>" 
                                                 onclick="toggleFavorite(this, event)"
                                                 style="top: 10px; right: 10px; z-index: 10;">
-                                            <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart text-danger"></i>
+                                            <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart"></i>
                                         </button>
                                     <?php endif; ?>
                                     
@@ -294,7 +294,7 @@ function toggleFavorite(button, event) {
     
     // Show loading state
     const originalHTML = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin text-danger"></i>';
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     button.disabled = true;
     
     // Make AJAX request
@@ -316,12 +316,12 @@ function toggleFavorite(button, event) {
                 button.classList.add('favorited');
                 heart.classList.remove('far');
                 heart.classList.add('fas');
-                button.innerHTML = '<i class="fas fa-heart text-danger"></i>';
+                button.innerHTML = '<i class="fas fa-heart"></i>';
             } else {
                 button.classList.remove('favorited');
                 heart.classList.remove('fas');
                 heart.classList.add('far');
-                button.innerHTML = '<i class="far fa-heart text-danger"></i>';
+                button.innerHTML = '<i class="far fa-heart"></i>';
             }
             
             // Show success feedback
@@ -395,7 +395,7 @@ function toggleView(view) {
 <style>
 .heart-btn {
     background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(220, 53, 69, 0.3);
+    border: 1px solid rgba(124, 58, 237, 0.3);
     border-radius: 50%;
     width: 36px;
     height: 36px;
@@ -404,17 +404,25 @@ function toggleView(view) {
     justify-content: center;
     transition: all 0.2s ease;
     backdrop-filter: blur(5px);
+    color: var(--text-light, #6B7280);
 }
 
 .heart-btn:hover {
     background: rgba(255, 255, 255, 1);
     transform: scale(1.1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: var(--primary-purple, #7C3AED);
 }
 
 .heart-btn.favorited {
-    background: rgba(220, 53, 69, 0.1);
-    border-color: rgba(220, 53, 69, 0.5);
+    background: rgba(124, 58, 237, 0.1);
+    border-color: rgba(124, 58, 237, 0.5);
+    color: var(--primary-purple, #7C3AED);
+}
+
+.heart-btn.favorited:hover {
+    background: rgba(124, 58, 237, 0.15);
+    color: var(--purple-dark, #5B21B6);
 }
 
 .book-card {
