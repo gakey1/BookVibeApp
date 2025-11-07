@@ -309,9 +309,11 @@ function validateInput(input) {
 // Favorites System
 function initializeFavorites() {
     const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    const heartIcons = document.querySelectorAll('.heart-icon');
     
     favoriteButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
             const bookId = this.dataset.bookId;
             const isFavorited = this.classList.contains('favorited');
             
@@ -322,20 +324,99 @@ function initializeFavorites() {
             }
         });
     });
+    
+    // Handle heart icon clicks on book cards
+    heartIcons.forEach(icon => {
+        icon.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const bookId = this.dataset.bookId;
+            const isFavorited = this.classList.contains('favorited');
+            
+            toggleHeartIcon(this, !isFavorited, bookId);
+        });
+    });
+}
+
+function toggleHeartIcon(icon, addFavorite, bookId) {
+    if (addFavorite) {
+        icon.classList.add('favorited');
+        icon.innerHTML = '<i class="fas fa-heart text-danger"></i>';
+        
+        // AJAX call to add favorite
+        $.ajax({
+            url: '../backend/api/favorites.php',
+            method: 'POST',
+            data: JSON.stringify({book_id: bookId, action: 'add'}),
+            contentType: 'application/json',
+            success: function() {
+                showNotification('Added to favorites!', 'success');
+            },
+            error: function() {
+                icon.classList.remove('favorited');
+                icon.innerHTML = '<i class="far fa-heart"></i>';
+                showNotification('Please login to add favorites', 'warning');
+            }
+        });
+    } else {
+        icon.classList.remove('favorited');
+        icon.innerHTML = '<i class="far fa-heart"></i>';
+        
+        // AJAX call to remove favorite
+        $.ajax({
+            url: '../backend/api/favorites.php',
+            method: 'POST',
+            data: JSON.stringify({book_id: bookId, action: 'remove'}),
+            contentType: 'application/json',
+            success: function() {
+                showNotification('Removed from favorites', 'info');
+            },
+            error: function() {
+                icon.classList.add('favorited');
+                icon.innerHTML = '<i class="fas fa-heart text-danger"></i>';
+            }
+        });
+    }
 }
 
 function addFavorite(bookId, button) {
-    // For now simulate adding to favorites
     button.classList.add('favorited');
-    button.innerHTML = '<i class="fas fa-heart"></i> Favorited';
-    showNotification('Added to favorites!', 'success');
+    button.innerHTML = '<i class="fas fa-heart text-danger"></i> Favorited';
+    
+    $.ajax({
+        url: '../backend/api/favorites.php',
+        method: 'POST',
+        data: JSON.stringify({book_id: bookId, action: 'add'}),
+        contentType: 'application/json',
+        success: function() {
+            showNotification('Added to favorites!', 'success');
+        },
+        error: function() {
+            button.classList.remove('favorited');
+            button.innerHTML = '<i class="far fa-heart"></i> Add to Favorites';
+            showNotification('Please login to add favorites', 'warning');
+        }
+    });
 }
 
 function removeFavorite(bookId, button) {
     if (confirm('Remove this book from favorites?')) {
         button.classList.remove('favorited');
         button.innerHTML = '<i class="far fa-heart"></i> Add to Favorites';
-        showNotification('Removed from favorites', 'info');
+        
+        $.ajax({
+            url: '../backend/api/favorites.php',
+            method: 'POST',
+            data: JSON.stringify({book_id: bookId, action: 'remove'}),
+            contentType: 'application/json',
+            success: function() {
+                showNotification('Removed from favorites', 'info');
+            },
+            error: function() {
+                button.classList.add('favorited');
+                button.innerHTML = '<i class="fas fa-heart text-danger"></i> Favorited';
+            }
+        });
     }
 }
 
