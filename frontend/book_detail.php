@@ -1,116 +1,117 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
+
+// Include database connection
+require_once '../config/db.php';
 
 // Include header
 include 'includes/header.php';
-?>
-
-// Database logic
-<?php
-// Include the database connection setup
-require_once __DIR__ . '/../config/db.php'; 
-$db = Database::getInstance();
 
 // Get the Book ID securely from the URL
 $bookId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($bookId === 0) {
-    die("Error: Book ID is required.");
-}
-$params = [$bookId];
-
-// Fetch Single Book Metadata
-// Join with genres to get the genre name
-$sql_book = "
-    SELECT 
-        b.*, 
-        g.name AS genre_name 
-    FROM 
-        books b
-    JOIN
-        genres g ON b.genre_id = g.genre_id
-    WHERE 
-        b.book_id = ?";
-$book = $db->fetch($sql_book, $params); 
-
-if (!$book) {
-    die("Error: Book not found.");
+    echo '<div class="container mt-5"><div class="alert alert-danger">Error: Book ID is required.</div></div>';
+    include 'includes/footer.php';
+    exit;
 }
 
-// Fetch Aggregate Rating and Count
-$sql_rating = "
-    SELECT 
-        COUNT(r.review_id) AS total_reviews,
-        IFNULL(AVG(r.rating), 0) AS average_rating
-    FROM 
-        reviews r
-    WHERE 
-        r.book_id = ?";
+try {
+    // Fetch Single Book Metadata
+    $sql_book = "
+        SELECT 
+            b.*, 
+            g.genre_name
+        FROM 
+            books b
+        LEFT JOIN
+            genres g ON b.genre_id = g.genre_id
+        WHERE 
+            b.book_id = ?";
+    
+    $stmt = $pdo->prepare($sql_book);
+    $stmt->execute([$bookId]);
+    $book = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$rating_data = $db->fetch($sql_rating, $params); 
+    if (!$book) {
+        echo '<div class="container mt-5"><div class="alert alert-danger">Error: Book not found.</div></div>';
+        include 'includes/footer.php';
+        exit;
+    }
 
-// Process the fetched data for the frontend
-$book['rating'] = round($rating_data['average_rating'], 1); // Dynamic Rating
-$book['reviews'] = $rating_data['total_reviews'];         // Dynamic Count
-$book['cover'] = 'assets/images/books/' . $book['cover_image']; 
+    // Process book data
+    $book['rating'] = round($book['avg_rating'], 1);
+    $book['reviews'] = $book['review_count'];
+    $book['cover'] = 'assets/images/books/' . $book['cover_image'];
 
-// Fetch Individual Reviews
-$sql_reviews = "
-    SELECT 
-        r.*, 
-        u.full_name AS user_name,
-        u.profile_picture AS avatar
-    FROM 
-        reviews r
-    JOIN 
-        users u ON r.user_id = u.user_id
-    WHERE 
-        r.book_id = ?
-    ORDER BY 
-        r.created_at DESC
-";
-$reviews = $db->fetchAll($sql_reviews, $params); 
+    // Fetch Individual Reviews
+    $sql_reviews = "
+        SELECT 
+            r.*, 
+            u.full_name AS user_name,
+            u.profile_picture AS avatar
+        FROM 
+            reviews r
+        JOIN 
+            users u ON r.user_id = u.user_id
+        WHERE 
+            r.book_id = ?
+        ORDER BY 
+            r.created_at DESC
+    ";
+    $stmt = $pdo->prepare($sql_reviews);
+    $stmt->execute([$bookId]);
+    $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch Ratings Breakdown
-// Count reviews per star level (1 to 5)
-$ratingsBreakdown = [];
-$sql_breakdown = "
-    SELECT 
-        rating, 
-        COUNT(review_id) AS count
-    FROM 
-        reviews
-    WHERE 
-        book_id = ?
-    GROUP BY 
-        rating
-    ORDER BY 
-        rating DESC";
-$breakdown_results = $db->fetchAll($sql_breakdown, $params);
+    // Process review avatars
+    foreach ($reviews as &$review) {
+        $review['avatar'] = $review['avatar'] ? 'assets/images/profiles/' . $review['avatar'] : 'assets/images/profiles/default.jpg';
+    }
 
-// Convert results to the required format (5 => percentage, 4 => percentage, etc.)
-$total_reviews_count = $book['reviews'];
-for ($i = 5; $i >= 1; $i--) {
-    $found = false;
-    foreach ($breakdown_results as $row) {
-        if ($row['rating'] == $i) {
-            // Calculate percentage
-            $ratingsBreakdown[$i] = $total_reviews_count > 0 ? 
-                                    round(($row['count'] / $total_reviews_count) * 100) : 0;
-            $found = true;
-            break;
+    // Fetch Ratings Breakdown
+    $ratingsBreakdown = [];
+    $sql_breakdown = "
+        SELECT 
+            rating, 
+            COUNT(review_id) AS count
+        FROM 
+            reviews
+        WHERE 
+            book_id = ?
+        GROUP BY 
+            rating
+        ORDER BY 
+            rating DESC";
+    $stmt = $pdo->prepare($sql_breakdown);
+    $stmt->execute([$bookId]);
+    $breakdown_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Convert results to the required format (5 => percentage, 4 => percentage, etc.)
+    $total_reviews_count = $book['reviews'];
+    for ($i = 5; $i >= 1; $i--) {
+        $found = false;
+        foreach ($breakdown_results as $row) {
+            if ($row['rating'] == $i) {
+                // Calculate percentage
+                $ratingsBreakdown[$i] = $total_reviews_count > 0 ? 
+                                        round(($row['count'] / $total_reviews_count) * 100) : 0;
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $ratingsBreakdown[$i] = 0;
         }
     }
-    if (!$found) {
-        $ratingsBreakdown[$i] = 0;
-    }
+
+} catch (PDOException $e) {
+    error_log("Database error in book_detail.php: " . $e->getMessage());
+    echo '<div class="container mt-5"><div class="alert alert-danger">Error: Unable to load book details.</div></div>';
+    include 'includes/footer.php';
+    exit;
 }
 
-$pageTitle = htmlspecialchars($book['title']) . ' - Book Review Website';
-?>
-
-<?php 
-include 'includes/header.php';
+$pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
 ?>
 
 <!-- Breadcrumb -->
