@@ -1,6 +1,20 @@
 <?php
+// Define app constant for includes access
+define('BOOKVIBE_APP', true);
+
 session_start();
-require '../config/db.php'; 
+require '../config/db.php';
+require '../includes/book_diversity.php';
+
+// Get decorative books for the auth page
+$decorativeBooks = [];
+try {
+    $diversityManager = BookDiversityManager::getInstance();
+    $decorativeBooks = $diversityManager->getDecorativeBooks(3);
+} catch (Exception $e) {
+    // Fallback to empty array if database fails
+    $decorativeBooks = [];
+} 
 
 $message = '';
 $messageType = 'info';
@@ -129,6 +143,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--primary-purple);
         }
         
+        .auth-decorative-book {
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-decorative-book:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        
         @media (max-width: 767px) {
             .auth-container {
                 flex-direction: column;
@@ -180,6 +204,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p class="mb-0 opacity-75">Create your personal collection of favorites</p>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Decorative Books -->
+                <div class="d-none d-lg-flex gap-3 mt-4">
+                    <?php if (!empty($decorativeBooks)): ?>
+                        <?php foreach ($decorativeBooks as $book): ?>
+                            <img src="../frontend/<?php echo htmlspecialchars($book['cover_image']); ?>" 
+                                 alt="<?php echo htmlspecialchars($book['title']); ?>" 
+                                 class="rounded auth-decorative-book"
+                                 style="width: 80px; height: 120px; object-fit: cover;"
+                                 title="<?php echo htmlspecialchars($book['title']); ?>">
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <!-- Fallback to placeholder images -->
+                        <img src="https://via.placeholder.com/80x120/7C3AED/ffffff?text=📚" alt="Book" class="rounded">
+                        <img src="https://via.placeholder.com/80x120/5B21B6/ffffff?text=📖" alt="Book" class="rounded">
+                        <img src="https://via.placeholder.com/80x120/C4B5FD/ffffff?text=📕" alt="Book" class="rounded">
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

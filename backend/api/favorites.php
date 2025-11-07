@@ -1,14 +1,12 @@
 <?php
-// Favorites Management API - Add/Remove favorites
-
-// Define app constant for config access
-define('BOOKVIBE_APP', true);
+// Favorites Management API - Extended Tracy's original with Add/Remove functionality
 
 // Start the session to check user login status
 session_start();
 
 // Include database connection
 require_once __DIR__ . '/../../config/db.php'; 
+$db = Database::getInstance();
 
 // Set default response header to JSON
 header('Content-Type: application/json');
@@ -29,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Read the JSON input from the POST body
     $input = json_decode(file_get_contents('php://input'), true);
     $book_id = isset($input['book_id']) ? (int)$input['book_id'] : 0;
-    $action = isset($input['action']) ? $input['action'] : 'add';
+    $action = isset($input['action']) ? $input['action'] : 'add'; // Default to 'add' for backward compatibility
 
     if ($book_id <= 0) {
         http_response_code(400);
@@ -40,49 +38,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         if ($action === 'add') {
-            // Check if already favorited
+            // Check if already favorited (Tracy's original logic)
             $sql_check = "SELECT favorite_id FROM favorites WHERE user_id = ? AND book_id = ?";
-            $stmt = $pdo->prepare($sql_check);
-            $stmt->execute([$user_id, $book_id]);
-            $existing = $stmt->fetch();
+            $existing = $db->fetch($sql_check, [$user_id, $book_id]);
 
             if ($existing) {
                 $response['success'] = true;
                 $response['message'] = 'Book is already in your favorites.';
             } else {
-                // Insert new favorite
+                // Insert new favorite (Tracy's original logic)
                 $sql_insert = "INSERT INTO favorites (user_id, book_id) VALUES (?, ?)";
-                $stmt = $pdo->prepare($sql_insert);
-                $stmt->execute([$user_id, $book_id]);
+                $db->execute($sql_insert, [$user_id, $book_id]);
                 
                 $response['success'] = true;
                 $response['message'] = 'Book added to favorites successfully.';
             }
         } else if ($action === 'remove') {
-            // Remove from favorites
+            // Extended functionality: Remove from favorites
             $sql_delete = "DELETE FROM favorites WHERE user_id = ? AND book_id = ?";
-            $stmt = $pdo->prepare($sql_delete);
-            $stmt->execute([$user_id, $book_id]);
+            $result = $db->execute($sql_delete, [$user_id, $book_id]);
             
-            if ($stmt->rowCount() > 0) {
-                $response['success'] = true;
-                $response['message'] = 'Book removed from favorites.';
+            if ($result) {
+                // Check if any rows were affected
+                $sql_check_removed = "SELECT favorite_id FROM favorites WHERE user_id = ? AND book_id = ?";
+                $still_exists = $db->fetch($sql_check_removed, [$user_id, $book_id]);
+                
+                if (!$still_exists) {
+                    $response['success'] = true;
+                    $response['message'] = 'Book removed from favorites.';
+                } else {
+                    $response['success'] = false;
+                    $response['message'] = 'Book was not in your favorites.';
+                }
             } else {
                 $response['success'] = false;
-                $response['message'] = 'Book was not in your favorites.';
+                $response['message'] = 'Failed to remove from favorites.';
             }
         } else {
             http_response_code(400);
             $response['message'] = 'Invalid action. Use "add" or "remove".';
         }
 
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
+        // Handle database errors (Tracy's original error handling pattern)
         error_log("Database error in favorites API: " . $e->getMessage());
         http_response_code(500);
-        $response['message'] = 'Database error occurred.';
+        $response['message'] = 'Database error: Could not process favorite.';
     }
 
 } else {
+    // Only allow POST requests (Tracy's original validation)
     http_response_code(405);
     $response['message'] = 'Method Not Allowed.';
 }

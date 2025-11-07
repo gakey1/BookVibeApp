@@ -13,6 +13,7 @@ if (!$isLoggedIn) {
 
 // Database logic to fetch user's favorites
 require_once __DIR__ . '/../config/db.php'; 
+$db = Database::getInstance();
 
 $user_id = $_SESSION['user_id'];
 
@@ -40,14 +41,7 @@ $sql_favorites = "
     ORDER BY 
         f.added_at DESC";
 
-try {
-    $stmt = $pdo->prepare($sql_favorites);
-    $stmt->execute([$user_id]);
-    $favoriteBooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    error_log("Database error in favorites.php: " . $e->getMessage());
-    $favoriteBooks = [];
-}
+$favoriteBooks = $db->fetchAll($sql_favorites, [$user_id]);
 
 $totalBooks = count($favoriteBooks);
 $uniqueGenres = 0;
@@ -264,28 +258,57 @@ function removeFavorite(bookId, favoriteId) {
         removeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         removeBtn.disabled = true;
         
-        // For now, simulate removal since Tracy's API only handles adding
-        // In future, we would extend her API to handle DELETE requests
-        setTimeout(function() {
-            bookCard.style.opacity = '0.5';
-            bookCard.style.transform = 'scale(0.8)';
-            
-            setTimeout(function() {
-                bookCard.remove();
+        // Make AJAX call to backend API
+        fetch('../backend/api/favorites.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                book_id: parseInt(bookId),
+                action: 'remove'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Success - animate removal
+                bookCard.style.opacity = '0.5';
+                bookCard.style.transform = 'scale(0.8)';
                 
-                // Update stats if needed
-                const statsContainer = document.querySelector('.text-primary');
-                if (statsContainer) {
-                    const currentCount = parseInt(statsContainer.textContent);
-                    if (currentCount > 1) {
-                        statsContainer.textContent = currentCount - 1;
-                    } else {
-                        // Reload page if no more favorites
-                        window.location.reload();
+                setTimeout(function() {
+                    bookCard.remove();
+                    
+                    // Update stats if needed
+                    const statsContainer = document.querySelector('.text-primary');
+                    if (statsContainer) {
+                        const currentCount = parseInt(statsContainer.textContent);
+                        if (currentCount > 1) {
+                            statsContainer.textContent = currentCount - 1;
+                        } else {
+                            // Reload page if no more favorites
+                            window.location.reload();
+                        }
                     }
-                }
-            }, 300);
-        }, 1000);
+                    
+                    // Show success message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Removed from favorites', 'info');
+                    }
+                }, 300);
+            } else {
+                // Error - show message and restore button
+                alert(data.message || 'Failed to remove favorite');
+                removeBtn.innerHTML = originalHTML;
+                removeBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error removing favorite:', error);
+            alert('Failed to remove favorite. Please try again.');
+            removeBtn.innerHTML = originalHTML;
+            removeBtn.disabled = false;
+        });
     }
 }
 </script>
