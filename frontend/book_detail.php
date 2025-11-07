@@ -134,7 +134,7 @@ include 'includes/header.php';
             <!-- Action Buttons -->
             <div class="d-grid gap-2 mt-4">
                 <?php if (isset($_SESSION['user_id'])): ?>
-                <button class="btn btn-primary btn-lg" onclick="addToFavorites(<?php echo $book['id']; ?>)">
+                <button class="btn btn-primary btn-lg" onclick="addToFavorites(<?php echo $book['book_id']; ?>)">
                     <i class="fas fa-heart me-2"></i>Add to Favorites
                 </button>
                 <?php else: ?>
@@ -299,7 +299,7 @@ include 'includes/header.php';
             </div>
             <div class="modal-body">
                 <form id="reviewForm">
-                    <input type="hidden" name="book_id" value="<?php echo $book['id']; ?>">
+                    <input type="hidden" name="book_id" value="<?php echo $book['book_id']; ?>">
                     
                     <div class="mb-3">
                         <label class="form-label">Your Rating</label>
@@ -356,7 +356,7 @@ document.getElementById('reviewText')?.addEventListener('input', function() {
     document.getElementById('charCount').textContent = this.value.length;
 });
 
-// Submit review (placeholder functionality)
+// Submit review with AJAX
 function submitReview() {
     const form = document.getElementById('reviewForm');
     const formData = new FormData(form);
@@ -371,14 +371,82 @@ function submitReview() {
         return;
     }
     
-    // Static demo - just show success message
-    alert('Review submitted successfully! (Demo mode - review not actually saved)');
-    document.querySelector('[data-bs-dismiss="modal"]').click();
+    // Show loading state
+    const submitBtn = document.querySelector('#writeReviewModal .btn-primary');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+    submitBtn.disabled = true;
+    
+    // Prepare data for AJAX call
+    const reviewData = {
+        book_id: formData.get('book_id'),
+        rating: formData.get('rating'),
+        review_text: formData.get('review_text')
+    };
+    
+    // AJAX call to Tracy's review submission API
+    $.ajax({
+        url: '../backend/review_submit.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(reviewData),
+        success: function(response) {
+            alert('Review submitted successfully!');
+            document.querySelector('[data-bs-dismiss="modal"]').click();
+            // Refresh page to show new review
+            window.location.reload();
+        },
+        error: function(xhr, status, error) {
+            console.error('Review submission failed:', error);
+            const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'Failed to submit review. Please try again.';
+            alert(errorMsg);
+        },
+        complete: function() {
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
 }
 
-// Add to favorites (placeholder functionality)
+// Add to favorites with AJAX
 function addToFavorites(bookId) {
-    alert('Added to favorites! (Demo mode - not actually saved)');
+    // Find the favorites button
+    const favButton = document.querySelector('.btn-primary.btn-lg');
+    const originalText = favButton.innerHTML;
+    
+    // Show loading state
+    favButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
+    favButton.disabled = true;
+    
+    // AJAX call to Tracy's favorites API
+    $.ajax({
+        url: '../backend/api/favorites.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({book_id: bookId}),
+        success: function(response) {
+            if (response.success) {
+                alert('Added to favorites successfully!');
+                // Update button to show it's favorited
+                favButton.innerHTML = '<i class="fas fa-heart me-2"></i>Added to Favorites';
+                favButton.classList.remove('btn-primary');
+                favButton.classList.add('btn-success');
+                favButton.disabled = true;
+            } else {
+                alert(response.message || 'Failed to add to favorites');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Favorites request failed:', error);
+            const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'Failed to add to favorites. Please try again.';
+            alert(errorMsg);
+            
+            // Reset button on error
+            favButton.innerHTML = originalText;
+            favButton.disabled = false;
+        }
+    });
 }
 
 // Share book
