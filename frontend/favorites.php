@@ -152,44 +152,27 @@ if ($totalBooks > 0) {
     <!-- Favorites Grid -->
     <div class="row" id="favoritesContainer">
         <?php foreach ($favoriteBooks as $book): ?>
-        <div class="col-lg-4 col-md-6 mb-4 favorite-item" data-genre="<?php echo strtolower(str_replace(' ', '-', $book['genre_name'])); ?>" id="favorite-<?php echo $book['book_id']; ?>">
-            <div class="card favorite-card h-100">
-                <div class="position-relative">
-                    <img src="assets/images/books/<?php echo htmlspecialchars($book['cover_image']); ?>" class="card-img-top book-cover" alt="<?php echo htmlspecialchars($book['title']); ?>">
-                    <div class="book-overlay">
-                        <a href="book_detail.php?id=<?php echo $book['book_id']; ?>" class="btn btn-primary btn-sm">View Details</a>
+        <div class="col-xl-2-4 col-lg-3 col-md-4 col-6 mb-4 favorite-item" data-genre="<?php echo strtolower(str_replace(' ', '-', $book['genre_name'])); ?>" id="favorite-<?php echo $book['book_id']; ?>">
+            <div class="book-card position-relative" onclick="window.location.href='book_detail.php?id=<?php echo $book['book_id']; ?>'">
+                <img src="assets/images/books/<?php echo htmlspecialchars($book['cover_image']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover">
+                <button class="btn btn-sm btn-danger remove-favorite position-absolute" onclick="event.stopPropagation(); removeFavorite(<?php echo $book['book_id']; ?>, <?php echo $book['favorite_id']; ?>)" title="Remove from favorites" style="top: 10px; right: 10px; z-index: 10;">
+                    <i class="fas fa-heart"></i>
+                </button>
+                <h6 class="book-title"><?php echo htmlspecialchars($book['title']); ?></h6>
+                <p class="book-author"><?php echo htmlspecialchars($book['author']); ?></p>
+                <div class="book-rating">
+                    <div class="stars">
+                        <?php 
+                        $rating = $book['avg_rating'] ? round($book['avg_rating']) : 0;
+                        for ($i = 1; $i <= 5; $i++): ?>
+                            <i class="fas fa-star star <?php echo $i <= $rating ? 'filled' : ''; ?>"></i>
+                        <?php endfor; ?>
                     </div>
-                    <button class="btn btn-sm btn-danger remove-favorite" onclick="removeFavorite(<?php echo $book['book_id']; ?>, <?php echo $book['favorite_id']; ?>)" title="Remove from favorites">
-                        <i class="fas fa-heart"></i>
-                    </button>
+                    <span class="rating-text"><?php echo $book['avg_rating'] ? number_format($book['avg_rating'], 1) : 'N/A'; ?> (<?php echo number_format($book['review_count']); ?>)</span>
                 </div>
-                <div class="card-body">
-                    <h6 class="book-title mb-2"><?php echo htmlspecialchars($book['title']); ?></h6>
-                    <p class="book-author text-muted mb-2"><?php echo htmlspecialchars($book['author']); ?></p>
-                    <p class="book-genre mb-2">
-                        <span class="badge bg-secondary"><?php echo htmlspecialchars($book['genre_name']); ?></span>
-                    </p>
-                    
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="rating">
-                            <?php 
-                            $rating = $book['avg_rating'] ? round($book['avg_rating']) : 0;
-                            for ($i = 1; $i <= 5; $i++): ?>
-                                <i class="fas fa-star <?php echo $i <= $rating ? 'text-warning' : 'text-muted'; ?> small"></i>
-                            <?php endfor; ?>
-                            <small class="text-muted ms-1"><?php echo $book['avg_rating'] ? number_format($book['avg_rating'], 1) : 'N/A'; ?></small>
-                        </div>
-                        <small class="text-muted"><?php echo number_format($book['review_count']); ?> reviews</small>
-                    </div>
-                    
-                    <small class="text-muted">Added: <?php echo date('M j, Y', strtotime($book['date_added'])); ?></small>
-                </div>
-                <div class="card-footer bg-transparent">
-                    <div class="d-grid gap-2">
-                        <a href="book_detail.php?id=<?php echo $book['book_id']; ?>" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-eye me-1"></i>View Details
-                        </a>
-                    </div>
+                <div class="book-meta">
+                    <span class="genre-tag"><?php echo htmlspecialchars($book['genre_name']); ?></span>
+                    <span class="added-date">Added <?php echo date('M j', strtotime($book['date_added'])); ?></span>
                 </div>
             </div>
         </div>
@@ -302,48 +285,44 @@ function removeFavorite(bookId, favoriteId) {
 </script>
 
 <style>
-.favorite-card {
-    transition: transform 0.2s;
-}
-
-.favorite-card:hover {
-    transform: translateY(-5px);
-}
-
 .remove-favorite {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
     opacity: 0;
     transition: opacity 0.2s;
 }
 
-.favorite-card:hover .remove-favorite {
+.book-card:hover .remove-favorite {
     opacity: 1;
 }
 
-.book-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+.book-meta {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
 }
 
-.favorite-card:hover .book-overlay {
-    opacity: 1;
+.genre-tag {
+    background: var(--purple-light);
+    color: var(--primary-purple);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
 }
 
-.book-cover {
-    height: 300px;
-    object-fit: cover;
+.added-date {
+    color: var(--text-light);
+}
+
+.col-xl-2-4 {
+    flex: 0 0 auto;
+    width: 20%;
+}
+
+@media (max-width: 1200px) {
+    .col-xl-2-4 {
+        width: 25%;
+    }
 }
 </style>
 
