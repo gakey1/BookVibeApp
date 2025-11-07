@@ -1,74 +1,59 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
 
-$pageTitle = 'My Reviews - Book Review Website';
+$pageTitle = 'My Reviews - BookVibe';
 include 'includes/header.php';
 
-// Static reviews data
-$myReviews = [
-    [
-        'id' => 1,
-        'book_id' => 1,
-        'book_title' => '1984',
-        'book_author' => 'George Orwell',
-        'book_cover' => 'assets/images/books/1984.jpg',
-        'rating' => 5,
-        'review_text' => 'Absolutely mind-blowing dystopian masterpiece! Orwell\'s vision of a totalitarian society is both terrifying and brilliant. The concepts of Big Brother, doublethink, and the Thought Police are as relevant today as they were when this was written. Winston Smith\'s journey is heartbreaking and the ending left me speechless. A must-read for everyone.',
-        'created_at' => '2024-10-25',
-        'is_public' => true,
-        'likes' => 23,
-        'helpful_votes' => 18
-    ],
-    [
-        'id' => 2,
-        'book_id' => 2,
-        'book_title' => 'Atomic Habits',
-        'book_author' => 'James Clear',
-        'book_cover' => 'assets/images/books/atomic_habits.jpg',
-        'rating' => 5,
-        'review_text' => 'This book completely changed how I think about building habits. Clear\'s approach is practical and scientifically backed. The 1% better every day concept is so simple yet powerful. I\'ve already implemented several strategies from this book and seen real results. Highly recommended for anyone looking to improve their life through better habits.',
-        'created_at' => '2024-10-20',
-        'is_public' => true,
-        'likes' => 15,
-        'helpful_votes' => 12
-    ],
-    [
-        'id' => 3,
-        'book_id' => 3,
-        'book_title' => 'The Great Gatsby',
-        'book_author' => 'F. Scott Fitzgerald',
-        'book_cover' => 'assets/images/books/gatsby.jpg',
-        'rating' => 4,
-        'review_text' => 'A beautiful exploration of the American Dream and its illusions. Fitzgerald\'s prose is absolutely stunning - every sentence feels like poetry. The symbolism throughout the novel is masterful, especially the green light. While I found some parts slow, the overall impact is undeniable. Nick Carraway is a fascinating narrator.',
-        'created_at' => '2024-10-15',
-        'is_public' => false,
-        'likes' => 8,
-        'helpful_votes' => 6
-    ],
-    [
-        'id' => 4,
-        'book_id' => 4,
-        'book_title' => 'Gone Girl',
-        'book_author' => 'Gillian Flynn',
-        'book_cover' => 'assets/images/books/gone_girl.jpg',
-        'rating' => 4,
-        'review_text' => 'What a psychological thriller! Flynn creates two of the most unreliable narrators I\'ve ever encountered. The twist in the middle completely flipped my understanding of the story. The exploration of marriage and media manipulation is brilliant. Some parts felt a bit too dark for my taste, but the craftsmanship is undeniable.',
-        'created_at' => '2024-10-10',
-        'is_public' => true,
-        'likes' => 31,
-        'helpful_votes' => 25
-    ]
-];
+// Check if user is logged in
+if (!$isLoggedIn) {
+    header('Location: ../backend/login.php');
+    exit;
+}
 
-// Check if user is logged in (simulate login for demo)
-$isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purposes
+// Database logic to fetch user's reviews
+require_once __DIR__ . '/../config/db.php'; 
+$db = Database::getInstance();
 
-// Calculate stats
+$user_id = $_SESSION['user_id'];
+
+// Fetch user's reviews with book details
+$sql_reviews = "
+    SELECT 
+        r.*,
+        b.title,
+        b.author,
+        b.cover_image,
+        g.name as genre_name
+    FROM 
+        reviews r
+    JOIN 
+        books b ON r.book_id = b.book_id
+    LEFT JOIN 
+        genres g ON b.genre_id = g.genre_id
+    WHERE 
+        r.user_id = ?
+    ORDER BY 
+        r.created_at DESC";
+
+$myReviews = $db->fetchAll($sql_reviews, [$user_id]);
+
 $totalReviews = count($myReviews);
-$publicReviews = count(array_filter($myReviews, fn($r) => $r['is_public']));
-$totalLikes = array_sum(array_column($myReviews, 'likes'));
-$avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) / $totalReviews : 0;
+$avgRating = 0;
+$reviewsThisMonth = 0;
+
+if ($totalReviews > 0) {
+    $ratings = array_column($myReviews, 'rating');
+    $avgRating = round(array_sum($ratings) / count($ratings), 1);
+    
+    // Count reviews this month
+    $thisMonth = date('Y-m');
+    foreach ($myReviews as $review) {
+        if (date('Y-m', strtotime($review['created_at'])) === $thisMonth) {
+            $reviewsThisMonth++;
+        }
+    }
+}
 ?>
 
 <div class="container my-5">
@@ -106,15 +91,7 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h4 class="text-success"><?php echo $publicReviews; ?></h4>
-                    <small class="text-muted">Public Reviews</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-warning"><?php echo number_format($avgRating, 1); ?></h4>
+                    <h4 class="text-warning"><?php echo $avgRating; ?></h4>
                     <small class="text-muted">Avg Rating Given</small>
                 </div>
             </div>
@@ -122,8 +99,16 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h4 class="text-info"><?php echo $totalLikes; ?></h4>
-                    <small class="text-muted">Total Likes</small>
+                    <h4 class="text-success"><?php echo $reviewsThisMonth; ?></h4>
+                    <small class="text-muted">This Month</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-info"><?php echo $totalReviews > 0 ? date('M Y', strtotime($myReviews[0]['created_at'])) : 'N/A'; ?></h4>
+                    <small class="text-muted">Latest Review</small>
                 </div>
             </div>
         </div>
@@ -186,7 +171,7 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-2">
-                            <img src="<?php echo $review['book_cover']; ?>" alt="<?php echo htmlspecialchars($review['book_title']); ?>" 
+                            <img src="assets/images/books/<?php echo htmlspecialchars($review['cover_image']); ?>" alt="<?php echo htmlspecialchars($review['title']); ?>" 
                                  class="img-fluid rounded shadow-sm">
                         </div>
                         <div class="col-md-10">
@@ -194,23 +179,23 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
                                 <div>
                                     <h5 class="mb-1">
                                         <a href="book_detail.php?id=<?php echo $review['book_id']; ?>" class="text-decoration-none">
-                                            <?php echo htmlspecialchars($review['book_title']); ?>
+                                            <?php echo htmlspecialchars($review['title']); ?>
                                         </a>
                                     </h5>
-                                    <p class="text-muted mb-2">by <?php echo htmlspecialchars($review['book_author']); ?></p>
+                                    <p class="text-muted mb-2">by <?php echo htmlspecialchars($review['author']); ?></p>
                                 </div>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" onclick="editReview(<?php echo $review['id']; ?>)">
+                                        <li><a class="dropdown-item" href="#" onclick="editReview(<?php echo $review['review_id']; ?>)">
                                             <i class="fas fa-edit me-2"></i>Edit Review</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="toggleVisibility(<?php echo $review['id']; ?>)">
+                                        <li><a class="dropdown-item" href="#" onclick="toggleVisibility(<?php echo $review['review_id']; ?>)">
                                             <i class="fas fa-<?php echo $review['is_public'] ? 'eye-slash' : 'eye'; ?> me-2"></i>
                                             Make <?php echo $review['is_public'] ? 'Private' : 'Public'; ?></a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteReview(<?php echo $review['id']; ?>)">
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteReview(<?php echo $review['review_id']; ?>)">
                                             <i class="fas fa-trash me-2"></i>Delete Review</a></li>
                                     </ul>
                                 </div>
@@ -368,39 +353,45 @@ document.getElementById('sortReviews')?.addEventListener('change', function() {
 
 // Edit review
 function editReview(reviewId) {
-    // Static demo - would load review data here
-    document.getElementById('editReviewText').value = 'Sample review text for editing...';
-    document.getElementById('editRatingInput').value = '4';
-    document.getElementById('editIsPublic').checked = true;
+    // TODO: Load actual review data via AJAX when Tracy creates edit API
+    // For now, show modal with placeholder data
+    document.getElementById('editReviewText').value = 'Loading review data...';
+    document.getElementById('editRatingInput').value = '0';
+    document.getElementById('editIsPublic').checked = false;
     
     // Update character count
     document.getElementById('editCharCount').textContent = document.getElementById('editReviewText').value.length;
     
     // Initialize star rating
-    updateStarRating(4);
+    updateStarRating(0);
     
     const modal = new bootstrap.Modal(document.getElementById('editReviewModal'));
     modal.show();
+    
+    // Note: Ready for integration with Tracy's edit review API
 }
 
 // Save review edit
 function saveReviewEdit() {
-    // Static demo - would make API call here
-    alert('Review updated successfully! (Demo mode - changes not actually saved)');
+    // TODO: Send AJAX request to Tracy's edit review API
+    // Ready for integration when backend API is available
+    alert('Review edit functionality ready for Tracy\'s API integration');
     document.querySelector('[data-bs-dismiss="modal"]').click();
 }
 
 // Toggle visibility
 function toggleVisibility(reviewId) {
-    // Static demo - would make API call here
-    alert('Review visibility updated! (Demo mode - not actually changed)');
+    // TODO: Send AJAX request to Tracy's toggle visibility API
+    // Ready for integration when backend API is available
+    alert('Visibility toggle ready for Tracy\'s API integration');
 }
 
 // Delete review
 function deleteReview(reviewId) {
     if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-        // Static demo - would make API call here
-        alert('Review deleted! (Demo mode - not actually deleted)');
+        // TODO: Send AJAX request to Tracy's delete review API
+        // Ready for integration when backend API is available
+        alert('Delete functionality ready for Tracy\'s API integration');
     }
 }
 
