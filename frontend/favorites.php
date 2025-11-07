@@ -1,19 +1,58 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
 
-$pageTitle = 'My Favorites - Book Review Website';
+$pageTitle = 'My Favorites - BookVibe';
 include 'includes/header.php';
 
-// Static favorites data using existing images
-$favoriteBooks = [
-    ['id' => 1, 'title' => '1984', 'author' => 'George Orwell', 'cover' => 'assets/images/books/1984.jpg', 'rating' => 4.5, 'reviews' => 2847, 'genre' => 'Dystopian Fiction', 'date_added' => 'October 15, 2024'],
-    ['id' => 3, 'title' => 'The Great Gatsby', 'author' => 'F. Scott Fitzgerald', 'cover' => 'assets/images/books/gatsby.jpg', 'rating' => 4.2, 'reviews' => 1892, 'genre' => 'Classic Literature', 'date_added' => 'October 12, 2024'],
-    ['id' => 2, 'title' => 'Atomic Habits', 'author' => 'James Clear', 'cover' => 'assets/images/books/atomic_habits.jpg', 'rating' => 4.8, 'reviews' => 3214, 'genre' => 'Self-Help', 'date_added' => 'October 8, 2024']
-];
+// Check if user is logged in
+if (!$isLoggedIn) {
+    header('Location: ../backend/login.php');
+    exit;
+}
 
-// Check if user is logged in (simulate login for demo)
-$isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purposes
+// Database logic to fetch user's favorites
+require_once __DIR__ . '/../config/db.php'; 
+$db = Database::getInstance();
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch user's favorite books with book details
+$sql_favorites = "
+    SELECT 
+        f.favorite_id,
+        f.created_at as date_added,
+        b.*,
+        g.name as genre_name,
+        AVG(r.rating) as avg_rating,
+        COUNT(r.review_id) as review_count
+    FROM 
+        favorites f
+    JOIN 
+        books b ON f.book_id = b.book_id
+    LEFT JOIN 
+        genres g ON b.genre_id = g.genre_id
+    LEFT JOIN 
+        reviews r ON b.book_id = r.book_id
+    WHERE 
+        f.user_id = ?
+    GROUP BY 
+        f.favorite_id, f.created_at, b.book_id, g.name
+    ORDER BY 
+        f.created_at DESC";
+
+$favoriteBooks = $db->fetchAll($sql_favorites, [$user_id]);
+
+$totalBooks = count($favoriteBooks);
+$uniqueGenres = 0;
+$avgRating = 0;
+
+if ($totalBooks > 0) {
+    $genres = array_unique(array_column($favoriteBooks, 'genre_name'));
+    $uniqueGenres = count($genres);
+    $ratings = array_filter(array_column($favoriteBooks, 'avg_rating'));
+    $avgRating = !empty($ratings) ? round(array_sum($ratings) / count($ratings), 1) : 0;
+}
 ?>
 
 <div class="container my-5">
@@ -45,35 +84,27 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
 
     <!-- Stats -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <h4 class="text-primary"><?php echo count($favoriteBooks); ?></h4>
+                    <h4 class="text-primary"><?php echo $totalBooks; ?></h4>
                     <small class="text-muted">Favorite Books</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <h4 class="text-success">2</h4>
-                    <small class="text-muted">Books Read</small>
+                    <h4 class="text-success"><?php echo $uniqueGenres; ?></h4>
+                    <small class="text-muted">Unique Genres</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <h4 class="text-warning">1</h4>
-                    <small class="text-muted">Currently Reading</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-info">4.5</h4>
-                    <small class="text-muted">Avg Rating Given</small>
+                    <h4 class="text-warning"><?php echo $avgRating; ?></h4>
+                    <small class="text-muted">Avg Rating</small>
                 </div>
             </div>
         </div>
@@ -121,14 +152,14 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
     <!-- Favorites Grid -->
     <div class="row" id="favoritesContainer">
         <?php foreach ($favoriteBooks as $book): ?>
-        <div class="col-lg-4 col-md-6 mb-4 favorite-item" data-genre="<?php echo strtolower(str_replace(' ', '-', $book['genre'])); ?>">
+        <div class="col-lg-4 col-md-6 mb-4 favorite-item" data-genre="<?php echo strtolower(str_replace(' ', '-', $book['genre_name'])); ?>" id="favorite-<?php echo $book['book_id']; ?>">
             <div class="card favorite-card h-100">
                 <div class="position-relative">
-                    <img src="<?php echo $book['cover']; ?>" class="card-img-top book-cover" alt="<?php echo htmlspecialchars($book['title']); ?>">
+                    <img src="assets/images/books/<?php echo htmlspecialchars($book['cover_image']); ?>" class="card-img-top book-cover" alt="<?php echo htmlspecialchars($book['title']); ?>">
                     <div class="book-overlay">
-                        <a href="book_detail.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">View Details</a>
+                        <a href="book_detail.php?id=<?php echo $book['book_id']; ?>" class="btn btn-primary btn-sm">View Details</a>
                     </div>
-                    <button class="btn btn-sm btn-danger remove-favorite" onclick="removeFavorite(<?php echo $book['id']; ?>)" title="Remove from favorites">
+                    <button class="btn btn-sm btn-danger remove-favorite" onclick="removeFavorite(<?php echo $book['book_id']; ?>, <?php echo $book['favorite_id']; ?>)" title="Remove from favorites">
                         <i class="fas fa-heart"></i>
                     </button>
                 </div>
@@ -136,31 +167,28 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                     <h6 class="book-title mb-2"><?php echo htmlspecialchars($book['title']); ?></h6>
                     <p class="book-author text-muted mb-2"><?php echo htmlspecialchars($book['author']); ?></p>
                     <p class="book-genre mb-2">
-                        <span class="badge bg-secondary"><?php echo htmlspecialchars($book['genre']); ?></span>
+                        <span class="badge bg-secondary"><?php echo htmlspecialchars($book['genre_name']); ?></span>
                     </p>
                     
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div class="rating">
-                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <i class="fas fa-star <?php echo $i <= $book['rating'] ? 'text-warning' : 'text-muted'; ?> small"></i>
+                            <?php 
+                            $rating = $book['avg_rating'] ? round($book['avg_rating']) : 0;
+                            for ($i = 1; $i <= 5; $i++): ?>
+                                <i class="fas fa-star <?php echo $i <= $rating ? 'text-warning' : 'text-muted'; ?> small"></i>
                             <?php endfor; ?>
-                            <small class="text-muted ms-1"><?php echo $book['rating']; ?></small>
+                            <small class="text-muted ms-1"><?php echo $book['avg_rating'] ? number_format($book['avg_rating'], 1) : 'N/A'; ?></small>
                         </div>
-                        <small class="text-muted"><?php echo number_format($book['reviews']); ?> reviews</small>
+                        <small class="text-muted"><?php echo number_format($book['review_count']); ?> reviews</small>
                     </div>
                     
-                    <small class="text-muted">Added: <?php echo $book['date_added']; ?></small>
+                    <small class="text-muted">Added: <?php echo date('M j, Y', strtotime($book['date_added'])); ?></small>
                 </div>
                 <div class="card-footer bg-transparent">
                     <div class="d-grid gap-2">
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-book-reader me-1"></i>Read
-                            </button>
-                            <button class="btn btn-outline-success btn-sm">
-                                <i class="fas fa-check me-1"></i>Mark as Read
-                            </button>
-                        </div>
+                        <a href="book_detail.php?id=<?php echo $book['book_id']; ?>" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>View Details
+                        </a>
                     </div>
                 </div>
             </div>
@@ -237,12 +265,38 @@ function toggleView(view) {
 }
 
 // Remove favorite
-function removeFavorite(bookId) {
+function removeFavorite(bookId, favoriteId) {
     if (confirm('Remove this book from your favorites?')) {
-        // Static demo - would make API call here
-        alert('Book removed from favorites! (Demo mode - not actually removed)');
-        // Could hide the element for demo:
-        // event.target.closest('.favorite-item').style.display = 'none';
+        // Show loading state
+        const bookCard = document.getElementById('favorite-' + bookId);
+        const removeBtn = bookCard.querySelector('.remove-favorite');
+        const originalHTML = removeBtn.innerHTML;
+        
+        removeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        removeBtn.disabled = true;
+        
+        // For now, simulate removal since Tracy's API only handles adding
+        // In future, we would extend her API to handle DELETE requests
+        setTimeout(function() {
+            bookCard.style.opacity = '0.5';
+            bookCard.style.transform = 'scale(0.8)';
+            
+            setTimeout(function() {
+                bookCard.remove();
+                
+                // Update stats if needed
+                const statsContainer = document.querySelector('.text-primary');
+                if (statsContainer) {
+                    const currentCount = parseInt(statsContainer.textContent);
+                    if (currentCount > 1) {
+                        statsContainer.textContent = currentCount - 1;
+                    } else {
+                        // Reload page if no more favorites
+                        window.location.reload();
+                    }
+                }
+            }, 300);
+        }, 1000);
     }
 }
 </script>
