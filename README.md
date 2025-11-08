@@ -111,7 +111,7 @@ BookVibeApp/
 3. **Configure database**
    - Create MySQL database named `bookvibe`
    - Import `database/bookvibe.sql` (includes 15 books + sample data)
-   - Database config auto-detects XAMPP/MAMP settings
+   - Database config detects XAMPP/MAMP settings
 
 4. **Access the application**
    - Navigate to `http://localhost/BookVibeApp/frontend/`
@@ -119,7 +119,7 @@ BookVibeApp/
 
 ## Database Configuration
 
-The application includes automatic environment detection:
+The application includes environment detection:
 - **XAMPP**: `localhost:3306`, user: `root`, password: (empty)
 - **MAMP**: `localhost:8889`, user: `root`, password: `root`
 - **Custom**: Modify `config/db.php` for other setups
@@ -177,7 +177,7 @@ The application includes automatic environment detection:
 
 ### UI/UX Improvements  
 - **Theme Standardization** - Unified purple color scheme (#6b21a7) across all pages
-- **Design Cleanup** - Removed gradients and automated-looking elements
+- **Design Cleanup** - Removed gradients and simplified design elements
 - **Typography** - Improved font hierarchy and spacing consistency
 - **Modal System** - Enhanced review and delete confirmation modals
 
@@ -255,9 +255,9 @@ GET /api/books.php?action=covers&book_id=X  # Get cover URLs
 - **Security Hardening**: HTTPS, CSRF protection, input validation
 - **Database Optimization**: Indexing, query optimization, connection pooling
 - **Monitoring**: Error tracking, performance monitoring, uptime alerts
-- **Backup System**: Automated database and file backups
+- **Backup System**: Scheduled database and file backups
 
 
 ## Academic Project
 
-This is a collaborative academic project for Advanced Web unit, demonstrating modern web development practices, team collaboration, and full-stack development skills.
+This is a collaborative academic project for Advanced Web unit, demonstrating modern web development practices, team collaboration, and full-stack development skills. 
