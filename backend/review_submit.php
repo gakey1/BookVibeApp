@@ -3,7 +3,11 @@
 
 // Include database connection (this ensures $pdo is available)
 require '../config/db.php'; 
-session_start();
+
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Set JSON header for API response
 header('Content-Type: application/json');
@@ -46,7 +50,7 @@ if ($stmt_check->fetch()) {
 
 // Insert Review into Database
 try {
-    $stmt = $pdo->prepare("INSERT INTO reviews (book_id, user_id, rating, comment, created_at) VALUES (?, ?, ?, ?, NOW())");
+    $stmt = $pdo->prepare("INSERT INTO reviews (book_id, user_id, rating, review_text, created_at) VALUES (?, ?, ?, ?, NOW())");
     $stmt->execute([$book_id, $user_id, $rating, $comment]);
 
     $response['success'] = true;

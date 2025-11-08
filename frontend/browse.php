@@ -1,69 +1,115 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
 
-$pageTitle = 'Browse Books - Book Review Website';
+$pageTitle = 'Browse Books - BookVibe';
+
+// Include database connection
+require_once '../config/db.php';
+
 include 'includes/header.php';
+?>
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/browse.css?v=<?php echo time(); ?>">
+<?php
 
-// Static book data using existing images
-$sampleBooks = [
-    ['id' => 1, 'title' => '1984', 'author' => 'George Orwell', 'cover' => '1984.jpg', 'rating' => 4.5, 'reviews' => 2847, 'genre' => 'Dystopian Fiction', 'year' => 1949],
-    ['id' => 2, 'title' => 'Atomic Habits', 'author' => 'James Clear', 'cover' => 'atomic_habits.jpg', 'rating' => 4.8, 'reviews' => 3214, 'genre' => 'Self-Help', 'year' => 2018],
-    ['id' => 3, 'title' => 'The Great Gatsby', 'author' => 'F. Scott Fitzgerald', 'cover' => 'gatsby.jpg', 'rating' => 4.2, 'reviews' => 1892, 'genre' => 'Classic Literature', 'year' => 1925],
-    ['id' => 4, 'title' => 'Gone Girl', 'author' => 'Gillian Flynn', 'cover' => 'gone_girl.jpg', 'rating' => 4.3, 'reviews' => 2156, 'genre' => 'Psychological Thriller', 'year' => 2012],
-    ['id' => 5, 'title' => 'Little Women', 'author' => 'Louisa May Alcott', 'cover' => 'little_women.jpg', 'rating' => 4.1, 'reviews' => 1678, 'genre' => 'Coming-of-Age', 'year' => 1868],
-    ['id' => 6, 'title' => 'The Psychology of Money', 'author' => 'Morgan Housel', 'cover' => 'google_GWorEAAAQBAJ.jpg', 'rating' => 4.6, 'reviews' => 1543, 'genre' => 'Finance', 'year' => 2020],
-    ['id' => 7, 'title' => 'Educated', 'author' => 'Tara Westover', 'cover' => 'google_QABREQAAQBAJ.jpg', 'rating' => 4.7, 'reviews' => 2891, 'genre' => 'Memoir', 'year' => 2018],
-    ['id' => 8, 'title' => 'The Seven Husbands of Evelyn Hugo', 'author' => 'Taylor Jenkins Reid', 'cover' => 'google_YL_aEAAAQBAJ.jpg', 'rating' => 4.9, 'reviews' => 3456, 'genre' => 'Historical Fiction', 'year' => 2017],
-    ['id' => 9, 'title' => 'Where the Crawdads Sing', 'author' => 'Delia Owens', 'cover' => 'google_bXp2EQAAQBAJ.jpg', 'rating' => 4.4, 'reviews' => 2675, 'genre' => 'Mystery', 'year' => 2018],
-    ['id' => 10, 'title' => 'Becoming', 'author' => 'Michelle Obama', 'cover' => 'google_iICQDwAAQBAJ.jpg', 'rating' => 4.8, 'reviews' => 4123, 'genre' => 'Biography', 'year' => 2018],
-    ['id' => 11, 'title' => 'The Silent Patient', 'author' => 'Alex Michaelides', 'cover' => 'google_mSwvswEACAAJ.jpg', 'rating' => 4.5, 'reviews' => 1967, 'genre' => 'Psychological Thriller', 'year' => 2019],
-    ['id' => 12, 'title' => 'Pride and Prejudice', 'author' => 'Jane Austen', 'cover' => 'google_s1gVAAAAYAAJ.jpg', 'rating' => 4.3, 'reviews' => 5789, 'genre' => 'Classic Romance', 'year' => 1813]
-];
-
-// Static genre data
-$genres = [
-    ['genre_name' => 'All Books', 'genre_id' => '', 'book_count' => 12],
-    ['genre_name' => 'Classic Literature', 'genre_id' => 'classic', 'book_count' => 1],
-    ['genre_name' => 'Self-Help', 'genre_id' => 'self-help', 'book_count' => 1],
-    ['genre_name' => 'Dystopian Fiction', 'genre_id' => 'dystopian', 'book_count' => 1],
-    ['genre_name' => 'Psychological Thriller', 'genre_id' => 'thriller', 'book_count' => 2],
-    ['genre_name' => 'Coming-of-Age', 'genre_id' => 'coming-age', 'book_count' => 1],
-    ['genre_name' => 'Finance', 'genre_id' => 'finance', 'book_count' => 1],
-    ['genre_name' => 'Memoir', 'genre_id' => 'memoir', 'book_count' => 1],
-    ['genre_name' => 'Historical Fiction', 'genre_id' => 'historical', 'book_count' => 1],
-    ['genre_name' => 'Mystery', 'genre_id' => 'mystery', 'book_count' => 1],
-    ['genre_name' => 'Biography', 'genre_id' => 'biography', 'book_count' => 1],
-    ['genre_name' => 'Classic Romance', 'genre_id' => 'romance', 'book_count' => 1]
-];
-
-// Get filter parameters (static filtering for visual demonstration)
+// Get filter parameters
 $selectedGenre = $_GET['genre'] ?? '';
 $searchQuery = $_GET['search'] ?? '';
 $sortBy = $_GET['sort'] ?? 'popular';
 
-// Process book covers to use correct paths
-foreach ($sampleBooks as $index => $book) {
-    $sampleBooks[$index]['cover'] = 'assets/images/books/' . $book['cover'];
-}
+try {
+    // Get genres from database
+    $genresQuery = "SELECT genre_id, genre_name, book_count FROM genres ORDER BY display_order ASC, genre_name ASC";
+    $genresStmt = $pdo->prepare($genresQuery);
+    $genresStmt->execute();
+    $dbGenres = $genresStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Add "All Books" option
+    $allBooksCount = $pdo->query("SELECT COUNT(*) FROM books")->fetchColumn();
+    $genres = [['genre_name' => 'All Books', 'genre_id' => '', 'book_count' => $allBooksCount]];
+    $genres = array_merge($genres, $dbGenres);
 
-// Filter books by genre if selected
-$filteredBooks = $sampleBooks;
-if ($selectedGenre && $selectedGenre !== 'all') {
-    $filteredBooks = array_filter($sampleBooks, function($book) use ($selectedGenre) {
-        return strtolower(str_replace(' ', '-', $book['genre'])) === $selectedGenre;
-    });
+    // Build WHERE clause for filtering
+    $whereConditions = [];
+    $params = [];
+    
+    // Genre filtering
+    if ($selectedGenre && $selectedGenre !== 'all' && is_numeric($selectedGenre)) {
+        $whereConditions[] = "b.genre_id = ?";
+        $params[] = $selectedGenre;
+    }
+    
+    // Search filtering
+    if ($searchQuery) {
+        $whereConditions[] = "(b.title LIKE ? OR b.author LIKE ? OR b.description LIKE ?)";
+        $searchTerm = '%' . $searchQuery . '%';
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+    }
+    
+    $whereClause = $whereConditions ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
+    
+    // Build ORDER BY clause
+    $orderBy = "ORDER BY ";
+    switch ($sortBy) {
+        case 'rating':
+            $orderBy .= "b.avg_rating DESC, b.review_count DESC";
+            break;
+        case 'reviews':
+            $orderBy .= "b.review_count DESC, b.avg_rating DESC";
+            break;
+        case 'newest':
+            $orderBy .= "b.publication_year DESC, b.title ASC";
+            break;
+        case 'title_az':
+            $orderBy .= "b.title ASC";
+            break;
+        case 'title_za':
+            $orderBy .= "b.title DESC";
+            break;
+        case 'popular':
+        default:
+            $orderBy .= "(b.avg_rating * 0.7 + (b.review_count / 10) * 0.3) DESC, b.title ASC";
+            break;
+    }
+    
+    // Get books from database
+    $booksQuery = "
+        SELECT 
+            b.book_id as id,
+            b.title,
+            b.author,
+            b.cover_image as cover,
+            b.avg_rating as rating,
+            b.review_count as reviews,
+            b.publication_year as year,
+            g.genre_name as genre
+        FROM books b
+        LEFT JOIN genres g ON b.genre_id = g.genre_id
+        $whereClause
+        $orderBy
+    ";
+    
+    $booksStmt = $pdo->prepare($booksQuery);
+    $booksStmt->execute($params);
+    $books = $booksStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Process book covers to use correct paths
+    foreach ($books as $index => $book) {
+        $books[$index]['cover'] = 'assets/images/books/' . $book['cover'];
+    }
+    
+    $totalResults = count($books);
+    
+} catch (PDOException $e) {
+    // Fallback to empty data if database connection fails
+    error_log("Database error in browse.php: " . $e->getMessage());
+    $genres = [['genre_name' => 'All Books', 'genre_id' => '', 'book_count' => 0]];
+    $books = [];
+    $totalResults = 0;
 }
-
-// Filter by search query if provided
-if ($searchQuery) {
-    $filteredBooks = array_filter($filteredBooks, function($book) use ($searchQuery) {
-        return stripos($book['title'], $searchQuery) !== false || 
-               stripos($book['author'], $searchQuery) !== false;
-    });
-}
-
-$totalResults = count($filteredBooks);
 ?>
 
 <div class="container-fluid">
@@ -84,8 +130,8 @@ $totalResults = count($filteredBooks);
                     <h5 class="mb-3">Browse by Genre</h5>
                     <div class="list-group">
                         <?php foreach ($genres as $genre): 
-                            $genreKey = $genre['genre_name'] === 'All Books' ? 'all' : strtolower(str_replace(' ', '-', $genre['genre_name']));
-                            $isActive = ($selectedGenre === $genreKey) || (!$selectedGenre && $genreKey === 'all');
+                            $genreKey = $genre['genre_name'] === 'All Books' ? 'all' : $genre['genre_id'];
+                            $isActive = ($selectedGenre == $genreKey) || (!$selectedGenre && $genreKey === 'all');
                         ?>
                         <a href="browse.php?genre=<?php echo urlencode($genreKey); ?>" 
                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center <?php echo $isActive ? 'active' : ''; ?>">
@@ -134,7 +180,18 @@ $totalResults = count($filteredBooks);
                 <!-- Header with results count and view toggle -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h2><?php echo $selectedGenre ? ucfirst(str_replace('-', ' ', $selectedGenre)) . ' Books' : 'All Books'; ?></h2>
+                        <?php 
+                        $pageHeader = 'All Books';
+                        if ($selectedGenre && is_numeric($selectedGenre)) {
+                            foreach ($genres as $genre) {
+                                if ($genre['genre_id'] == $selectedGenre) {
+                                    $pageHeader = $genre['genre_name'] . ' Books';
+                                    break;
+                                }
+                            }
+                        }
+                        ?>
+                        <h2><?php echo htmlspecialchars($pageHeader); ?></h2>
                         <p class="text-muted mb-0"><?php echo number_format($totalResults); ?> books found</p>
                     </div>
                     <div class="d-flex gap-2">
@@ -149,7 +206,7 @@ $totalResults = count($filteredBooks);
                 
                 <!-- Books Grid -->
                 <div class="row" id="booksContainer">
-                    <?php if (empty($filteredBooks)): ?>
+                    <?php if (empty($books)): ?>
                     <div class="col-12">
                         <div class="text-center py-5">
                             <i class="fas fa-book fa-3x text-muted mb-3"></i>
@@ -158,11 +215,28 @@ $totalResults = count($filteredBooks);
                         </div>
                     </div>
                     <?php else: ?>
-                        <?php foreach ($filteredBooks as $book): ?>
+                        <?php foreach ($books as $book): ?>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-4 book-item">
                             <div class="card book-card h-100">
                                 <div class="position-relative">
                                     <img src="<?php echo $book['cover']; ?>" class="card-img-top book-cover" alt="<?php echo htmlspecialchars($book['title']); ?>">
+                                    
+                                    <!-- Heart Icon for Favorites -->
+                                    <?php if ($isLoggedIn): ?>
+                                        <?php 
+                                        // Check if book is favorited
+                                        $fav_check = $pdo->prepare("SELECT favorite_id FROM favorites WHERE user_id = ? AND book_id = ?");
+                                        $fav_check->execute([$_SESSION['user_id'], $book['id']]);
+                                        $is_favorited = $fav_check->fetch();
+                                        ?>
+                                        <button class="btn btn-sm position-absolute heart-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" 
+                                                data-book-id="<?php echo $book['id']; ?>" 
+                                                onclick="toggleFavorite(this, event)"
+                                                style="top: 10px; right: 10px; z-index: 10;">
+                                            <i class="<?php echo $is_favorited ? 'fas' : 'far'; ?> fa-heart text-danger"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                    
                                     <div class="book-overlay">
                                         <a href="book_detail.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">View Details</a>
                                     </div>
@@ -173,12 +247,10 @@ $totalResults = count($filteredBooks);
                                     <p class="book-genre mb-2"><small class="text-muted"><?php echo htmlspecialchars($book['genre']); ?></small></p>
                                     
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <div class="rating">
+                                        <div class="rating" data-rating="<?php echo $book['rating']; ?>">
                                             <?php if ($book['rating'] > 0): ?>
-                                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                    <i class="fas fa-star <?php echo $i <= $book['rating'] ? 'text-warning' : 'text-muted'; ?>"></i>
-                                                <?php endfor; ?>
-                                                <small class="text-muted ms-1"><?php echo $book['rating']; ?></small>
+                                                <!-- Stars will be updated by JavaScript -->
+                                                <span class="rating-number"><?php echo number_format($book['rating'], 1); ?></span>
                                             <?php else: ?>
                                                 <small class="text-muted">No ratings yet</small>
                                             <?php endif; ?>
@@ -212,6 +284,85 @@ $totalResults = count($filteredBooks);
 </div>
 
 <script>
+// Heart icon favorite toggle functionality
+function toggleFavorite(button, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const bookId = button.dataset.bookId;
+    const heart = button.querySelector('i');
+    const isFavorited = button.classList.contains('favorited');
+    const action = isFavorited ? 'remove' : 'add';
+    
+    // Show loading state
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin text-danger"></i>';
+    button.disabled = true;
+    
+    // Make AJAX request
+    fetch('../backend/api/favorites.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            book_id: parseInt(bookId),
+            action: action
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Toggle button state
+            if (action === 'add') {
+                button.classList.add('favorited');
+                heart.classList.remove('far');
+                heart.classList.add('fas');
+                button.innerHTML = '<i class="fas fa-heart text-danger"></i>';
+            } else {
+                button.classList.remove('favorited');
+                heart.classList.remove('fas');
+                heart.classList.add('far');
+                button.innerHTML = '<i class="far fa-heart text-danger"></i>';
+            }
+            
+            // Show success feedback
+            if (typeof showNotification === 'function') {
+                showNotification(data.message, 'success');
+            }
+        } else {
+            alert(data.message || 'Failed to update favorites');
+            button.innerHTML = originalHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error updating favorite:', error);
+        alert('Failed to update favorites. Please try again.');
+        button.innerHTML = originalHTML;
+    })
+    .finally(() => {
+        button.disabled = false;
+    });
+}
+
+function showNotification(message, type) {
+    // Simple notification display
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const notification = `<div class="alert ${alertClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        const alert = document.querySelector('.alert:last-child');
+        if (alert) {
+            alert.remove();
+        }
+    }, 3000);
+}
+
 function updateSort() {
     const sortValue = document.getElementById('sortBy').value;
     // Static page - just reload with sort parameter for demonstration
@@ -242,5 +393,6 @@ function toggleView(view) {
     }
 }
 </script>
+
 
 <?php include 'includes/footer.php'; ?>

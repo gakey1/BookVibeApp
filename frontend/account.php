@@ -1,16 +1,15 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
 
-$pageTitle = 'My Account - Book Review Website';
+$pageTitle = 'My Account - BookVibe';
 include 'includes/header.php';
 
 require_once __DIR__ . '/../config/db.php'; 
 $db = Database::getInstance();
 
 // Check if user is logged in
-$isLoggedIn = isset($_SESSION['user_id']); 
-$pageTitle = 'My Account - Book Review Website';
+$isLoggedIn = isset($_SESSION['user_id']);
 
 if (!$isLoggedIn) {
     // Redirect to login if not authenticated
@@ -107,21 +106,22 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
     
     <!-- Account Header -->
     <div class="row mb-5">
-        <div class="col-md-4 text-center">
-            <div class="profile-avatar mb-3">
-                <?php if ($user['profile_picture']): ?>
-                <img src="assets/images/profiles/<?php echo $user['profile_picture']; ?>" 
-                     alt="Profile Picture" class="rounded-circle img-fluid" width="150" height="150">
-                <?php else: ?>
-                <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center" 
-                     style="width: 150px; height: 150px; font-size: 3rem; color: white;">
-                    <?php echo strtoupper(substr($user['full_name'], 0, 2)); ?>
-                </div>
-                <?php endif; ?>
+        <div class="col-md-4 d-flex flex-column align-items-center text-center">
+            <div class="profile-avatar mb-3 d-flex justify-content-center">
+                <?php 
+                $profileImage = 'assets/images/profiles/default.svg';
+                if ($user['profile_picture'] && $user['profile_picture'] !== 'default.jpg' && $user['profile_picture'] !== 'default.svg') {
+                    $profileImage = 'assets/images/profiles/' . $user['profile_picture'];
+                }
+                ?>
+                <img src="<?php echo $profileImage; ?>" 
+                     alt="Profile Picture" class="rounded-circle" width="150" height="150"
+                     style="background: #f8f9fa; border: 2px solid #e9ecef; object-fit: cover;"
+                     onerror="this.src='assets/images/profiles/default.svg'">
             </div>
-            <h2><?php echo htmlspecialchars($user['full_name']); ?></h2>
-            <p class="text-muted">@<?php echo htmlspecialchars($user['full_name']); ?></p>
-            <p class="text-muted">Member since <?php echo date('M d, Y', strtotime($user['created_at'])); ?></p>
+            <h2 class="mb-2"><?php echo htmlspecialchars($user['full_name']); ?></h2>
+            <p class="text-muted mb-1">@<?php echo htmlspecialchars($user['full_name']); ?></p>
+            <p class="text-muted mb-3">Member since <?php echo date('M d, Y', strtotime($user['created_at'])); ?></p>
             <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                 <i class="fas fa-edit me-2"></i>Edit Profile
             </button>
@@ -131,7 +131,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                 <div class="col-md-6 mb-3">
                     <div class="card text-center h-100">
                         <div class="card-body">
-                            <i class="fas fa-star text-warning fa-2x mb-2"></i>
+                            <i class="fas fa-star text-purple fa-2x mb-2"></i>
                             <h4><?php echo $user['total_reviews']; ?></h4>
                             <small class="text-muted">Reviews Written</small>
                         </div>
@@ -140,7 +140,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                 <div class="col-md-6 mb-3">
                     <div class="card text-center h-100">
                         <div class="card-body">
-                            <i class="fas fa-heart text-danger fa-2x mb-2"></i>
+                            <i class="fas fa-heart text-purple-light fa-2x mb-2"></i>
                             <h4><?php echo $user['total_favorites']; ?></h4>
                             <small class="text-muted">Favorite Books</small>
                         </div>
@@ -149,7 +149,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                 <div class="col-md-6 mb-3">
                     <div class="card text-center h-100">
                         <div class="card-body">
-                            <i class="fas fa-book text-success fa-2x mb-2"></i>
+                            <i class="fas fa-book text-purple-dark fa-2x mb-2"></i>
                             <h4><?php echo $user['total_reviews']; ?></h4>
                             <small class="text-muted">Books Read This Year</small>
                         </div>
@@ -158,7 +158,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                 <div class="col-md-6 mb-3">
                     <div class="card text-center h-100">
                         <div class="card-body">
-                            <i class="fas fa-fire text-orange fa-2x mb-2"></i>
+                            <i class="fas fa-fire text-purple-gradient fa-2x mb-2"></i>
                             <h4><?php echo $user['total_reviews']; ?></h4>
                             <small class="text-muted">Day Reading Streak</small>
                         </div>
@@ -216,21 +216,21 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                     
                     <div class="card">
                         <div class="card-header">
-                            <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
+                            <h5><i class="fas fa-clock text-purple me-2"></i>Recent Activity</h5>
                         </div>
                         <div class="card-body">
                             <div class="activity-item mb-3">
-                                <i class="fas fa-star text-warning me-2"></i>
+                                <i class="fas fa-star text-purple me-2"></i>
                                 <span>Reviewed <strong>1984</strong> - 5 stars</span>
                                 <small class="text-muted ms-2">2 days ago</small>
                             </div>
                             <div class="activity-item mb-3">
-                                <i class="fas fa-heart text-danger me-2"></i>
+                                <i class="fas fa-heart text-purple-light me-2"></i>
                                 <span>Added <strong>The Great Gatsby</strong> to favorites</span>
                                 <small class="text-muted ms-2">5 days ago</small>
                             </div>
                             <div class="activity-item mb-3">
-                                <i class="fas fa-book text-success me-2"></i>
+                                <i class="fas fa-book text-purple-dark me-2"></i>
                                 <span>Finished reading <strong>Atomic Habits</strong></span>
                                 <small class="text-muted ms-2">1 week ago</small>
                             </div>
@@ -243,10 +243,10 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                             <h5><i class="fas fa-user me-2"></i>About Me</h5>
                         </div>
                         <div class="card-body">
-                            <p><?php echo nl2br(htmlspecialchars($user['bio'])); ?></p>
+                            <p><?php echo $user['bio'] ? nl2br(htmlspecialchars($user['bio'])) : '<em class="text-muted">No bio added yet.</em>'; ?></p>
     
                             <?php 
-                            // CORRECT LOCATION CHECK: Uses isset() for safety and fully closes the conditional
+                            // Check if location exists
                             if (isset($user['location']) && !empty($user['location'])): 
                             ?>
                             <p>
@@ -256,7 +256,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                             <?php endif; ?>
 
                             <?php 
-                            // CORRECT WEBSITE CHECK: Uses isset() for safety and fully closes the conditional
+                            // Check if website exists
                             if (isset($user['website']) && !empty($user['website'])): 
                             ?>
                             <p>
@@ -461,7 +461,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="editUsername" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="editUsername" value="<?php echo htmlspecialchars($user['username']); ?>">
+                            <input type="text" class="form-control" id="editUsername" value="<?php echo htmlspecialchars($user['email']); ?>" placeholder="Username not available">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -475,11 +475,11 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="editLocation" class="form-label">Location</label>
-                            <input type="text" class="form-control" id="editLocation" value="<?php echo htmlspecialchars($user['location']); ?>">
+                            <input type="text" class="form-control" id="editLocation" value="<?php echo isset($user['location']) ? htmlspecialchars($user['location']) : ''; ?>" placeholder="Add your location">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="editWebsite" class="form-label">Website</label>
-                            <input type="url" class="form-control" id="editWebsite" value="<?php echo htmlspecialchars($user['website']); ?>">
+                            <input type="url" class="form-control" id="editWebsite" value="<?php echo isset($user['website']) ? htmlspecialchars($user['website']) : ''; ?>" placeholder="Add your website">
                         </div>
                     </div>
                 </form>
@@ -492,55 +492,10 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
     </div>
 </div>
 
-<script>
-// Save profile changes
-function saveProfile() {
-    // Static demo - would make API call here
-    alert('Profile updated successfully! (Demo mode - changes not actually saved)');
-    document.querySelector('[data-bs-dismiss="modal"]').click();
-}
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/account.css?v=<?php echo time(); ?>">
 
-// Change password form
-document.getElementById('changePasswordForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (newPassword !== confirmPassword) {
-        alert('New passwords do not match!');
-        return;
-    }
-    
-    // Static demo - would make API call here
-    alert('Password updated successfully! (Demo mode - not actually changed)');
-    this.reset();
-});
-
-// Settings checkboxes
-document.querySelectorAll('.form-check-input').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-        // Static demo - would save settings here
-        console.log(`Setting ${this.id} changed to:`, this.checked);
-    });
-});
-</script>
-
-<style>
-.activity-item {
-    border-left: 3px solid #e9ecef;
-    padding-left: 15px;
-}
-
-.stat-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.text-orange {
-    color: #fd7e14 !important;
-}
-</style>
+<!-- Page-specific JavaScript -->
+<script src="assets/js/account.js?v=<?php echo time(); ?>"></script>
 
 <?php include 'includes/footer.php'; ?>

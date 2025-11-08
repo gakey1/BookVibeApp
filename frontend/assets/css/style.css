@@ -4,9 +4,9 @@
 /* Root Variables & Design System */
 :root {
     /* Colors */
-    --primary-purple: #7C3AED;
-    --purple-dark: #5B21B6;
-    --purple-light: #C4B5FD;
+    --primary-purple: #6b21a7;
+    --purple-dark: #581c87;
+    --purple-light: #a855f7;
     --purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --text-dark: #1F2937;
     --text-medium: #6B7280;
@@ -123,7 +123,7 @@ a:hover {
 
 /* Hero Section */
 .hero-section {
-    background: var(--purple-gradient);
+    background: var(--primary-purple);
     color: white;
     padding: 5rem 0;
     position: relative;
@@ -206,6 +206,236 @@ a:hover {
     background: var(--bg-light);
 }
 
+/* Override Bootstrap Primary Button to Purple Theme - NUCLEAR */
+.btn-primary,
+.btn.btn-primary,
+button.btn-primary,
+a.btn-primary {
+    background: var(--primary-purple) !important;
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    color: white !important;
+}
+
+.btn-primary:hover,
+.btn.btn-primary:hover,
+button.btn-primary:hover,
+a.btn-primary:hover {
+    background: var(--purple-dark) !important;
+    background-color: var(--purple-dark) !important;
+    border-color: var(--purple-dark) !important;
+    color: white !important;
+}
+
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary.focus,
+.btn.btn-primary:focus,
+.btn.btn-primary:active,
+button.btn-primary:focus,
+button.btn-primary:active,
+a.btn-primary:focus,
+a.btn-primary:active {
+    background: var(--purple-dark) !important;
+    background-color: var(--purple-dark) !important;
+    border-color: var(--purple-dark) !important;
+    color: white !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Override any blue focus states that might appear */
+:focus {
+    outline: none !important;
+}
+
+*:focus,
+*:active {
+    outline: none !important;
+}
+
+button:focus,
+button:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Override Other Bootstrap Buttons for Theme Consistency */
+.btn-success {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+    color: white !important;
+}
+
+.btn-success:hover {
+    background: #059669 !important;
+    border-color: #059669 !important;
+    color: white !important;
+}
+
+.btn-warning {
+    background: var(--warning) !important;
+    border-color: var(--warning) !important;
+    color: white !important;
+}
+
+.btn-warning:hover {
+    background: #D97706 !important;
+    border-color: #D97706 !important;
+    color: white !important;
+}
+
+/* Override Bootstrap Text Colors for Theme Consistency */
+.text-primary {
+    color: var(--primary-purple) !important;
+}
+
+.text-primary:hover {
+    color: var(--purple-dark) !important;
+}
+
+/* Override Bootstrap Navigation & Dropdown Colors */
+.nav-link:hover,
+.nav-link:focus {
+    color: var(--primary-purple) !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--purple-light) !important;
+    color: var(--purple-dark) !important;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: var(--primary-purple) !important;
+    color: white !important;
+}
+
+/* Override Dropdown Toggle Active/Focus States */
+.dropdown-toggle:focus,
+.dropdown-toggle:active,
+.dropdown-toggle.show {
+    color: var(--primary-purple) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+
+
+/* Override Bootstrap Links */
+a {
+    color: var(--primary-purple);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--purple-dark);
+    text-decoration: underline;
+}
+
+/* Override Bootstrap Form Focus Colors */
+.form-control:focus {
+    border-color: var(--primary-purple) !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+.form-select:focus {
+    border-color: var(--primary-purple) !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Override Form Check Inputs (Radio/Checkbox) */
+.form-check-input:checked {
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+}
+
+.form-check-input:focus {
+    border-color: var(--primary-purple) !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Override Bootstrap Pagination */
+.pagination .page-link {
+    color: var(--primary-purple) !important;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--purple-light) !important;
+    border-color: var(--primary-purple) !important;
+    color: var(--purple-dark) !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    color: white !important;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--text-medium) !important;
+}
+
+/* Override Bootstrap List Group Active State - AGGRESSIVE */
+.list-group-item.active,
+.list-group-item.active:hover,
+.list-group-item.active:focus {
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    color: white !important;
+    z-index: 2;
+}
+
+/* Force override any blue list group items */
+.list-group .list-group-item.active {
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    color: white !important;
+}
+
+.list-group-item-action:hover,
+.list-group-item-action:focus {
+    background-color: var(--purple-light) !important;
+    color: var(--purple-dark) !important;
+}
+
+/* Override any remaining Bootstrap components that might be blue */
+.badge.bg-primary {
+    background-color: var(--primary-purple) !important;
+}
+
+.alert-primary {
+    background-color: var(--purple-light) !important;
+    border-color: var(--primary-purple) !important;
+    color: var(--purple-dark) !important;
+}
+
+.border-primary {
+    border-color: var(--primary-purple) !important;
+}
+
+/* Aggressive override of ALL possible blue elements */
+.bg-primary {
+    background-color: var(--primary-purple) !important;
+}
+
+.table-primary {
+    background-color: var(--purple-light) !important;
+}
+
+.btn-outline-primary {
+    color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-purple) !important;
+    border-color: var(--primary-purple) !important;
+    color: white !important;
+}
+
+
 /* Book Cards */
 .book-card {
     background: white;
@@ -258,6 +488,8 @@ a:hover {
 
 .star {
     font-size: 1rem;
+    position: relative;
+    display: inline-block;
 }
 
 .star.filled {
@@ -266,6 +498,29 @@ a:hover {
 
 .star.empty {
     color: #D1D5DB;
+}
+
+.star.half {
+    color: #D1D5DB;
+    position: relative;
+}
+
+.star.half:before {
+    content: '\2605';
+    position: absolute;
+    left: 0;
+    color: var(--star-gold);
+    width: 50%;
+    overflow: hidden;
+}
+
+/* Alternative half star approach using clip-path */
+.star.half-filled {
+    background: linear-gradient(90deg, var(--star-gold) 50%, #D1D5DB 50%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--star-gold);
 }
 
 .rating-number {
@@ -294,7 +549,7 @@ a:hover {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: var(--purple-gradient);
+    background: var(--primary-purple);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -374,7 +629,7 @@ a:hover {
 
 /* Footer */
 .footer {
-    background: var(--text-dark);
+    background: var(--primary-purple);
     color: white;
     padding: 3rem 0 1rem;
     margin-top: 5rem;
@@ -401,7 +656,8 @@ a:hover {
 }
 
 .social-icons a:hover {
-    color: var(--primary-purple);
+    color: white;
+    transform: translateY(-2px);
 }
 
 /* Forms */
@@ -483,7 +739,7 @@ a:hover {
 
 .auth-left {
     flex: 1;
-    background: var(--purple-gradient);
+    background: var(--primary-purple);
     color: white;
     padding: 3rem;
     display: flex;
