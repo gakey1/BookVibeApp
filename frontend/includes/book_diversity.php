@@ -28,6 +28,9 @@ class BookDiversityManager {
      */
     public function getDecorativeBooks($limit = 3) {
         try {
+            // Debug: Log what we're doing
+            error_log("BookDiversityManager: Attempting to fetch $limit decorative books");
+            
             $books = $this->db->fetchAll("
                 SELECT 
                     book_id,
@@ -42,21 +45,25 @@ class BookDiversityManager {
                 LIMIT ?
             ", [$limit]);
             
+            error_log("BookDiversityManager: Retrieved " . count($books) . " books from database");
+            
             // Format for template consistency
             $formattedBooks = [];
             foreach ($books as $book) {
                 $formattedBooks[] = [
                     'title' => $book['title'],
                     'author' => $book['author'], 
-                    'cover_image' => 'assets/images/books/' . $book['cover_image'],
+                    'cover' => $book['cover_image'], // Use 'cover' key for template compatibility
                     'genre_name' => $book['genre_name']
                 ];
             }
             
+            error_log("BookDiversityManager: Returning " . count($formattedBooks) . " formatted books");
             return $formattedBooks;
             
         } catch (Exception $e) {
-            // Return empty array on database error
+            // Log the actual error
+            error_log("BookDiversityManager Error: " . $e->getMessage());
             return [];
         }
     }

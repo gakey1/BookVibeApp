@@ -4,10 +4,14 @@ define('BOOKVIBE_APP', true);
 
 $pageTitle = 'My Reviews - BookVibe';
 include 'includes/header.php';
+?>
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/reviews.css?v=<?php echo time(); ?>">
+<?php
 
 // Check if user is logged in
 if (!$isLoggedIn) {
-    header('Location: ../backend/login.php');
+    header('Location: login.php');
     exit;
 }
 
@@ -24,7 +28,7 @@ $sql_reviews = "
         b.title,
         b.author,
         b.cover_image,
-        g.name as genre_name
+        g.genre_name
     FROM 
         reviews r
     JOIN 
@@ -37,6 +41,8 @@ $sql_reviews = "
         r.created_at DESC";
 
 $myReviews = $db->fetchAll($sql_reviews, [$user_id]);
+
+// Debug removed - data is working correctly
 
 $totalReviews = count($myReviews);
 $avgRating = 0;
@@ -70,12 +76,12 @@ if ($totalReviews > 0) {
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1><i class="fas fa-star text-warning me-2"></i>My Reviews</h1>
+            <h1>My Reviews</h1>
             <p class="text-muted">Share your thoughts about the books you've read</p>
         </div>
-        <a href="browse.php" class="btn btn-primary">
+        <button class="btn btn-primary" onclick="showComingSoon(event)">
             <i class="fas fa-plus me-2"></i>Write New Review
-        </a>
+        </button>
     </div>
 
     <!-- Stats -->
@@ -166,7 +172,7 @@ if ($totalReviews > 0) {
     <!-- Reviews List -->
     <div id="reviewsContainer" class="row g-4">
         <?php foreach ($myReviews as $review): ?>
-        <div class="col-lg-4 col-md-6 review-item" data-visibility="<?php echo $review['is_public'] ? 'public' : 'private'; ?>" data-rating="<?php echo $review['rating']; ?>">
+        <div class="col-lg-4 col-md-6 review-item" data-visibility="<?php echo $review['is_public'] ? 'public' : 'private'; ?>" data-review-rating="<?php echo $review['rating']; ?>">
             <div class="card h-100 review-item">
                 <div class="card-body">
                     <!-- Book Info -->
@@ -206,8 +212,9 @@ if ($totalReviews > 0) {
                     <!-- Actions -->
                     <div class="d-flex justify-content-between align-items-center">
                         <small class="text-muted">
-                            <i class="fas fa-thumbs-up me-1"></i><?php echo $review['likes']; ?> helpful
+                            <i class="fas fa-thumbs-up me-1"></i><?php echo $review['helpful_count']; ?> helpful
                         </small>
+                        <div>
                             <button class="btn btn-sm btn-outline-primary me-1" onclick="editReview(<?php echo $review['review_id']; ?>)">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -226,6 +233,35 @@ if ($totalReviews > 0) {
     <?php endif; ?>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteReviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-danger">
+                    <i class="fas fa-trash me-2"></i>Delete Review
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <h4>Are you sure?</h4>
+                <p class="text-muted mb-4">This will permanently delete your review. This action cannot be undone.</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <span class="badge bg-danger">Permanent Action</span>
+                    <span class="badge bg-secondary">Cannot be undone</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-2"></i>Delete Review
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Edit Review Modal -->
 <div class="modal fade" id="editReviewModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -238,9 +274,9 @@ if ($totalReviews > 0) {
                 <form id="editReviewForm">
                     <div class="mb-3">
                         <label class="form-label">Your Rating</label>
-                        <div class="star-rating-input" data-rating="0">
+                        <div class="star-rating-input manual-stars" data-input-rating="0">
                             <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <i class="far fa-star star" data-rating="<?php echo $i; ?>"></i>
+                                <i class="far fa-star star" data-star-value="<?php echo $i; ?>"></i>
                             <?php endfor; ?>
                         </div>
                         <input type="hidden" name="rating" id="editRatingInput" value="0">
@@ -273,174 +309,8 @@ if ($totalReviews > 0) {
     </div>
 </div>
 
-<script>
-// Search functionality
-document.getElementById('searchReviews')?.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    const reviews = document.querySelectorAll('.review-item');
-    
-    reviews.forEach(item => {
-        const title = item.querySelector('h5').textContent.toLowerCase();
-        const author = item.querySelector('.text-muted').textContent.toLowerCase();
-        const text = item.querySelector('.review-text').textContent.toLowerCase();
-        
-        if (title.includes(searchTerm) || author.includes(searchTerm) || text.includes(searchTerm)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
+<!-- Page-specific JavaScript -->
+<script src="assets/js/reviews.js?v=<?php echo time(); ?>"></script>
 
-// Filter by visibility
-document.getElementById('filterVisibility')?.addEventListener('change', function() {
-    const filter = this.value;
-    const reviews = document.querySelectorAll('.review-item');
-    
-    reviews.forEach(item => {
-        const visibility = item.dataset.visibility;
-        
-        if (filter === 'all' || visibility === filter) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
-
-// Filter by rating
-document.getElementById('filterRating')?.addEventListener('change', function() {
-    const rating = this.value;
-    const reviews = document.querySelectorAll('.review-item');
-    
-    reviews.forEach(item => {
-        const itemRating = item.dataset.rating;
-        
-        if (rating === 'all' || itemRating === rating) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
-
-// Sort functionality
-document.getElementById('sortReviews')?.addEventListener('change', function() {
-    const sortBy = this.value;
-    // Static demo - would implement sorting logic here
-    console.log('Sorting by:', sortBy);
-});
-
-// Edit review
-function editReview(reviewId) {
-    // TODO: Load actual review data via AJAX when Tracy creates edit API
-    // For now, show modal with placeholder data
-    document.getElementById('editReviewText').value = 'Loading review data...';
-    document.getElementById('editRatingInput').value = '0';
-    document.getElementById('editIsPublic').checked = false;
-    
-    // Update character count
-    document.getElementById('editCharCount').textContent = document.getElementById('editReviewText').value.length;
-    
-    // Initialize star rating
-    updateStarRating(0);
-    
-    const modal = new bootstrap.Modal(document.getElementById('editReviewModal'));
-    modal.show();
-    
-    // Note: Ready for integration with Tracy's edit review API
-}
-
-// Save review edit
-function saveReviewEdit() {
-    // TODO: Send AJAX request to Tracy's edit review API
-    // Ready for integration when backend API is available
-    alert('Review edit functionality ready for Tracy\'s API integration');
-    document.querySelector('[data-bs-dismiss="modal"]').click();
-}
-
-// Toggle visibility
-function toggleVisibility(reviewId) {
-    // TODO: Send AJAX request to Tracy's toggle visibility API
-    // Ready for integration when backend API is available
-    alert('Visibility toggle ready for Tracy\'s API integration');
-}
-
-// Delete review
-function deleteReview(reviewId) {
-    if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-        // TODO: Send AJAX request to Tracy's delete review API
-        // Ready for integration when backend API is available
-        alert('Delete functionality ready for Tracy\'s API integration');
-    }
-}
-
-// Star rating for edit modal
-document.querySelectorAll('.star-rating-input .star').forEach(star => {
-    star.addEventListener('click', function() {
-        const rating = this.dataset.rating;
-        updateStarRating(rating);
-    });
-});
-
-function updateStarRating(rating) {
-    const container = document.querySelector('.star-rating-input');
-    container.dataset.rating = rating;
-    document.getElementById('editRatingInput').value = rating;
-    
-    container.querySelectorAll('.star').forEach((s, index) => {
-        if (index < rating) {
-            s.classList.remove('far');
-            s.classList.add('fas', 'text-warning');
-        } else {
-            s.classList.add('far');
-            s.classList.remove('fas', 'text-warning');
-        }
-    });
-}
-
-// Character counter for edit modal
-document.getElementById('editReviewText')?.addEventListener('input', function() {
-    document.getElementById('editCharCount').textContent = this.value.length;
-});
-</script>
-
-<style>
-.review-item .card {
-    transition: transform 0.2s ease;
-    border: none;
-    box-shadow: var(--shadow-sm);
-}
-
-.review-item .card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.text-truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.star-rating-input .star {
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #ddd;
-    transition: color 0.2s;
-}
-
-.star-rating-input .star:hover {
-    color: #ffc107;
-}
-
-@media (max-width: 768px) {
-    .review-item {
-        margin-bottom: 1rem;
-    }
-}
-</style>
 
 <?php include 'includes/footer.php'; ?>

@@ -1,0 +1,28 @@
+/* Book detail page specific styles */
+
+.book-detail-cover {
+    max-height: 600px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.book-description {
+    max-height: 200px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.book-description.expanded {
+    max-height: none;
+}
+
+.star-rating-input .star {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #ddd;
+    transition: color 0.2s;
+}
+
+.star-rating-input .star:hover {
+    color: #ffc107;
+}

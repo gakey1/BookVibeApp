@@ -8,6 +8,10 @@ $pageTitle = 'Browse Books - BookVibe';
 require_once '../config/db.php';
 
 include 'includes/header.php';
+?>
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/browse.css?v=<?php echo time(); ?>">
+<?php
 
 // Get filter parameters
 $selectedGenre = $_GET['genre'] ?? '';
@@ -342,7 +346,7 @@ function toggleFavorite(button, event) {
 }
 
 function showNotification(message, type) {
-    // Simple notification - could be enhanced with toast library
+    // Simple notification display
     const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
     const notification = `<div class="alert ${alertClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
         ${message}
@@ -390,98 +394,5 @@ function toggleView(view) {
 }
 </script>
 
-<style>
-.heart-btn {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(220, 53, 69, 0.3);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(5px);
-}
-
-.heart-btn:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.heart-btn.favorited {
-    background: rgba(220, 53, 69, 0.1);
-    border-color: rgba(220, 53, 69, 0.5);
-}
-
-.book-card {
-    position: relative;
-    transition: transform 0.2s ease;
-}
-
-.book-card:hover {
-    transform: translateY(-2px);
-}
-
-/* EMERGENCY OVERRIDE - Force purple theme on browse page */
-.list-group-item.active {
-    background-color: #7C3AED !important;
-    border-color: #7C3AED !important;
-    color: white !important;
-}
-
-.btn-primary,
-.btn.btn-primary,
-button.btn-primary,
-a.btn-primary {
-    background: #7C3AED !important;
-    background-color: #7C3AED !important;
-    border-color: #7C3AED !important;
-    color: white !important;
-}
-
-.btn-primary:hover,
-.btn.btn-primary:hover,
-button.btn-primary:hover,
-a.btn-primary:hover {
-    background: #5B21B6 !important;
-    background-color: #5B21B6 !important;
-    border-color: #5B21B6 !important;
-    color: white !important;
-}
-
-/* Override form check inputs (radio buttons) */
-.form-check-input:checked {
-    background-color: #7C3AED !important;
-    border-color: #7C3AED !important;
-}
-
-.form-check-input:focus {
-    border-color: #7C3AED !important;
-    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
-}
-
-/* Override pagination */
-.pagination .page-link {
-    color: #7C3AED !important;
-}
-
-.pagination .page-link:hover {
-    background-color: #C4B5FD !important;
-    border-color: #7C3AED !important;
-    color: #5B21B6 !important;
-}
-
-.pagination .page-item.active .page-link {
-    background-color: #7C3AED !important;
-    border-color: #7C3AED !important;
-    color: white !important;
-}
-
-.pagination .page-item.disabled .page-link {
-    color: #6B7280 !important;
-}
-</style>
 
 <?php include 'includes/footer.php'; ?>

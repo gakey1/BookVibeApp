@@ -216,37 +216,53 @@ INSERT INTO users (full_name, email, password_hash, bio, favorite_genres) VALUES
 -- ============================================
 INSERT INTO books (title, author, isbn, publisher, publication_year, page_count, description, cover_image, genre_id, avg_rating, review_count) VALUES
 
--- Classic Literature (Fiction - Genre 1) - CORRECTED TO MATCH ACTUAL COVER IMAGES
+-- Classic Literature (Fiction - Genre 1) 
 ('1984', 'George Orwell', '978-0-452-28423-4', 'Plume', 1949, 328, 'A dystopian novel set in a totalitarian society under the omnipresent surveillance of Big Brother.', '1984.jpg', 1, 4.4, 32),
 
+-- The_Great_Gatsby.jpg shows The Great Gatsby cover
 ('The Great Gatsby', 'F. Scott Fitzgerald', '978-0-7432-7356-5', 'Scribner', 1925, 180, 'A tragic story of Jay Gatsby and his pursuit of the American Dream in the Jazz Age.', 'gatsby.jpg', 1, 4.2, 28),
 
+-- Little_Women.jpg shows Little Women cover
 ('Little Women', 'Louisa May Alcott', '978-0-14-143965-4', 'Penguin Classics', 1868, 449, 'The story of the four March sisters growing up during the Civil War.', 'little_women.jpg', 1, 4.3, 24),
 
--- CORRECTED TO MATCH ACTUAL COVER IMAGES
--- Pride_Predudice.jpg shows "To Kill a Mockingbird" cover:
-('To Kill a Mockingbird', 'Harper Lee', '978-0-06-112008-4', 'Harper Perennial', 1960, 281, 'A classic of modern American literature dealing with racial injustice in the Deep South.', 'Pride_Predudice.jpg', 1, 4.5, 41),
+-- Pride_Predudice.jpg shows Pride and Prejudice cover
+('Pride and Prejudice', 'Jane Austen', '978-0-14-143951-7', 'Penguin Classics', 1813, 279, 'A romantic novel about manners and marriage in Georgian England featuring Elizabeth Bennet and Mr. Darcy.', 'Pride_Predudice.jpg', 2, 4.5, 41),
 
--- The_Shining.jpg shows "Pride and Prejudice" cover:
-('Pride and Prejudice', 'Jane Austen', '978-0-14-143951-7', 'Penguin Classics', 1813, 279, 'A romantic novel about manners and marriage in Georgian England featuring Elizabeth Bennet and Mr. Darcy.', 'The_Shining.jpg', 2, 4.7, 52),
+-- The_Shining.jpg shows The Shining cover
+('The Shining', 'Stephen King', '978-0-307-74365-9', 'Anchor Books', 1977, 447, 'A psychological horror novel about Jack Torrance, a writer who becomes caretaker of the isolated Overlook Hotel and descends into madness.', 'The_Shining.jpg', 3, 4.7, 52),
 
--- Harry_Potter.jpg shows Harry Potter cover (assuming correct):
+-- Harry_Potter.jpg shows Harry Potter cover 
 ('Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', '978-0-439-70818-8', 'Scholastic', 1997, 309, 'A young wizard discovers his magical heritage and attends Hogwarts School of Witchcraft and Wizardry.', 'Harry_Potter.jpg', 5, 4.6, 47),
 
--- Lord_Of_The_Rings.jpg shows "The Catcher in the Rye" cover:
-('The Catcher in the Rye', 'J.D. Salinger', '978-0-316-76948-0', 'Little, Brown', 1951, 234, 'The story of teenage rebellion and alienation told by the iconic Holden Caulfield.', 'Lord_Of_The_Rings.jpg', 1, 4.0, 35),
+-- Lord_Of_The_Rings.jpg shows Lord of the Rings cover
+('The Lord of the Rings', 'J.R.R. Tolkien', '978-0-547-92832-9', 'Mariner Books', 1954, 1216, 'An epic high fantasy novel about the quest to destroy the One Ring and defeat the Dark Lord Sauron in Middle-earth.', 'Lord_Of_The_Rings.jpg', 5, 4.0, 35),
 
 -- Thriller (Genre 3)
 ('Gone Girl', 'Gillian Flynn', '978-0-307-58836-4', 'Crown Publishers', 2012, 419, 'A psychological thriller about a marriage gone terribly wrong when Amy Dunne disappears.', 'gone_girl.jpg', 3, 4.1, 35),
 
--- Orient_Express_Agatha.jpg shows "Dune" cover:
-('Dune', 'Frank Herbert', '978-0-441-17271-9', 'Ace Books', 1965, 688, 'A science fiction masterpiece about politics, religion, and ecology on the desert planet Arrakis.', 'Orient_Express_Agatha.jpg', 4, 4.8, 38),
+-- Orient_Express_Agatha.jpg shows Murder on the Orient Express cover:
+('Murder on the Orient Express', 'Agatha Christie', '978-0-06-207350-4', 'William Morrow Paperbacks', 1934, 256, 'The story features the Belgian detective Hercule Poirot, who is on a luxury train that becomes stranded by a snowdrift. A murder is committed, and Poirot must solve the baffling mystery before the killer can strike again.', 'Orient_Express_Agatha.jpg', 6, 4.8, 38),
 
 -- Self-Help & Non-Fiction (Genre 7)
 ('Atomic Habits', 'James Clear', '978-0-7352-1129-2', 'Avery', 2018, 320, 'Tiny changes, remarkable results. An easy way to build good habits and break bad ones.', 'atomic_habits.jpg', 7, 4.6, 43),
 
--- Top_Stocks.jpg shows stock market book (assuming correct):
-('Top Stocks for Building Wealth', 'Michael Sincere', '978-0-07-174734-9', 'McGraw-Hill', 2012, 288, 'A comprehensive guide to selecting winning stocks and building long-term wealth in the stock market.', 'Top_Stocks.jpg', 7, 3.8, 15);
+-- Lacan_Shakespeare.jpg shows Lacan_Shakespeare.jpg cover:
+('From Shakespeare to Camus', 'Sarojakshan Thaikkad', '978-1-4516-4853-9', 'Simon & Schuster', 2011, 656, 'The book explores the relationship between psychoanalysis and literature, specifically examining the works of William Shakespeare and Albert Camus through the lens of Jacques Lacan\s psychoanalytic theories. ', 'Lacan_Shakespeare.jpg', 8, 4.3, 29),
+
+-- Top_Stocks.jpg shows stock market book shows "Top Stocks for Building Wealth" cover:
+('Top Stocks for Building Wealth', 'Michael Sincere', '978-0-07-174734-9', 'McGraw-Hill', 2012, 288, 'A comprehensive guide to selecting winning stocks and building long-term wealth in the stock market.', 'Top_Stocks.jpg', 7, 3.8, 15),
+
+-- ============================================
+-- NEW BOOKS ADDED - November 8, 2025
+-- ============================================
+-- Adventure Genre (Genre 10)
+('Run', 'Sarah Armstrong', '978-1-2345-6789-0', 'Adventure Press', 2023, 340, 'A gripping survival story that follows a young runner who must navigate dangerous terrain and face life-threatening challenges. This big-hearted adventure explores themes of resilience, determination, and the human spirit''s capacity to endure against all odds.', 'Run.jpg', 10, 4.2, 3),
+
+-- Sci-Fi Genre (Genre 4) 
+('Red City', 'Marie Liu', '978-1-2345-6789-1', 'Future Fiction', 2024, 425, 'Set in a dystopian future where cities are color-coded by social hierarchy, this thought-provoking sci-fi novel explores themes of inequality and resistance. When a young woman discovers the truth behind the Red City''s facade, she must choose between safety and revolution.', 'Red_City.jpg', 4, 4.5, 7),
+
+-- Sci-Fi Genre (Genre 4)
+('All That We See Or Seem', 'Ken Liu', '978-1-2345-6789-2', 'Speculative Press', 2023, 380, 'A mind-bending exploration of reality and perception that blurs the lines between dreams and waking life. This speculative fiction masterpiece challenges readers to question the nature of existence and consciousness in a world where nothing is quite what it seems.', 'All_That_We_See_Or_Seem.jpg', 4, 4.7, 12);
 
 -- ============================================
 -- Triggers to update book ratings and counts
@@ -333,87 +349,80 @@ END//
 DELIMITER ;
 
 -- ============================================
--- Insert sample reviews for our 12 books (matching new book IDs)
+-- Insert sample reviews for the 12 books
 -- ============================================
 INSERT INTO reviews (user_id, book_id, rating, review_title, review_text, helpful_count) VALUES
--- Harry Potter reviews (book_id 1)
-(1, 1, 5, 'Magical Beginning', 'Rowling created a world that feels completely real. Harry\'s journey from cupboard to Hogwarts is captivating.', 52),
-(2, 1, 5, 'Perfect for All Ages', 'Adults and children alike will be enchanted. The magic system is brilliantly thought out.', 41),
-(3, 1, 4, 'Great Start to Series', 'Sets up the world perfectly. Some pacing issues but the magic makes up for it.', 28),
+-- 1984 reviews (book_id 1)
+(1, 1, 4, 'Terrifyingly Relevant', 'Orwell\'s vision feels more relevant today than ever. A masterpiece that everyone should read.', 35),
+(4, 1, 5, 'Thought-Provoking', 'A powerful warning about government surveillance and control. The message is crucial.', 29),
+(2, 1, 4, 'Dystopian Masterpiece', 'Big Brother is watching. This book will change how you see the world.', 22),
 
--- 1984 reviews (book_id 2)
-(1, 2, 4, 'Terrifyingly Relevant', 'Orwell\'s vision feels more relevant today than ever. A masterpiece that everyone should read.', 35),
-(4, 2, 5, 'Thought-Provoking', 'A powerful warning about government surveillance and control. The message is crucial.', 29),
-(2, 2, 4, 'Dystopian Masterpiece', 'Big Brother is watching. This book will change how you see the world.', 22),
+-- The Great Gatsby reviews (book_id 2)
+(3, 2, 4, 'American Classic', 'Fitzgerald\'s prose is absolutely beautiful. The American Dream explored perfectly.', 31),
+(5, 2, 4, 'Beautifully Written', 'The Jazz Age comes alive. Gatsby is a tragic figure you won\'t forget.', 18),
+(1, 2, 4, 'Timeless Themes', 'Wealth, love, and the corruption of the American Dream. Still relevant today.', 24),
 
--- The Great Gatsby reviews (book_id 3)
-(3, 3, 4, 'American Classic', 'Fitzgerald\'s prose is absolutely beautiful. The American Dream explored perfectly.', 31),
-(5, 3, 4, 'Beautifully Written', 'The Jazz Age comes alive. Gatsby is a tragic figure you won\'t forget.', 18),
-(1, 3, 4, 'Timeless Themes', 'Wealth, love, and the corruption of the American Dream. Still relevant today.', 24),
+-- Little Women reviews (book_id 3)
+(2, 3, 4, 'Heartwarming Family Story', 'The March sisters feel like real people. Their struggles and joys are universal.', 26),
+(4, 3, 5, 'Comfort Read', 'A lovely story about family, growing up, and finding your place in the world.', 19),
+(3, 3, 4, 'Strong Female Characters', 'Each sister is unique and memorable. Alcott was ahead of her time.', 15),
 
--- Little Women reviews (book_id 4)
-(2, 4, 4, 'Heartwarming Family Story', 'The March sisters feel like real people. Their struggles and joys are universal.', 26),
-(4, 4, 5, 'Comfort Read', 'A lovely story about family, growing up, and finding your place in the world.', 19),
-(3, 4, 4, 'Strong Female Characters', 'Each sister is unique and memorable. Alcott was ahead of her time.', 15),
+-- Pride and Prejudice reviews (book_id 4)
+(4, 4, 5, 'Romance Done Right', 'Austen\'s wit shines through. Elizabeth Bennet is a heroine ahead of her time.', 47),
+(1, 4, 5, 'Perfect Romance', 'The slow burn between Elizabeth and Darcy is everything. Sharp social commentary.', 42),
+(2, 4, 4, 'Witty and Charming', 'Austen\'s social commentary disguised as romance. Elizabeth is a wonderful character.', 35),
 
--- To Kill a Mockingbird reviews (book_id 5) - Pride_Predudice.jpg shows this book
-(1, 5, 5, 'Essential Reading', 'Harper Lee tackles racism and injustice with grace. Scout\'s perspective is perfect.', 38),
-(3, 5, 4, 'Powerful and Moving', 'Atticus Finch is a hero for the ages. This book shaped my understanding of justice.', 33),
-(5, 5, 5, 'Timeless Classic', 'A profound story about moral courage and childhood innocence lost.', 27),
-(2, 5, 4, 'Important Message', 'Everyone should read this book. The lessons about prejudice are still relevant.', 21),
+-- The Shining reviews (book_id 5)
+(1, 5, 4, 'Masterful Horror', 'King at his best. The psychological descent is terrifying and believable.', 36),
+(5, 5, 5, 'Genuinely Scary', 'Couldn\'t sleep after reading. The Overlook Hotel feels like a character itself.', 31),
+(2, 5, 4, 'Slow Burn Terror', 'Builds tension perfectly. Jack\'s descent into madness is horrifying.', 24),
 
--- Pride and Prejudice reviews (book_id 6) - The_Shining.jpg shows this book
-(4, 6, 5, 'Romance Done Right', 'Austen\'s wit shines through. Elizabeth Bennet is a heroine ahead of her time.', 47),
-(1, 6, 5, 'Perfect Romance', 'The slow burn between Elizabeth and Darcy is everything. Sharp social commentary.', 42),
-(2, 6, 4, 'Witty and Charming', 'Austen\'s social commentary disguised as romance. Elizabeth is a wonderful character.', 35),
-(5, 6, 5, 'Timeless Love Story', 'More than just romance. Austen skewers society with precision and humor.', 29),
+-- Harry Potter reviews (book_id 6)
+(1, 6, 5, 'Magical Beginning', 'Rowling created a world that feels completely real. Harry\'s journey from cupboard to Hogwarts is captivating.', 52),
+(2, 6, 5, 'Perfect for All Ages', 'Adults and children alike will be enchanted. The magic system is brilliantly thought out.', 41),
+(3, 6, 4, 'Great Start to Series', 'Sets up the world perfectly. Some pacing issues but the magic makes up for it.', 28),
 
--- Gone Girl reviews (book_id 7)
-(3, 7, 4, 'Twisted Psychological Thriller', 'Flynn keeps you guessing until the very end. The unreliable narrators are masterful.', 32),
-(2, 7, 4, 'Dark Page Turner', 'Couldn\'t put it down! The plot twists are shocking. Not for the faint of heart.', 28),
-(4, 7, 4, 'Complex Characters', 'Both Nick and Amy are fascinating and terrible. Makes you question everything.', 19),
+-- Lord of the Rings reviews (book_id 7)
+(3, 7, 5, 'Epic Fantasy Masterpiece', 'Tolkien created the ultimate fantasy world. The depth and detail is unmatched.', 45),
+(2, 7, 4, 'Rich World Building', 'Middle-earth feels completely real. The journey is long but worth every page.', 38),
+(4, 7, 5, 'Timeless Adventure', 'A classic that inspired all fantasy that came after. Characters you\'ll never forget.', 32),
 
--- The Shining reviews (book_id 8)
-(1, 8, 4, 'Masterful Horror', 'King at his best. The psychological descent is terrifying and believable.', 36),
-(5, 8, 5, 'Genuinely Scary', 'Couldn\'t sleep after reading. The Overlook Hotel feels like a character itself.', 31),
-(2, 8, 4, 'Slow Burn Terror', 'Builds tension perfectly. Jack\'s descent into madness is horrifying.', 24),
+-- Gone Girl reviews (book_id 8)
+(3, 8, 4, 'Twisted Psychological Thriller', 'Flynn keeps you guessing until the very end. The unreliable narrators are masterful.', 32),
+(2, 8, 4, 'Dark Page Turner', 'Couldn\'t put it down! The plot twists are shocking. Not for the faint of heart.', 28),
+(4, 8, 4, 'Complex Characters', 'Both Nick and Amy are fascinating and terrible. Makes you question everything.', 19),
 
--- The Catcher in the Rye reviews (book_id 9) - Lord_Of_The_Rings.jpg shows this book
-(3, 9, 4, 'Coming of Age Classic', 'Salinger captures teenage alienation perfectly. Holden\'s voice is unforgettable.', 29),
-(4, 9, 4, 'Raw and Honest', 'Controversial but brilliant. Holden\'s journey through New York is compelling.', 22),
-(1, 9, 4, 'Iconic Voice', 'Love him or hate him, Holden Caulfield is one of literature\'s most memorable characters.', 18),
-(5, 9, 3, 'Polarizing but Important', 'Not for everyone, but captures the confusion of adolescence perfectly.', 15),
+-- Murder on the Orient Express reviews (book_id 9)
+(3, 9, 5, 'Classic Mystery', 'Christie at her finest. The plot twists are brilliant and the solution unexpected.', 34),
+(4, 9, 4, 'Poirot Perfection', 'Hercule Poirot is the perfect detective. The setting on the train is atmospheric.', 28),
+(1, 9, 4, 'Clever Puzzle', 'A masterclass in mystery writing. Every clue matters in this ingenious plot.', 22),
 
--- Dune reviews (book_id 10) - Orient_Express_Agatha.jpg shows this book
-(3, 10, 5, 'Sci-Fi Masterpiece', 'Herbert created an incredibly detailed universe. Politics, religion, ecology - it has everything.', 35),
-(4, 10, 5, 'Epic World Building', 'The depth of Arrakis and the spice economy is unmatched in science fiction.', 28),
-(1, 10, 4, 'Complex but Rewarding', 'Takes patience but rewards careful readers. The political intrigue is fascinating.', 22),
-(5, 10, 5, 'Changed Sci-Fi Forever', 'Influenced every space opera that came after. A true masterpiece.', 19),
+-- Atomic Habits reviews (book_id 10)
+(2, 10, 5, 'Life Changing', 'Clear\'s approach is practical and actually works. Built 3 new habits using his methods.', 45),
+(4, 10, 5, 'Best Self-Help Book', 'Finally a self-help book that\'s actionable. The 1% improvement concept is genius.', 38),
+(1, 10, 4, 'Practical and Useful', 'Easy to understand and implement. Actually saw results within weeks.', 33),
 
--- Atomic Habits reviews (book_id 11)
-(2, 11, 5, 'Life Changing', 'Clear\'s approach is practical and actually works. Built 3 new habits using his methods.', 45),
-(4, 11, 5, 'Best Self-Help Book', 'Finally a self-help book that\'s actionable. The 1% improvement concept is genius.', 38),
-(1, 11, 4, 'Practical and Useful', 'Easy to understand and implement. Actually saw results within weeks.', 33),
-(3, 11, 5, 'Systems Over Goals', 'Changed my whole approach to personal development. Highly recommended.', 27),
+-- From Shakespeare to Camus reviews (book_id 11)
+(2, 11, 4, 'Intellectual Journey', 'Thaikkad bridges literature and psychoanalysis beautifully. Complex but rewarding.', 18),
+(4, 11, 4, 'Scholarly Excellence', 'Deep analysis of how psychoanalytic theory illuminates classic literature.', 15),
+(1, 11, 3, 'Academic but Accessible', 'Heavy material but well-presented. Good for literature students.', 12),
 
--- Top Stocks reviews (book_id 12)
+-- Top Stocks for Building Wealth reviews (book_id 12)
 (5, 12, 4, 'Good Investment Primer', 'Solid advice for beginners. The stock selection criteria are helpful.', 12),
 (3, 12, 4, 'Practical Investing Guide', 'Easy to understand approach to stock picking. Good for new investors.', 8),
 (1, 12, 3, 'Basic but Useful', 'Covers the fundamentals well. Could use more advanced strategies.', 6);
 
 -- ============================================
--- Insert sample favorites for our 12 books (matching new IDs)
+-- Insert sample favorites for our 12 books 
 -- ============================================
 INSERT INTO favorites (user_id, book_id) VALUES
 (1, 1), (1, 2), (1, 5), (1, 10),
-(2, 1), (2, 4), (2, 6), (2, 8),
+(2, 1), (2, 4), (2, 6), (2, 8), (2, 12),
 (3, 3), (3, 5), (3, 7), (3, 9),
-(4, 2), (4, 6), (4, 7), (4, 10),
-(5, 1), (5, 3), (5, 6), (5, 9);
+(4, 2), (4, 6), (4, 7), (4, 10), (4, 12),
+(5, 1), (5, 3), (5, 6), (5, 9), (5, 12);
 
--- ============================================
--- Clean up and finalize
--- ============================================
+
 
 -- Update book ratings based on reviews (in case triggers didn't fire)
 UPDATE books b 

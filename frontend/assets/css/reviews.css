@@ -1,0 +1,36 @@
+/* Reviews Page Styles */
+.review-item .card {
+    transition: transform 0.2s ease;
+    border: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.review-item .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.star-rating-input .star {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #ddd;
+    transition: color 0.2s;
+}
+
+.star-rating-input .star:hover {
+    color: #ffc107;
+}
+
+@media (max-width: 768px) {
+    .review-item {
+        margin-bottom: 1rem;
+    }
+}

@@ -4,9 +4,9 @@
 /* Root Variables & Design System */
 :root {
     /* Colors */
-    --primary-purple: #7C3AED;
-    --purple-dark: #5B21B6;
-    --purple-light: #C4B5FD;
+    --primary-purple: #6b21a7;
+    --purple-dark: #581c87;
+    --purple-light: #a855f7;
     --purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --text-dark: #1F2937;
     --text-medium: #6B7280;
@@ -123,7 +123,7 @@ a:hover {
 
 /* Hero Section */
 .hero-section {
-    background: var(--purple-gradient);
+    background: var(--primary-purple);
     color: white;
     padding: 5rem 0;
     position: relative;
@@ -317,15 +317,11 @@ button:active {
 .dropdown-toggle:active,
 .dropdown-toggle.show {
     color: var(--primary-purple) !important;
-    border-color: var(--primary-purple) !important;
-    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
-.nav-link.dropdown-toggle:focus,
-.nav-link.dropdown-toggle:active,
-.nav-link.dropdown-toggle.show {
-    color: var(--primary-purple) !important;
-}
+
 
 /* Override Bootstrap Links */
 a {
@@ -553,7 +549,7 @@ a:hover {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: var(--purple-gradient);
+    background: var(--primary-purple);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -633,7 +629,7 @@ a:hover {
 
 /* Footer */
 .footer {
-    background: var(--text-dark);
+    background: var(--primary-purple);
     color: white;
     padding: 3rem 0 1rem;
     margin-top: 5rem;
@@ -660,7 +656,8 @@ a:hover {
 }
 
 .social-icons a:hover {
-    color: var(--primary-purple);
+    color: white;
+    transform: translateY(-2px);
 }
 
 /* Forms */
@@ -742,7 +739,7 @@ a:hover {
 
 .auth-left {
     flex: 1;
-    background: var(--purple-gradient);
+    background: var(--primary-purple);
     color: white;
     padding: 3rem;
     display: flex;

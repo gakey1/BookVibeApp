@@ -5,7 +5,7 @@
                 <!-- About Column -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <h5>About BookVibe</h5>
-                    <p class="text-light">Your ultimate destination for discovering, reviewing, and collecting your favorite books in one beautiful platform.</p>
+                    <p style="color: var(--text-light);">Your ultimate destination for discovering, reviewing, and collecting your favorite books in one beautiful platform.</p>
                     <div class="social-icons">
                         <a href="https://twitter.com/bookvibe" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
                         <a href="https://facebook.com/bookvibe" target="_blank" rel="noopener"><i class="fab fa-facebook"></i></a>
@@ -20,7 +20,7 @@
                     <ul class="list-unstyled">
                         <li><a href="browse.php">Browse Books</a></li>
                         <li><a href="browse.php?sort=newest">New Releases</a></li>
-                        <li><a href="browse.php?sort=popular">Bestsellers</a></li>
+                        <li><a href="#" onclick="showComingSoon(event)">Bestsellers</a></li>
                         <li><a href="browse.php">All Genres</a></li>
                     </ul>
                 </div>
@@ -65,10 +65,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- API JavaScript -->
-    <script src="assets/js/api.js"></script>
+    <script src="assets/js/api.js?v=<?php echo time(); ?>"></script>
     
     <!-- Custom JavaScript -->
-    <script src="assets/js/script.js"></script>
+    <script src="assets/js/script.js?v=<?php echo time(); ?>"></script>
     
     <!-- Coming Soon Modal -->
     <div class="modal fade" id="comingSoonModal" tabindex="-1" aria-labelledby="comingSoonModalLabel" aria-hidden="true">

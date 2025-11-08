@@ -30,8 +30,8 @@ try {
     $trendingBooks = $trendingBooks->fetchAll(PDO::FETCH_ASSOC);
     
     // Process book covers
-    foreach ($trendingBooks as &$book) {
-        $book['cover'] = 'assets/images/books/' . $book['cover'];
+    foreach ($trendingBooks as $index => $book) {
+        $trendingBooks[$index]['cover'] = 'assets/images/books/' . $book['cover'];
     }
     
     // Get recent reviews
@@ -49,10 +49,13 @@ try {
     $recentReviews->execute();
     $recentReviews = $recentReviews->fetchAll(PDO::FETCH_ASSOC);
     
-    // Process reviews
+    // Process reviews with avatar fallback
     foreach ($recentReviews as &$review) {
-        $review['avatar'] = $review['avatar'] ?: 'default.jpg';
-        $review['avatar'] = 'assets/images/profiles/' . $review['avatar'];
+        if ($review['avatar'] && $review['avatar'] !== 'default.jpg' && $review['avatar'] !== 'default.svg' && $review['avatar'] !== '') {
+            $review['avatar'] = 'assets/images/profiles/' . $review['avatar'];
+        } else {
+            $review['avatar'] = 'assets/images/profiles/default.svg';
+        }
         $review['time'] = timeAgo($review['created_at']);
         $review['excerpt'] = strlen($review['excerpt']) > 150 ? substr($review['excerpt'], 0, 150) . '...' : $review['excerpt'];
     }
@@ -69,7 +72,7 @@ try {
     $genres = $genres->fetchAll(PDO::FETCH_ASSOC);
     
 } catch (Exception $e) {
-    // Log error but continue with empty arrays (better than fallback)
+    // Log error but continue with empty arrays
     error_log("Database error on homepage: " . $e->getMessage());
 }
 
@@ -93,10 +96,10 @@ function timeAgo($datetime) {
                 <p class="mb-4">Join thousands of readers exploring, reviewing, and collecting their favorite books in one beautiful platform.</p>
                 <div class="d-flex gap-3">
                     <a href="browse.php" class="btn btn-light btn-lg">
-                        <i class="fas fa-compass me-2"></i>Explore Books
+                        Explore Books
                     </a>
                     <?php if (!$isLoggedIn): ?>
-                    <a href="../backend/register.php" class="btn btn-outline-light btn-lg">
+                    <a href="register.php" class="btn btn-outline-light btn-lg">
                         <i class="fas fa-users me-2"></i>Join Community
                     </a>
                     <?php endif; ?>
@@ -107,8 +110,8 @@ function timeAgo($datetime) {
                     <!-- Decorative book images using actual covers -->
                     <img src="assets/images/books/1984.jpg" 
                          class="hero-book" style="left: 50px; top: 20px; transform: rotate(-10deg);" alt="1984">
-                    <img src="assets/images/books/google_iICQDwAAQBAJ.jpg" 
-                         class="hero-book" style="left: 200px; top: 0; transform: rotate(5deg);" alt="Featured Book">
+                    <img src="assets/images/books/atomic_habits.jpg" 
+                         class="hero-book" style="left: 200px; top: 0; transform: rotate(5deg);" alt="Atomic Habits">
                     <img src="assets/images/books/gatsby.jpg" 
                          class="hero-book" style="left: 350px; top: 30px; transform: rotate(-8deg);" alt="The Great Gatsby">
                 </div>
@@ -197,7 +200,9 @@ function timeAgo($datetime) {
             <div class="col-lg-4 col-md-6">
                 <div class="review-card">
                     <div class="review-header">
-                        <img src="<?php echo $review['avatar']; ?>" alt="<?php echo $review['user']; ?>" class="review-avatar">
+                        <img src="<?php echo $review['avatar']; ?>" alt="<?php echo $review['user']; ?>" class="review-avatar"
+                             onerror="this.src='assets/images/profiles/default.svg'"
+                             style="background: #f8f9fa; border: 1px solid #e9ecef;">
                         <div>
                             <div class="review-user"><?php echo $review['user']; ?></div>
                             <div class="review-date"><?php echo $review['time']; ?></div>
@@ -281,14 +286,38 @@ function timeAgo($datetime) {
             <div class="col-lg-6 text-center">
                 <h3>Stay Updated</h3>
                 <p class="text-muted mb-4">Get the latest book recommendations and reviews delivered to your inbox</p>
-                <form class="d-flex gap-2">
-                    <input type="email" class="form-control form-control-custom" placeholder="Enter your email">
+                <form class="d-flex gap-2" id="newsletterForm">
+                    <input type="email" class="form-control form-control-custom" id="newsletterEmail" placeholder="Enter your email" required>
                     <button type="submit" class="btn btn-primary-custom">Subscribe</button>
                 </form>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Newsletter Success Modal -->
+<div class="modal fade" id="newsletterSuccessModal" tabindex="-1" aria-labelledby="newsletterSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="newsletterSuccessModalLabel" style="color: var(--primary-purple);">Welcome to BookVibe!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-envelope fa-3x mb-3" style="color: var(--primary-purple);"></i>
+                <h4>Successfully Subscribed!</h4>
+                <p class="text-muted mb-4">Thank you for subscribing to our newsletter! You'll receive the latest book recommendations and reviews delivered straight to your inbox.</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <span class="badge bg-success">Subscribed</span>
+                    <span class="badge" style="background: var(--primary-purple);">Welcome!</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn" style="background: var(--primary-purple); color: white;" data-bs-dismiss="modal">Start Exploring!</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Custom CSS for 5-column layout -->
 <style>
@@ -299,5 +328,39 @@ function timeAgo($datetime) {
     }
 }
 </style>
+
+<script>
+// Newsletter subscription handler
+document.addEventListener('DOMContentLoaded', function() {
+    const newsletterForm = document.getElementById('newsletterForm');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('newsletterEmail');
+            const email = emailInput.value.trim();
+            
+            if (!email || !email.includes('@')) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Please enter a valid email address', 'error');
+                } else {
+                    alert('Please enter a valid email address');
+                }
+                return;
+            }
+            
+            // Show success modal
+            const modal = new bootstrap.Modal(document.getElementById('newsletterSuccessModal'));
+            modal.show();
+            
+            // Clear the form
+            emailInput.value = '';
+            
+            // Optional: You can add actual newsletter subscription logic here
+            // For now, it's just a visual confirmation
+        });
+    }
+});
+</script>
 
 <?php include 'includes/footer.php'; ?>

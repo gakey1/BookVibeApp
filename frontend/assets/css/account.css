@@ -1,0 +1,157 @@
+/* Account page specific styles */
+
+.activity-item {
+    border-left: 3px solid #e9ecef;
+    padding-left: 15px;
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    border-left-color: #6b21a7;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: -5px 0;
+}
+
+.activity-item .fas:hover {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.text-purple {
+    color: #6b21a7 !important;
+}
+
+.text-purple-light {
+    color: #A855F7 !important;
+}
+
+.text-purple-dark {
+    color: #581c87 !important;
+}
+
+.text-purple-gradient {
+    background: #6b21a7;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-orange {
+    color: #fd7e14 !important;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Purple icon hover effects */
+.fas.text-purple:hover {
+    color: #A855F7 !important;
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+.fas.text-purple-light:hover {
+    color: #6b21a7 !important;
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+.fas.text-purple-dark:hover {
+    color: #6b21a7 !important;
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+.fas.text-purple-gradient:hover {
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+.profile-avatar {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100%;
+}
+
+.profile-avatar img, .profile-avatar > div {
+    transition: transform 0.3s ease;
+    display: block;
+    margin: 0 auto;
+}
+
+.profile-avatar:hover img, .profile-avatar:hover > div {
+    transform: scale(1.05);
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: #6b21a7;
+    color: #6b21a7;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: transparent;
+    border-bottom-color: #6b21a7;
+    color: #6b21a7;
+    font-weight: 600;
+}
+
+.progress-bar {
+    background: #6b21a7;
+    transition: width 0.6s ease;
+}
+
+.btn-primary {
+    background: #6b21a7;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #6b21a7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
+}
+
+.form-control:focus {
+    border-color: #6b21a7;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: #6b21a7;
+    border-color: #6b21a7;
+}
+
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .profile-avatar {
+        margin-bottom: 2rem;
+    }
+}

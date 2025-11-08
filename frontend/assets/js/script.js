@@ -1,6 +1,6 @@
 /**
  * BookVibe - Main JavaScript
- * Basic functionality for enhanced user experience
+ * Basic functionality for user experience
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -210,6 +210,10 @@ function createStarRating(rating, showNumber = true) {
  */
 function updateStarRatings(selector = '[data-rating]') {
     document.querySelectorAll(selector).forEach(element => {
+        // Skip manual star inputs (like in review modals)
+        if (element.classList.contains('manual-stars') || element.classList.contains('star-rating-input')) {
+            return;
+        }
         const rating = parseFloat(element.dataset.rating);
         if (rating && rating > 0) {
             element.innerHTML = createStarRating(rating, false);
@@ -241,25 +245,33 @@ function initializeStarRatings() {
     const ratingContainers = document.querySelectorAll('.star-rating-input');
     
     ratingContainers.forEach(container => {
-        const stars = container.querySelectorAll('.star-btn');
-        const input = container.querySelector('input[type="hidden"]');
+        const stars = container.querySelectorAll('.star-btn, .star');
+        const input = container.querySelector('input[type="hidden"]') || 
+                     container.parentElement.querySelector('input[type="hidden"]');
         
-        stars.forEach((star, index) => {
-            star.addEventListener('click', () => {
-                const rating = index + 1;
-                input.value = rating;
-                updateStarDisplay(stars, rating);
+        // Skip if this is a manual star rating (book detail modal)
+        if (container.classList.contains('manual-stars')) {
+            return;
+        }
+        
+        if (input && stars.length > 0) {
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    const rating = index + 1;
+                    input.value = rating;
+                    updateStarDisplay(stars, rating);
+                });
+                
+                star.addEventListener('mouseenter', () => {
+                    updateStarDisplay(stars, index + 1);
+                });
             });
             
-            star.addEventListener('mouseenter', () => {
-                updateStarDisplay(stars, index + 1);
+            container.addEventListener('mouseleave', () => {
+                const currentRating = parseInt(input.value) || 0;
+                updateStarDisplay(stars, currentRating);
             });
-        });
-        
-        container.addEventListener('mouseleave', () => {
-            const currentRating = parseInt(input.value) || 0;
-            updateStarDisplay(stars, currentRating);
-        });
+        }
     });
     
     // Initialize display-only star ratings
@@ -278,7 +290,7 @@ function updateStarDisplay(stars, rating) {
     });
 }
 
-// Enhanced Form Validation
+// Form Validation
 function initializeFormValidation() {
     const forms = document.querySelectorAll('.needs-validation');
     
@@ -336,7 +348,10 @@ function initializeFavorites() {
             const isFavorited = this.classList.contains('favorited');
             
             if (isFavorited) {
-                removeFavorite(bookId, this);
+                // Note: removeFavorite function temporarily commented out
+                // This functionality is now handled by individual pages (e.g. favorites.php)
+                // For other pages, we'll use the heart icon toggle instead
+                console.warn('removeFavorite called - this functionality is handled by individual pages');
             } else {
                 addFavorite(bookId, this);
             }
@@ -417,6 +432,12 @@ function addFavorite(bookId, button) {
     });
 }
 
+/* 
+ * Original removeFavorite function - commented out
+ * Using custom modal in favorites.php instead of generic confirm dialog
+ */
+
+/*
 function removeFavorite(bookId, button) {
     if (confirm('Remove this book from favorites?')) {
         button.classList.remove('favorited');
@@ -437,6 +458,7 @@ function removeFavorite(bookId, button) {
         });
     }
 }
+*/
 
 // Password Strength Indicator
 function initializePasswordStrength() {
@@ -483,7 +505,7 @@ function updatePasswordStrengthDisplay(strength, bar, text) {
     }
 }
 
-// Enhanced Mobile Menu
+// Mobile Menu
 function initializeMobileMenu() {
     const menuToggle = document.querySelector('.navbar-toggler');
     const mobileMenu = document.querySelector('#navbarNav');
@@ -526,7 +548,7 @@ function initializeCharacterCounter() {
     });
 }
 
-// Enhanced Tooltips
+// Tooltips
 function initializeTooltips() {
     const tooltips = document.querySelectorAll('[data-tooltip]');
     
@@ -561,7 +583,7 @@ function initializeTooltips() {
 window.BookVibe = {
     showNotification,
     addFavorite,
-    removeFavorite,
+    // removeFavorite, // Commented out - handled by individual pages now
     createStarRating,
     updateStarRatings,
     formatNumber,
