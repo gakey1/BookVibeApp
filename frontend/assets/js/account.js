@@ -2,7 +2,7 @@
 
 // Save profile changes
 function saveProfile() {
-    // TODO: Send AJAX request to Tracy's profile update API
+    // TODO: Send AJAX request to profile update API
     if (typeof showNotification === 'function') {
         showNotification('Profile update feature coming soon!', 'info');
     } else if (typeof showComingSoon === 'function') {
@@ -17,7 +17,7 @@ function saveProfile() {
 document.getElementById('editProfileForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // TODO: Send AJAX request to Tracy's profile update API
+    // TODO: Send AJAX request to profile update API
     if (typeof showNotification === 'function') {
         showNotification('Profile update feature coming soon!', 'info');
     } else if (typeof showComingSoon === 'function') {
@@ -44,7 +44,7 @@ document.getElementById('changePasswordForm')?.addEventListener('submit', functi
         return;
     }
     
-    // TODO: Send AJAX request to Tracy's password change API
+    // TODO: Send AJAX request to password change API
     if (typeof showNotification === 'function') {
         showNotification('Password change feature coming soon!', 'info');
     } else if (typeof showComingSoon === 'function') {
@@ -58,7 +58,7 @@ document.getElementById('changePasswordForm')?.addEventListener('submit', functi
 // Settings checkboxes
 document.querySelectorAll('.form-check-input').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
-        // TODO: Send AJAX request to Tracy's settings API
+        // TODO: Send AJAX request to settings API
         console.log(`Setting ${this.id} ready for API integration:`, this.checked);
     });
 });

@@ -59,7 +59,7 @@ document.getElementById('sortReviews')?.addEventListener('change', function() {
 
 // Edit review
 function editReview(reviewId) {
-    // TODO: Load actual review data via AJAX when Tracy creates edit API
+    // TODO: Load actual review data via AJAX when edit API is available
     // For now, show modal with placeholder data
     document.getElementById('editReviewText').value = 'Loading review data...';
     document.getElementById('editRatingInput').value = '0';
@@ -74,22 +74,22 @@ function editReview(reviewId) {
     const modal = new bootstrap.Modal(document.getElementById('editReviewModal'));
     modal.show();
     
-    // Note: Ready for integration with Tracy's edit review API
+    // Note: Ready for integration with edit review API
 }
 
 // Save review edit
 function saveReviewEdit() {
-    // TODO: Send AJAX request to Tracy's edit review API
+    // TODO: Send AJAX request to edit review API
     // Ready for integration when backend API is available
-    alert('Review edit functionality ready for Tracy\'s API integration');
+    alert('Review edit functionality ready for API integration');
     document.querySelector('[data-bs-dismiss="modal"]').click();
 }
 
 // Toggle visibility
 function toggleVisibility(reviewId) {
-    // TODO: Send AJAX request to Tracy's toggle visibility API
+    // TODO: Send AJAX request to toggle visibility API
     // Ready for integration when backend API is available
-    alert('Visibility toggle ready for Tracy\'s API integration');
+    alert('Visibility toggle ready for API integration');
 }
 
 // Delete review
