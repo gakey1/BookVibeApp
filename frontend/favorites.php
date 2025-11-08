@@ -7,7 +7,7 @@ include 'includes/header.php';
 
 // Check if user is logged in
 if (!$isLoggedIn) {
-    header('Location: ../backend/login.php');
+    header('Location: login.php');
     exit;
 }
 
@@ -86,19 +86,28 @@ if ($totalBooks > 0) {
             <div>
                 <label class="form-label mb-1">Sort by:</label>
                 <select class="form-select form-select-sm" style="width: auto;" id="sortFavorites">
-                    <option value="recent">Date Added</option>
-                    <option value="title">Title</option>
-                    <option value="author">Author</option>
-                    <option value="rating">Rating</option>
+                    <option value="recent">Latest Added</option>
+                    <option value="oldest">Oldest Added</option>
+                    <option value="rating-high">Highest Rating</option>
+                    <option value="rating-low">Lowest Rating</option>
+                    <option value="title-az">Title A-Z</option>
+                    <option value="title-za">Title Z-A</option>
                 </select>
             </div>
             <div>
                 <label class="form-label mb-1">Genre:</label>
                 <select class="form-select form-select-sm" style="width: auto;" id="filterGenre">
                     <option value="">All Genres</option>
-                    <option value="classic">Classic Literature</option>
-                    <option value="dystopian">Dystopian Fiction</option>
-                    <option value="self-help">Self-Help</option>
+                    <option value="fiction">Fiction</option>
+                    <option value="romance">Romance</option>
+                    <option value="thriller">Thriller</option>
+                    <option value="sci-fi">Sci-Fi</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="mystery">Mystery</option>
+                    <option value="non-fiction">Non-Fiction</option>
+                    <option value="biography">Biography</option>
+                    <option value="history">History</option>
+                    <option value="adventure">Adventure</option>
                 </select>
             </div>
         </div>
@@ -130,7 +139,10 @@ if ($totalBooks > 0) {
     <!-- Favorites Grid -->
     <div class="row" id="favoritesContainer">
         <?php foreach ($favoriteBooks as $book): ?>
-        <div class="col-xl-2-4 col-lg-3 col-md-4 col-6 mb-4 favorite-item" data-genre="<?php echo strtolower(str_replace(' ', '-', $book['genre_name'])); ?>" id="favorite-<?php echo $book['book_id']; ?>">
+        <div class="col-xl-2-4 col-lg-3 col-md-4 col-6 mb-4 favorite-item" 
+             data-genre="<?php echo strtolower(str_replace(' ', '-', $book['genre_name'])); ?>" 
+             data-date-added="<?php echo $book['date_added']; ?>"
+             id="favorite-<?php echo $book['book_id']; ?>">
             <div class="book-card position-relative" onclick="window.location.href='book_detail.php?id=<?php echo $book['book_id']; ?>'">
                 <img src="assets/images/books/<?php echo htmlspecialchars($book['cover_image']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover">
                 <button class="btn btn-sm remove-favorite position-absolute" onclick="event.stopPropagation(); removeFavorite(<?php echo $book['book_id']; ?>, <?php echo $book['favorite_id']; ?>)" title="Remove from favorites" style="top: 10px; right: 10px; z-index: 10;">
@@ -152,8 +164,8 @@ if ($totalBooks > 0) {
     </div>
     
     <!-- Load More Button -->
-    <?php if (!empty($favoriteBooks)): ?>
-    <div class="text-center mt-4">
+    <?php if (!empty($favoriteBooks) && count($favoriteBooks) >= 12): ?>
+    <div class="text-center mt-4" id="loadMoreContainer">
         <button class="btn btn-outline-primary" onclick="loadMoreFavorites()">
             Load More Books
         </button>
@@ -197,248 +209,11 @@ if ($totalBooks > 0) {
     <?php endif; ?>
 </div>
 
-<script>
-// Search functionality
-document.getElementById('searchFavorites')?.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    const favorites = document.querySelectorAll('.favorite-item');
-    
-    favorites.forEach(item => {
-        const title = item.querySelector('.book-title').textContent.toLowerCase();
-        const author = item.querySelector('.book-author').textContent.toLowerCase();
-        
-        if (title.includes(searchTerm) || author.includes(searchTerm)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
 
-// Sort functionality
-document.getElementById('sortFavorites')?.addEventListener('change', function() {
-    const sortBy = this.value;
-    // Static demo - would implement sorting logic here
-    console.log('Sorting by:', sortBy);
-});
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/favorites.css?v=<?php echo time(); ?>">
 
-// Genre filter
-document.getElementById('filterGenre')?.addEventListener('change', function() {
-    const selectedGenre = this.value;
-    const favorites = document.querySelectorAll('.favorite-item');
-    
-    favorites.forEach(item => {
-        const genre = item.dataset.genre;
-        
-        if (!selectedGenre || genre === selectedGenre) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
-
-// Toggle view
-function toggleView(view) {
-    const gridView = document.getElementById('gridView');
-    const listView = document.getElementById('listView');
-    const container = document.getElementById('favoritesContainer');
-    
-    if (view === 'grid') {
-        gridView.classList.add('active');
-        listView.classList.remove('active');
-        container.className = 'row';
-        document.querySelectorAll('.favorite-item').forEach(item => {
-            item.className = 'col-lg-4 col-md-6 mb-4 favorite-item';
-        });
-    } else {
-        listView.classList.add('active');
-        gridView.classList.remove('active');
-        container.className = 'row';
-        document.querySelectorAll('.favorite-item').forEach(item => {
-            item.className = 'col-12 mb-3 favorite-item';
-        });
-    }
-}
-
-// Remove favorite
-function removeFavorite(bookId, favoriteId) {
-    if (confirm('Remove this book from your favorites?')) {
-        // Show loading state
-        const bookCard = document.getElementById('favorite-' + bookId);
-        const removeBtn = bookCard.querySelector('.remove-favorite');
-        const originalHTML = removeBtn.innerHTML;
-        
-        removeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        removeBtn.disabled = true;
-        
-        // Make AJAX call to backend API
-        fetch('../backend/api/favorites.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                book_id: parseInt(bookId),
-                action: 'remove'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Success - animate removal
-                bookCard.style.opacity = '0.5';
-                bookCard.style.transform = 'scale(0.8)';
-                
-                setTimeout(function() {
-                    bookCard.remove();
-                    
-                    // Update stats if needed
-                    const statsContainer = document.querySelector('.text-primary');
-                    if (statsContainer) {
-                        const currentCount = parseInt(statsContainer.textContent);
-                        if (currentCount > 1) {
-                            statsContainer.textContent = currentCount - 1;
-                        } else {
-                            // Reload page if no more favorites
-                            window.location.reload();
-                        }
-                    }
-                    
-                    // Show success message
-                    if (typeof showNotification === 'function') {
-                        showNotification('Removed from favorites', 'info');
-                    }
-                }, 300);
-            } else {
-                // Error - show message and restore button
-                alert(data.message || 'Failed to remove favorite');
-                removeBtn.innerHTML = originalHTML;
-                removeBtn.disabled = false;
-            }
-        })
-        .catch(error => {
-            console.error('Error removing favorite:', error);
-            alert('Failed to remove favorite. Please try again.');
-            removeBtn.innerHTML = originalHTML;
-            removeBtn.disabled = false;
-        });
-    }
-}
-
-// Export favorites function
-function exportFavorites() {
-    // Simple CSV export functionality
-    const favoriteItems = document.querySelectorAll('.favorite-item:not([style*="display: none"])');
-    let csvContent = 'Title,Author,Genre,Rating\\n';
-    
-    favoriteItems.forEach(item => {
-        const title = item.querySelector('.book-title').textContent;
-        const author = item.querySelector('.book-author').textContent;
-        const genre = item.querySelector('.genre-tag').textContent;
-        const rating = item.querySelector('.rating-text').textContent;
-        csvContent += `"${title}","${author}","${genre}","${rating}"\\n`;
-    });
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'my-favorite-books.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-}
-
-// Load more books function (placeholder)
-function loadMoreFavorites() {
-    // This would normally load more books from the database
-    alert('Load more functionality would fetch additional favorite books from the database.');
-}
-</script>
-
-<style>
-.remove-favorite {
-    opacity: 0;
-    transition: all 0.2s ease;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(220, 53, 69, 0.3);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(5px);
-}
-
-.remove-favorite:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.remove-favorite.favorited {
-    background: rgba(220, 53, 69, 0.1);
-    border-color: rgba(220, 53, 69, 0.5);
-}
-
-.book-card:hover .remove-favorite {
-    opacity: 1;
-}
-
-.book-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-}
-
-.genre-tag {
-    background: var(--purple-light);
-    color: var(--primary-purple);
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--radius-sm);
-    font-weight: 500;
-}
-
-.added-date {
-    color: var(--text-light);
-}
-
-.col-xl-2-4 {
-    flex: 0 0 auto;
-    width: 20%;
-}
-
-.stat-item {
-    padding: 1rem;
-}
-
-.stat-item h2 {
-    font-weight: 600;
-    font-size: 2rem;
-}
-
-.btn-purple {
-    background: var(--primary-purple, #7C3AED);
-    border-color: var(--primary-purple, #7C3AED);
-    color: white;
-}
-
-.btn-purple:hover {
-    background: var(--purple-dark, #5B21B6);
-    border-color: var(--purple-dark, #5B21B6);
-    color: white;
-}
-
-@media (max-width: 1200px) {
-    .col-xl-2-4 {
-        width: 25%;
-    }
-}
-</style>
+<!-- Page-specific JavaScript -->
+<script src="assets/js/favorites.js?v=<?php echo time(); ?>"></script>
 
 <?php include 'includes/footer.php'; ?>

@@ -63,9 +63,13 @@ try {
     $stmt->execute([$bookId]);
     $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Process review avatars
+    // Process review avatars with fallback
     foreach ($reviews as &$review) {
-        $review['avatar'] = $review['avatar'] ? 'assets/images/profiles/' . $review['avatar'] : 'assets/images/profiles/default.jpg';
+        if ($review['avatar'] && $review['avatar'] !== 'default.jpg' && $review['avatar'] !== 'default.svg' && $review['avatar'] !== '') {
+            $review['avatar'] = 'assets/images/profiles/' . $review['avatar'];
+        } else {
+            $review['avatar'] = 'assets/images/profiles/default.svg';
+        }
     }
 
     // Fetch Ratings Breakdown
@@ -142,7 +146,8 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
                     $is_favorited = $fav_check->fetch();
                     ?>
                     <button class="btn btn-primary btn-lg favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" 
-                            data-book-id="<?php echo $book['book_id']; ?>">
+                            data-book-id="<?php echo $book['book_id']; ?>"
+                            onclick="toggleBookFavorite(this, <?php echo $book['book_id']; ?>)">
                         <?php if ($is_favorited): ?>
                             <i class="fas fa-heart text-danger me-2"></i>Favorited
                         <?php else: ?>
@@ -150,7 +155,7 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
                         <?php endif; ?>
                     </button>
                 <?php else: ?>
-                <a href="../backend/login.php" class="btn btn-primary btn-lg">
+                <a href="login.php" class="btn btn-primary btn-lg">
                     <i class="fas fa-sign-in-alt me-2"></i>Login to Save
                 </a>
                 <?php endif; ?>
@@ -278,7 +283,9 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
                     <div class="d-flex justify-content-between mb-2">
                         <div class="d-flex align-items-center">
                             <img src="<?php echo $review['avatar']; ?>?t=<?php echo time(); ?>" alt="User" 
-                                 class="rounded-circle me-3" width="50" height="50">
+                                 class="rounded-circle me-3" width="50" height="50"
+                                 onerror="this.src='assets/images/profiles/default.svg'"
+                                 style="background: #f8f9fa; border: 1px solid #e9ecef;">
                             <div>
                                 <h6 class="mb-0"><?php echo htmlspecialchars($review['user_name']); ?></h6>
                                 <div class="rating" data-rating="<?php echo $review['rating']; ?>">
@@ -311,9 +318,9 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
                     
                     <div class="mb-3">
                         <label class="form-label">Your Rating</label>
-                        <div class="star-rating-input" data-rating="0">
+                        <div class="star-rating-input manual-stars" data-input-rating="0">
                             <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <i class="far fa-star star" data-rating="<?php echo $i; ?>"></i>
+                                <i class="far fa-star star" data-star-value="<?php echo $i; ?>"></i>
                             <?php endfor; ?>
                         </div>
                         <input type="hidden" name="rating" id="ratingInput" value="0">
@@ -338,174 +345,10 @@ $pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
 </div>
 <?php endif; ?>
 
-<script>
-// Initialize star rating input
-document.querySelectorAll('.star-rating-input .star').forEach(star => {
-    star.addEventListener('click', function() {
-        const rating = this.dataset.rating;
-        const container = this.parentElement;
-        container.dataset.rating = rating;
-        document.getElementById('ratingInput').value = rating;
-        
-        container.querySelectorAll('.star').forEach((s, index) => {
-            if (index < rating) {
-                s.classList.remove('far');
-                s.classList.add('fas', 'text-warning');
-            } else {
-                s.classList.add('far');
-                s.classList.remove('fas', 'text-warning');
-            }
-        });
-    });
-});
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/book_detail.css?v=<?php echo time(); ?>">
 
-// Character counter
-document.getElementById('reviewText')?.addEventListener('input', function() {
-    document.getElementById('charCount').textContent = this.value.length;
-});
-
-// Submit review with AJAX
-function submitReview() {
-    const form = document.getElementById('reviewForm');
-    const formData = new FormData(form);
-    
-    if (formData.get('rating') == '0') {
-        alert('Please select a rating');
-        return;
-    }
-    
-    if (!formData.get('review_text').trim()) {
-        alert('Please write a review');
-        return;
-    }
-    
-    // Show loading state
-    const submitBtn = document.querySelector('#writeReviewModal .btn-primary');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
-    submitBtn.disabled = true;
-    
-    // Prepare data for AJAX call
-    const reviewData = {
-        book_id: formData.get('book_id'),
-        rating: formData.get('rating'),
-        review_text: formData.get('review_text')
-    };
-    
-    // AJAX call to Tracy's review submission API
-    $.ajax({
-        url: '../backend/review_submit.php',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(reviewData),
-        success: function(response) {
-            alert('Review submitted successfully!');
-            document.querySelector('[data-bs-dismiss="modal"]').click();
-            // Refresh page to show new review
-            window.location.reload();
-        },
-        error: function(xhr, status, error) {
-            console.error('Review submission failed:', error);
-            const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'Failed to submit review. Please try again.';
-            alert(errorMsg);
-        },
-        complete: function() {
-            // Reset button
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
-    });
-}
-
-// Add to favorites with AJAX
-function addToFavorites(bookId) {
-    // Find the favorites button
-    const favButton = document.querySelector('.btn-primary.btn-lg');
-    const originalText = favButton.innerHTML;
-    
-    // Show loading state
-    favButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
-    favButton.disabled = true;
-    
-    // AJAX call to Tracy's favorites API
-    $.ajax({
-        url: '../backend/api/favorites.php',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({book_id: bookId}),
-        success: function(response) {
-            if (response.success) {
-                alert('Added to favorites successfully!');
-                // Update button to show it's favorited
-                favButton.innerHTML = '<i class="fas fa-heart me-2"></i>Added to Favorites';
-                favButton.classList.remove('btn-primary');
-                favButton.classList.add('btn-success');
-                favButton.disabled = true;
-            } else {
-                alert(response.message || 'Failed to add to favorites');
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Favorites request failed:', error);
-            const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : 'Failed to add to favorites. Please try again.';
-            alert(errorMsg);
-            
-            // Reset button on error
-            favButton.innerHTML = originalText;
-            favButton.disabled = false;
-        }
-    });
-}
-
-// Share book
-function shareBook() {
-    if (navigator.share) {
-        navigator.share({
-            title: '<?php echo htmlspecialchars($book['title']); ?>',
-            text: 'Check out this book!',
-            url: window.location.href
-        });
-    } else {
-        // Fallback - copy to clipboard
-        navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard!');
-    }
-}
-
-// Toggle description
-function toggleDescription() {
-    const desc = document.getElementById('bookDescription');
-    desc.classList.toggle('expanded');
-}
-</script>
-
-<style>
-.book-detail-cover {
-    max-height: 600px;
-    width: 100%;
-    object-fit: cover;
-}
-
-.book-description {
-    max-height: 200px;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-}
-
-.book-description.expanded {
-    max-height: none;
-}
-
-.star-rating-input .star {
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #ddd;
-    transition: color 0.2s;
-}
-
-.star-rating-input .star:hover {
-    color: #ffc107;
-}
-</style>
+<!-- Page-specific JavaScript -->
+<script src="assets/js/book_detail.js?v=<?php echo time(); ?>"></script>
 
 <?php include 'includes/footer.php'; ?>

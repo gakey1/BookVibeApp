@@ -12,7 +12,7 @@ A modern, responsive book review platform built with PHP backend and Bootstrap f
 - Newsletter signup
 
 ###  Book Management
-- Browse 12+ books with cover images
+- Browse 15 books with cover images
 - Detailed book pages with reviews
 - Star rating system (1-5 stars)
 - Genre-based filtering and search
@@ -27,26 +27,29 @@ A modern, responsive book review platform built with PHP backend and Bootstrap f
 
 ###  Modern UI/UX
 - Fully responsive design (mobile-first)
-- Modern BookVibe design system
+- Professional purple theme (#6b21a7)
 - Interactive JavaScript features
 - Bootstrap 5 components
-- Professional typography and spacing
+- Clean typography and spacing
 
 ## Technical Stack
 
 - **Backend**: PHP 8+ with PDO
 - **Database**: MySQL with optimized schema
 - **Frontend**: Bootstrap 5, Custom CSS, JavaScript
-- **Architecture**: MVC pattern with Database singleton
+- **Architecture**: MVC pattern with proper separation of concerns
 - **Security**: Input sanitization, session management, CSRF protection
+- **Design**: Professional purple theme, gradient-free styling
 
 ## Project Structure
 
 ```
 BookVibeApp/
 ├── backend/
-│   ├── login.php          # User authentication
-│   ├── register.php       # User registration
+│   ├── login.php          # Redirects to frontend login
+│   ├── register.php       # Redirects to frontend register
+│   ├── login_handler.php  # Authentication business logic
+│   ├── register_handler.php # Registration business logic
 │   ├── logout.php         # Session termination
 │   └── review_submit.php  # Review processing
 ├── config/
@@ -55,18 +58,36 @@ BookVibeApp/
 │   └── testdb.php        # Database testing utilities
 └── frontend/
     ├── assets/
-    │   ├── css/style.css      # Custom styling
-    │   ├── js/script.js       # Interactive features
-    │   └── images/books/      # Book cover images (12 books)
+    │   ├── css/
+    │   │   ├── style.css      # Main styling with purple theme
+    │   │   ├── browse.css     # Browse page styles
+    │   │   ├── login.css      # Login page styles
+    │   │   ├── register.css   # Registration page styles
+    │   │   ├── account.css    # Account page styles
+    │   │   ├── favorites.css  # Favorites page styles
+    │   │   ├── book_detail.css # Book detail page styles
+    │   │   └── reviews.css    # Review page styles
+    │   ├── js/
+    │   │   ├── script.js      # Main interactive features
+    │   │   ├── api.js         # API utility functions
+    │   │   ├── register.js    # Registration page functionality
+    │   │   ├── account.js     # Account page functionality
+    │   │   ├── favorites.js   # Favorites page functionality
+    │   │   ├── book_detail.js # Book detail page functionality
+    │   │   └── reviews.js     # Review page functionality
+    │   └── images/books/      # Book cover images (15 books)
     ├── includes/
     │   ├── header.php         # Navigation and head
     │   └── footer.php         # Footer and scripts
     ├── index.php             # Homepage
     ├── browse.php            # Book catalog
     ├── book_detail.php       # Individual book pages
+    ├── login.php             # User login interface
+    ├── register.php          # User registration interface
     ├── account.php           # User profile
     ├── favorites.php         # User favorites
-    └── reviews.php           # Review management
+    ├── reviews.php           # Review management
+    └── admin_add_books.php   # Admin tool for adding books
 ```
 
 ## Setup Instructions
@@ -79,8 +100,8 @@ BookVibeApp/
 ### Installation
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/username/book-review-website.git
-   cd book-review-website
+   git clone https://github.com/gakey1/BookVibeApp.git
+   cd BookVibeApp
    ```
 
 2. **Set up local server**
@@ -89,26 +110,37 @@ BookVibeApp/
 
 3. **Configure database**
    - Create MySQL database named `bookvibe`
-   - Import database schema (if available)
+   - Import `database/bookvibe.sql` (includes 15 books + sample data)
    - Database config auto-detects XAMPP/MAMP settings
 
 4. **Access the application**
-   - Navigate to `http://localhost/book-review-website/frontend/`
+   - Navigate to `http://localhost/BookVibeApp/frontend/`
    - Register a new account or browse books
 
 ## Database Configuration
 
-The application includes intelligent environment detection:
-- **XAMPP**: `localhost:3307`, user: `root`, password: (empty)
+The application includes automatic environment detection:
+- **XAMPP**: `localhost:3306`, user: `root`, password: (empty)
 - **MAMP**: `localhost:8889`, user: `root`, password: `root`
 - **Custom**: Modify `config/db.php` for other setups
+
+### Database Import Instructions
+1. **Start your local server** (XAMPP/MAMP)
+2. **Access database admin**:
+   - XAMPP: `http://localhost/phpmyadmin`
+   - MAMP: `http://localhost:8889/phpMyAdmin`
+3. **Create new database** named `bookvibe`
+4. **Import SQL file**: Select and import `database/bookvibe.sql`
+5. **Verify import**: Database should contain 15 books across 10 genres
+
+**Note**: The database file includes all sample data - no additional scripts needed.
 
 ## Team Collaboration
 
 ### Development Timeline
 - **Oct 13-24**: Backend foundation and core functionality (Tracy)
 - **Oct 31**: Frontend interface and user experience (Gakey1)
-- **Nov 1**: Bug fixes and final polish
+- **Nov 8**: Architecture improvements and code organization
 
 ### Contributors
 - **Backend Development**: Tracy Nguyen
@@ -119,19 +151,46 @@ The application includes intelligent environment detection:
 - **Frontend Development**: Gakey1
   - Modern responsive UI/UX
   - JavaScript interactivity
-  - BookVibe design system
+  - Professional purple theme design
   - User interface optimization
+  - MVC architecture implementation
 
 ## Features Implemented
 
-- **User Authentication** - Registration, login, logout with sessions  
-- **Book Catalog** - 12 books with covers, ratings, and details  
-- **Review System** - Star ratings and written reviews  
-- **Responsive Design** - Mobile-first, modern UI  
-- **Search & Filter** - Genre-based browsing  
-- **User Favorites** - Personal book collections  
-- **Database Integration** - XAMPP/MAMP compatibility  
-- **Security Features** - Input validation and session management
+- **User Authentication** - Registration, login, logout with MVC architecture
+- **Book Catalog** - 15 books with covers, ratings, and details  
+- **Review System** - Star ratings and written reviews with modal interfaces
+- **Responsive Design** - Mobile-first, professional purple theme
+- **Search & Filter** - Genre-based browsing with real database genres
+- **User Favorites** - Personal book collections with enhanced filtering
+- **Database Integration** - XAMPP/MAMP compatibility with proper session management
+- **Security Features** - Input validation, session management, and MVC separation
+- **Code Quality** - Proper separation of concerns, externalized CSS/JS
+- **Admin Tools** - Database management scripts for adding new books
+
+## Recent Improvements (November 2025)
+
+### Architecture Enhancements
+- **MVC Implementation** - Proper separation of concerns for authentication system
+- **Session Management** - Fixed duplicate session_start() conflicts
+- **Code Organization** - Externalized CSS/JS from PHP files for better maintainability
+
+### UI/UX Improvements  
+- **Theme Standardization** - Unified purple color scheme (#6b21a7) across all pages
+- **Design Cleanup** - Removed gradients and automated-looking elements
+- **Typography** - Improved font hierarchy and spacing consistency
+- **Modal System** - Enhanced review and delete confirmation modals
+
+### Bug Fixes
+- **JavaScript Conflicts** - Resolved star rating display issues in reviews
+- **Database Consistency** - Fixed column name mismatches throughout application
+- **Responsive Design** - Fixed layout issues and improved mobile experience
+- **Authentication Flow** - Streamlined login/registration process with proper error handling
+
+### New Content
+- **Book Expansion** - Added 3 additional books (Run, Red City, All That We See Or Seem) to database
+- **Genre Updates** - Updated filters to match actual database genres including Adventure and Sci-Fi
+- **Database Synchronization** - All books now included in standard SQL import
 
 ## Next Steps & Future Enhancements
 
@@ -164,11 +223,11 @@ ALTER TABLE books ADD COLUMN display_weight DECIMAL(3,2) DEFAULT 1.00;
 ALTER TABLE books ADD COLUMN last_displayed TIMESTAMP NULL;
 ```
 
-####  **Smart Features Planned**
+####  **Advanced Features Planned**
 - **Real-time Search**: Search Google Books API for new books
-- **Automatic Import**: Import book data with covers directly to database
+- **Bulk Import**: Import book data with covers directly to database
 - **Book Diversity System**: Prevent duplicate displays across sections
-- **Intelligent Cover Processing**: Handle external URLs + local file fallbacks
+- **Dynamic Cover Processing**: Handle external URLs + local file fallbacks
 - **Performance Optimization**: API caching and lazy loading
 
 ####  **API Endpoints to Implement**
@@ -182,7 +241,7 @@ GET /api/books.php?action=covers&book_id=X  # Get cover URLs
 ### Phase 5: Advanced User Features
 - **Reading Lists**: Create custom book lists and collections
 - **Social Features**: Follow other users and see their reviews
-- **Recommendation Engine**: AI-powered book recommendations
+- **Recommendation Engine**: Advanced book recommendations
 - **Review Analytics**: Advanced review insights and trends
 - **Mobile App**: Progressive Web App (PWA) functionality
 

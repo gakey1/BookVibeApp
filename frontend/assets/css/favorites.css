@@ -1,0 +1,82 @@
+/* Favorites page specific styles */
+
+.remove-favorite {
+    opacity: 0;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.remove-favorite:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.remove-favorite.favorited {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.5);
+}
+
+.book-card:hover .remove-favorite {
+    opacity: 1;
+}
+
+.book-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.genre-tag {
+    background: var(--purple-light);
+    color: var(--primary-purple);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+}
+
+.added-date {
+    color: var(--text-light);
+}
+
+.col-xl-2-4 {
+    flex: 0 0 auto;
+    width: 20%;
+}
+
+.stat-item {
+    padding: 1rem;
+}
+
+.stat-item h2 {
+    font-weight: 600;
+    font-size: 2rem;
+}
+
+.btn-purple {
+    background: var(--primary-purple, #6b21a7);
+    border-color: var(--primary-purple, #6b21a7);
+    color: white;
+}
+
+.btn-purple:hover {
+    background: var(--purple-dark, #581c87);
+    border-color: var(--purple-dark, #581c87);
+    color: white;
+}
+
+@media (max-width: 1200px) {
+    .col-xl-2-4 {
+        width: 25%;
+    }
+}

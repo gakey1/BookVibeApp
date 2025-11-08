@@ -17,7 +17,14 @@ if (session_status() === PHP_SESSION_NONE) {
 // Check if user is logged in
 $isLoggedIn = isset($_SESSION['user_id']);
 $userName = $_SESSION['user_name'] ?? '';
-$userAvatar = $_SESSION['user_avatar'] ?? 'assets/images/profiles/default.jpg';
+$userAvatar = $_SESSION['user_avatar'] ?? 'assets/images/profiles/default.svg';
+
+// Avatar fallback logic
+if ($isLoggedIn && ($userAvatar === 'default.jpg' || empty($userAvatar) || $userAvatar === 'default.svg')) {
+    $userAvatar = 'assets/images/profiles/default.svg';
+} elseif ($isLoggedIn && $userAvatar && $userAvatar !== 'assets/images/profiles/default.svg') {
+    $userAvatar = 'assets/images/profiles/' . basename($userAvatar);
+}
 
 // Check session timeout
 if ($isLoggedIn && isset($_SESSION['login_time']) && (time() - $_SESSION['login_time']) > SESSION_TIMEOUT) {
@@ -25,7 +32,7 @@ if ($isLoggedIn && isset($_SESSION['login_time']) && (time() - $_SESSION['login_
     session_destroy();
     $isLoggedIn = false;
     $userName = '';
-    $userAvatar = 'assets/images/profiles/default.jpg';
+    $userAvatar = 'assets/images/profiles/default.svg';
 }
 ?>
 <!DOCTYPE html>
@@ -117,7 +124,9 @@ if ($isLoggedIn && isset($_SESSION['login_time']) && (time() - $_SESSION['login_
                             <button class="btn btn-ghost dropdown-toggle d-flex align-items-center" 
                                     type="button" id="userDropdown" data-bs-toggle="dropdown">
                                 <img src="<?php echo $userAvatar; ?>" alt="Profile" 
-                                     class="rounded-circle me-2" width="32" height="32">
+                                     class="rounded-circle me-2" width="32" height="32"
+                                     onerror="this.src='assets/images/profiles/default.svg'"
+                                     style="background: #f8f9fa; border: 1px solid #e9ecef;">
                                 <span class="d-none d-md-inline"><?php echo $userName; ?></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -138,8 +147,8 @@ if ($isLoggedIn && isset($_SESSION['login_time']) && (time() - $_SESSION['login_
                         </div>
                     <?php else: ?>
                         <!-- Not Logged In -->
-                        <a href="../backend/login.php" class="btn btn-ghost">Login</a>
-                        <a href="../backend/register.php" class="btn btn-primary-custom ms-2">Register</a>
+                        <a href="login.php" class="btn btn-ghost">Login</a>
+                        <a href="register.php" class="btn btn-primary-custom ms-2">Register</a>
                     <?php endif; ?>
                 </div>
             </div>

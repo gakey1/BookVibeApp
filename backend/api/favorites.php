@@ -1,5 +1,6 @@
 <?php
-// Favorites Management API - Extended Tracy's original with Add/Remove functionality
+// Favorites Management API
+// Extended Tracy's original add functionality with remove feature
 
 // Start the session to check user login status
 session_start();
@@ -38,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         if ($action === 'add') {
-            // Check if already favorited (Tracy's original logic)
+            // Check if already favorited
             $sql_check = "SELECT favorite_id FROM favorites WHERE user_id = ? AND book_id = ?";
             $existing = $db->fetch($sql_check, [$user_id, $book_id]);
 
@@ -46,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response['success'] = true;
                 $response['message'] = 'Book is already in your favorites.';
             } else {
-                // Insert new favorite (Tracy's original logic)
+                // Insert new favorite
                 $sql_insert = "INSERT INTO favorites (user_id, book_id) VALUES (?, ?)";
                 $db->execute($sql_insert, [$user_id, $book_id]);
                 
@@ -54,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response['message'] = 'Book added to favorites successfully.';
             }
         } else if ($action === 'remove') {
-            // Extended functionality: Remove from favorites
+            // Remove from favorites
             $sql_delete = "DELETE FROM favorites WHERE user_id = ? AND book_id = ?";
             $result = $db->execute($sql_delete, [$user_id, $book_id]);
             
@@ -80,14 +81,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
     } catch (Exception $e) {
-        // Handle database errors (Tracy's original error handling pattern)
+        // Handle database errors
         error_log("Database error in favorites API: " . $e->getMessage());
         http_response_code(500);
         $response['message'] = 'Database error: Could not process favorite.';
     }
 
 } else {
-    // Only allow POST requests (Tracy's original validation)
+    // Only allow POST requests
     http_response_code(405);
     $response['message'] = 'Method Not Allowed.';
 }

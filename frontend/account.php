@@ -106,21 +106,22 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
     
     <!-- Account Header -->
     <div class="row mb-5">
-        <div class="col-md-4 text-center">
-            <div class="profile-avatar mb-3">
-                <?php if ($user['profile_picture']): ?>
-                <img src="assets/images/profiles/<?php echo $user['profile_picture']; ?>" 
-                     alt="Profile Picture" class="rounded-circle img-fluid" width="150" height="150">
-                <?php else: ?>
-                <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center" 
-                     style="width: 150px; height: 150px; font-size: 3rem; color: white;">
-                    <?php echo strtoupper(substr($user['full_name'], 0, 2)); ?>
-                </div>
-                <?php endif; ?>
+        <div class="col-md-4 d-flex flex-column align-items-center text-center">
+            <div class="profile-avatar mb-3 d-flex justify-content-center">
+                <?php 
+                $profileImage = 'assets/images/profiles/default.svg';
+                if ($user['profile_picture'] && $user['profile_picture'] !== 'default.jpg' && $user['profile_picture'] !== 'default.svg') {
+                    $profileImage = 'assets/images/profiles/' . $user['profile_picture'];
+                }
+                ?>
+                <img src="<?php echo $profileImage; ?>" 
+                     alt="Profile Picture" class="rounded-circle" width="150" height="150"
+                     style="background: #f8f9fa; border: 2px solid #e9ecef; object-fit: cover;"
+                     onerror="this.src='assets/images/profiles/default.svg'">
             </div>
-            <h2><?php echo htmlspecialchars($user['full_name']); ?></h2>
-            <p class="text-muted">@<?php echo htmlspecialchars($user['full_name']); ?></p>
-            <p class="text-muted">Member since <?php echo date('M d, Y', strtotime($user['created_at'])); ?></p>
+            <h2 class="mb-2"><?php echo htmlspecialchars($user['full_name']); ?></h2>
+            <p class="text-muted mb-1">@<?php echo htmlspecialchars($user['full_name']); ?></p>
+            <p class="text-muted mb-3">Member since <?php echo date('M d, Y', strtotime($user['created_at'])); ?></p>
             <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                 <i class="fas fa-edit me-2"></i>Edit Profile
             </button>
@@ -130,7 +131,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                 <div class="col-md-6 mb-3">
                     <div class="card text-center h-100">
                         <div class="card-body">
-                            <i class="fas fa-star text-warning fa-2x mb-2"></i>
+                            <i class="fas fa-star text-purple fa-2x mb-2"></i>
                             <h4><?php echo $user['total_reviews']; ?></h4>
                             <small class="text-muted">Reviews Written</small>
                         </div>
@@ -139,7 +140,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                 <div class="col-md-6 mb-3">
                     <div class="card text-center h-100">
                         <div class="card-body">
-                            <i class="fas fa-heart text-danger fa-2x mb-2"></i>
+                            <i class="fas fa-heart text-purple-light fa-2x mb-2"></i>
                             <h4><?php echo $user['total_favorites']; ?></h4>
                             <small class="text-muted">Favorite Books</small>
                         </div>
@@ -148,7 +149,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                 <div class="col-md-6 mb-3">
                     <div class="card text-center h-100">
                         <div class="card-body">
-                            <i class="fas fa-book text-success fa-2x mb-2"></i>
+                            <i class="fas fa-book text-purple-dark fa-2x mb-2"></i>
                             <h4><?php echo $user['total_reviews']; ?></h4>
                             <small class="text-muted">Books Read This Year</small>
                         </div>
@@ -157,7 +158,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                 <div class="col-md-6 mb-3">
                     <div class="card text-center h-100">
                         <div class="card-body">
-                            <i class="fas fa-fire text-orange fa-2x mb-2"></i>
+                            <i class="fas fa-fire text-purple-gradient fa-2x mb-2"></i>
                             <h4><?php echo $user['total_reviews']; ?></h4>
                             <small class="text-muted">Day Reading Streak</small>
                         </div>
@@ -215,21 +216,21 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                     
                     <div class="card">
                         <div class="card-header">
-                            <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
+                            <h5><i class="fas fa-clock text-purple me-2"></i>Recent Activity</h5>
                         </div>
                         <div class="card-body">
                             <div class="activity-item mb-3">
-                                <i class="fas fa-star text-warning me-2"></i>
+                                <i class="fas fa-star text-purple me-2"></i>
                                 <span>Reviewed <strong>1984</strong> - 5 stars</span>
                                 <small class="text-muted ms-2">2 days ago</small>
                             </div>
                             <div class="activity-item mb-3">
-                                <i class="fas fa-heart text-danger me-2"></i>
+                                <i class="fas fa-heart text-purple-light me-2"></i>
                                 <span>Added <strong>The Great Gatsby</strong> to favorites</span>
                                 <small class="text-muted ms-2">5 days ago</small>
                             </div>
                             <div class="activity-item mb-3">
-                                <i class="fas fa-book text-success me-2"></i>
+                                <i class="fas fa-book text-purple-dark me-2"></i>
                                 <span>Finished reading <strong>Atomic Habits</strong></span>
                                 <small class="text-muted ms-2">1 week ago</small>
                             </div>
@@ -242,10 +243,10 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                             <h5><i class="fas fa-user me-2"></i>About Me</h5>
                         </div>
                         <div class="card-body">
-                            <p><?php echo nl2br(htmlspecialchars($user['bio'])); ?></p>
+                            <p><?php echo $user['bio'] ? nl2br(htmlspecialchars($user['bio'])) : '<em class="text-muted">No bio added yet.</em>'; ?></p>
     
                             <?php 
-                            // CORRECT LOCATION CHECK: Uses isset() for safety and fully closes the conditional
+                            // Check if location exists
                             if (isset($user['location']) && !empty($user['location'])): 
                             ?>
                             <p>
@@ -255,7 +256,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                             <?php endif; ?>
 
                             <?php 
-                            // CORRECT WEBSITE CHECK: Uses isset() for safety and fully closes the conditional
+                            // Check if website exists
                             if (isset($user['website']) && !empty($user['website'])): 
                             ?>
                             <p>
@@ -491,140 +492,10 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
     </div>
 </div>
 
-<script>
-// Save profile changes
-function saveProfile() {
-    // TODO: Send AJAX request to Tracy's profile update API
-    // Ready for integration when backend API is available
-    alert('Profile update ready for Tracy\'s API integration');
-    document.querySelector('[data-bs-dismiss="modal"]').click();
-}
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/account.css?v=<?php echo time(); ?>">
 
-// Change password form
-document.getElementById('changePasswordForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (newPassword !== confirmPassword) {
-        alert('New passwords do not match!');
-        return;
-    }
-    
-    // TODO: Send AJAX request to Tracy's password change API
-    alert('Password change ready for Tracy\'s API integration');
-    this.reset();
-});
-
-// Settings checkboxes
-document.querySelectorAll('.form-check-input').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-        // TODO: Send AJAX request to Tracy's settings API
-        console.log(`Setting ${this.id} ready for API integration:`, this.checked);
-    });
-});
-</script>
-
-<style>
-.activity-item {
-    border-left: 3px solid #e9ecef;
-    padding-left: 15px;
-    transition: all 0.3s ease;
-}
-
-.activity-item:hover {
-    border-left-color: #7C3AED;
-    background-color: #f8f9fa;
-    border-radius: 5px;
-    padding: 10px 15px;
-    margin: -5px 0;
-}
-
-.stat-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.text-orange {
-    color: #fd7e14 !important;
-}
-
-.card {
-    border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.profile-avatar img, .profile-avatar > div {
-    transition: transform 0.3s ease;
-}
-
-.profile-avatar:hover img, .profile-avatar:hover > div {
-    transform: scale(1.05);
-}
-
-.nav-tabs .nav-link {
-    color: #6c757d;
-    border: none;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.nav-tabs .nav-link:hover {
-    border-bottom-color: #7C3AED;
-    color: #7C3AED;
-}
-
-.nav-tabs .nav-link.active {
-    background-color: transparent;
-    border-bottom-color: #7C3AED;
-    color: #7C3AED;
-    font-weight: 600;
-}
-
-.progress-bar {
-    background: linear-gradient(45deg, #7C3AED, #A855F7);
-    transition: width 0.6s ease;
-}
-
-.btn-primary {
-    background: linear-gradient(45deg, #7C3AED, #A855F7);
-    border: none;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(45deg, #6D28D9, #9333EA);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
-}
-
-.form-control:focus {
-    border-color: #7C3AED;
-    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
-}
-
-.form-check-input:checked {
-    background-color: #7C3AED;
-    border-color: #7C3AED;
-}
-
-@media (max-width: 768px) {
-    .card {
-        margin-bottom: 1rem;
-    }
-    
-    .profile-avatar {
-        margin-bottom: 2rem;
-    }
-}
-</style>
+<!-- Page-specific JavaScript -->
+<script src="assets/js/account.js?v=<?php echo time(); ?>"></script>
 
 <?php include 'includes/footer.php'; ?>
