@@ -73,7 +73,7 @@ $user = [
     'bio' => 'Book lover and avid reader. Always looking for the next great story!',
     'location' => 'New York, NY',
     'website' => 'https://example.com',
-    'joined_date' => 'September 15, 2024',
+    'joined_date' => 'September 15, 2025',
     'total_reviews' => 12,
     'total_favorites' => 3,
     'avg_rating_given' => 4.2
@@ -201,7 +201,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                         <div class="card-body">
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <span>2024 Reading Goal</span>
+                                    <span>2025 Reading Goal</span>
                                     <span><?php echo $readingStats['books_read_this_year']; ?> / <?php echo $readingStats['reading_goal']; ?> books</span>
                                 </div>
                                 <div class="progress">
@@ -313,7 +313,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
                         <div class="col-md-3">
                             <div class="text-center">
                                 <h3 class="text-warning"><?php echo $readingStats['reading_goal']; ?></h3>
-                                <small>2024 Goal</small>
+                                <small>2025 Goal</small>
                             </div>
                         </div>
                         <div class="col-md-3">
