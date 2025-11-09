@@ -303,7 +303,7 @@ function requireAuth(redirectUrl = null) {
     checkAuthStatus().then(isAuth => {
         if (!isAuth) {
             const redirect = redirectUrl || window.location.pathname;
-            window.location.href = `../backend/login.php?redirect=${encodeURIComponent(redirect)}`;
+            window.location.href = `login.php?redirect=${encodeURIComponent(redirect)}`;
         }
     });
 }

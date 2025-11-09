@@ -1,117 +1,129 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
 
+// Include database connection
+require_once '../config/db.php';
+global $pdo;
 // Include header
 include 'includes/header.php';
-?>
 
-// Database logic
-<?php
-// Include the database connection setup
-require_once __DIR__ . '/../config/db.php'; 
-$db = Database::getInstance();
-
+$pageTitle = 'BookVibe - Detail';
 // Get the Book ID securely from the URL
 $bookId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($bookId === 0) {
-    die("Error: Book ID is required.");
-}
-$params = [$bookId];
-
-// Fetch Single Book Metadata
-// Join with genres to get the genre name
-$sql_book = "
-    SELECT 
-        b.*, 
-        g.name AS genre_name 
-    FROM 
-        books b
-    JOIN
-        genres g ON b.genre_id = g.genre_id
-    WHERE 
-        b.book_id = ?";
-$book = $db->fetch($sql_book, $params); 
-
-if (!$book) {
-    die("Error: Book not found.");
+    echo '<div class="container mt-5"><div class="alert alert-danger">Error: Book ID is required.</div></div>';
+    include 'includes/footer.php';
+    exit;
 }
 
-// Fetch Aggregate Rating and Count
-$sql_rating = "
-    SELECT 
-        COUNT(r.review_id) AS total_reviews,
-        IFNULL(AVG(r.rating), 0) AS average_rating
-    FROM 
-        reviews r
-    WHERE 
-        r.book_id = ?";
+try {
+    // Fetch Single Book Metadata
+    $sql_book = "
+        SELECT 
+            b.*, 
+            g.genre_name
+        FROM 
+            books b
+        LEFT JOIN
+            genres g ON b.genre_id = g.genre_id
+        WHERE 
+            b.book_id = ?";
+    
+    $stmt = $pdo->prepare($sql_book);
+    $stmt->execute([$bookId]);
+    $book = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$rating_data = $db->fetch($sql_rating, $params); 
+    if (!$book) {
+        echo '<div class="container mt-5"><div class="alert alert-danger">Error: Book not found.</div></div>';
+        include 'includes/footer.php';
+        exit;
+    }
 
-// Process the fetched data for the frontend
-$book['rating'] = round($rating_data['average_rating'], 1); // Dynamic Rating
-$book['reviews'] = $rating_data['total_reviews'];         // Dynamic Count
-$book['cover'] = 'assets/images/books/' . $book['cover_image']; 
+    // Process book data
+    $book['genre_name'] = $book['genre_name'] ?? 'Uncategorized';
+    $book['rating'] = round($book['avg_rating'], 1);
+    $book['reviews'] = $book['review_count'];
+    //$book['cover'] = 'assets/images/books/' . $book['cover_image'];
+    // CRITICAL FIX: Add fallback image if cover_image field is empty or null
+    $book['cover'] = (empty($book['cover_image']) || $book['cover_image'] === 'N/A')
+        ? 'assets/images/books/placeholder.png' // Use a generic placeholder image path
+        : 'assets/images/books/' . $book['cover_image'];
 
-// Fetch Individual Reviews
-$sql_reviews = "
-    SELECT 
-        r.*, 
-        u.full_name AS user_name,
-        u.profile_picture AS avatar
-    FROM 
-        reviews r
-    JOIN 
-        users u ON r.user_id = u.user_id
-    WHERE 
-        r.book_id = ?
-    ORDER BY 
-        r.created_at DESC
-";
-$reviews = $db->fetchAll($sql_reviews, $params); 
+    // Fetch Individual Reviews
+    $sql_reviews = "
+        SELECT 
+            r.*, 
+            u.full_name AS user_name,
+            u.profile_picture AS avatar
+        FROM 
+            reviews r
+        JOIN 
+            users u ON r.user_id = u.user_id
+        WHERE 
+            r.book_id = ?
+        ORDER BY 
+            r.created_at DESC
+    ";
+    $stmt = $pdo->prepare($sql_reviews);
+    $stmt->execute([$bookId]);
+    $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch Ratings Breakdown
-// Count reviews per star level (1 to 5)
-$ratingsBreakdown = [];
-$sql_breakdown = "
-    SELECT 
-        rating, 
-        COUNT(review_id) AS count
-    FROM 
-        reviews
-    WHERE 
-        book_id = ?
-    GROUP BY 
-        rating
-    ORDER BY 
-        rating DESC";
-$breakdown_results = $db->fetchAll($sql_breakdown, $params);
-
-// Convert results to the required format (5 => percentage, 4 => percentage, etc.)
-$total_reviews_count = $book['reviews'];
-for ($i = 5; $i >= 1; $i--) {
-    $found = false;
-    foreach ($breakdown_results as $row) {
-        if ($row['rating'] == $i) {
-            // Calculate percentage
-            $ratingsBreakdown[$i] = $total_reviews_count > 0 ? 
-                                    round(($row['count'] / $total_reviews_count) * 100) : 0;
-            $found = true;
-            break;
+    // Process review avatars with fallback
+    foreach ($reviews as &$review) {
+        if ($review['avatar'] && $review['avatar'] !== 'default.jpg' && $review['avatar'] !== 'default.svg' && $review['avatar'] !== '') {
+            $review['avatar'] = 'assets/images/profiles/' . $review['avatar'];
+        } else {
+            $review['avatar'] = 'assets/images/profiles/default.svg';
         }
     }
-    if (!$found) {
-        $ratingsBreakdown[$i] = 0;
+
+    // Fetch Ratings Breakdown
+    $ratingsBreakdown = [];
+    $sql_breakdown = "
+        SELECT 
+            rating, 
+            COUNT(review_id) AS count
+        FROM 
+            reviews
+        WHERE 
+            book_id = ?
+        GROUP BY 
+            rating
+        ORDER BY 
+            rating DESC";
+    $stmt = $pdo->prepare($sql_breakdown);
+    $stmt->execute([$bookId]);
+    $breakdown_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Convert results to the required format (5 => percentage, 4 => percentage, etc.)
+    $total_reviews_count = $book['reviews'];
+    for ($i = 5; $i >= 1; $i--) {
+        $found = false;
+        foreach ($breakdown_results as $row) {
+            if ($row['rating'] == $i) {
+                // Calculate percentage
+                $ratingsBreakdown[$i] = $total_reviews_count > 0 ? 
+                                        round(($row['count'] / $total_reviews_count) * 100) : 0;
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $ratingsBreakdown[$i] = 0;
+        }
     }
+
+} catch (PDOException $e) {
+    error_log("Database error in book_detail.php: " . $e->getMessage());
+    echo '<div class="container mt-5"><div class="alert alert-danger">Error: Unable to load book details.</div></div>';
+    include 'includes/footer.php';
+    exit;
 }
 
-$pageTitle = htmlspecialchars($book['title']) . ' - Book Review Website';
+//$pageTitle = htmlspecialchars($book['title']) . ' - BookVibe';
 ?>
 
-<?php 
-include 'includes/header.php';
-?>
 
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="container mt-3">
@@ -134,9 +146,21 @@ include 'includes/header.php';
             <!-- Action Buttons -->
             <div class="d-grid gap-2 mt-4">
                 <?php if (isset($_SESSION['user_id'])): ?>
-                <button class="btn btn-primary btn-lg" onclick="addToFavorites(<?php echo $book['id']; ?>)">
-                    <i class="fas fa-heart me-2"></i>Add to Favorites
-                </button>
+                    <?php 
+                    // Check if book is already favorited
+                    $fav_check = $pdo->prepare("SELECT favorite_id FROM favorites WHERE user_id = ? AND book_id = ?");
+                    $fav_check->execute([$_SESSION['user_id'], $book['book_id']]);
+                    $is_favorited = $fav_check->fetch();
+                    ?>
+                    <button class="btn btn-primary btn-lg favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" 
+                            data-book-id="<?php echo $book['book_id']; ?>"
+                            onclick="toggleBookFavorite(this, <?php echo $book['book_id']; ?>)">
+                        <?php if ($is_favorited): ?>
+                            <i class="fas fa-heart text-danger me-2"></i>Favorited
+                        <?php else: ?>
+                            <i class="far fa-heart text-danger me-2"></i>Add to Favorites
+                        <?php endif; ?>
+                    </button>
                 <?php else: ?>
                 <a href="login.php" class="btn btn-primary btn-lg">
                     <i class="fas fa-sign-in-alt me-2"></i>Login to Save
@@ -144,7 +168,7 @@ include 'includes/header.php';
                 <?php endif; ?>
                 
                 <div class="btn-group" role="group">
-                    <button class="btn btn-outline-secondary">
+                    <button class="btn btn-outline-secondary" onclick="showComingSoon(event)">
                         <i class="fas fa-book-reader me-2"></i>Preview
                     </button>
                     <button class="btn btn-outline-secondary" onclick="shareBook()">
@@ -162,10 +186,8 @@ include 'includes/header.php';
             
             <!-- Rating -->
             <div class="d-flex align-items-center mb-3">
-                <div class="rating me-2">
-                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                        <i class="fas fa-star <?php echo $i <= $book['rating'] ? 'text-warning' : 'text-muted'; ?>"></i>
-                    <?php endfor; ?>
+                <div class="rating me-2" data-rating="<?php echo $book['rating']; ?>">
+                    <!-- Stars will be updated by JavaScript -->
                 </div>
                 <span class="me-3"><?php echo number_format($book['rating'], 1); ?> out of 5</span>
                 <span class="text-muted">(<?php echo number_format($book['reviews']); ?> reviews)</span>
@@ -187,16 +209,16 @@ include 'includes/header.php';
                             <td><?php echo htmlspecialchars($book['publisher']); ?></td>
                         </tr>
                         <?php endif; ?>
-                        <?php if ($book['year']): ?>
+                        <?php if ($book['publication_year']): ?>
                         <tr>
                             <td class="text-muted">Year:</td>
-                            <td><?php echo htmlspecialchars($book['year']); ?></td>
+                            <td><?php echo htmlspecialchars($book['publication_year']); ?></td>
                         </tr>
                         <?php endif; ?>
-                        <?php if ($book['pages'] && $book['pages'] > 0): ?>
+                        <?php if ($book['page_count'] && $book['page_count'] > 0): ?>
                         <tr>
                             <td class="text-muted">Pages:</td>
-                            <td><?php echo number_format($book['pages']); ?></td>
+                            <td><?php echo number_format($book['page_count']); ?></td>
                         </tr>
                         <?php endif; ?>
                     </table>
@@ -268,13 +290,14 @@ include 'includes/header.php';
                     <div class="d-flex justify-content-between mb-2">
                         <div class="d-flex align-items-center">
                             <img src="<?php echo $review['avatar']; ?>?t=<?php echo time(); ?>" alt="User" 
-                                 class="rounded-circle me-3" width="50" height="50">
+                                 class="rounded-circle me-3" width="50" height="50"
+                                 onerror="this.src='assets/images/profiles/default.svg'"
+                                 style="background: #f8f9fa; border: 1px solid #e9ecef;">
                             <div>
                                 <h6 class="mb-0"><?php echo htmlspecialchars($review['user_name']); ?></h6>
-                                <div class="rating">
-                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <i class="fas fa-star <?php echo $i <= $review['rating'] ? 'text-warning' : 'text-muted'; ?> small"></i>
-                                    <?php endfor; ?>
+
+                                <div class="rating" data-rating="<?php echo $review['rating']; ?>">
+                                    <!-- Stars will be updated by JavaScript -->
                                     <span class="text-muted ms-2"><?php echo $review['created_at']; ?></span>
                                 </div>
                             </div>
@@ -299,13 +322,13 @@ include 'includes/header.php';
             </div>
             <div class="modal-body">
                 <form id="reviewForm">
-                    <input type="hidden" name="book_id" value="<?php echo $book['id']; ?>">
+                    <input type="hidden" name="book_id" value="<?php echo $book['book_id']; ?>">
                     
                     <div class="mb-3">
                         <label class="form-label">Your Rating</label>
-                        <div class="star-rating-input" data-rating="0">
+                        <div class="star-rating-input manual-stars" data-input-rating="0">
                             <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <i class="far fa-star star" data-rating="<?php echo $i; ?>"></i>
+                                <i class="far fa-star star" data-star-value="<?php echo $i; ?>"></i>
                             <?php endfor; ?>
                         </div>
                         <input type="hidden" name="rating" id="ratingInput" value="0">
@@ -330,106 +353,10 @@ include 'includes/header.php';
 </div>
 <?php endif; ?>
 
-<script>
-// Initialize star rating input
-document.querySelectorAll('.star-rating-input .star').forEach(star => {
-    star.addEventListener('click', function() {
-        const rating = this.dataset.rating;
-        const container = this.parentElement;
-        container.dataset.rating = rating;
-        document.getElementById('ratingInput').value = rating;
-        
-        container.querySelectorAll('.star').forEach((s, index) => {
-            if (index < rating) {
-                s.classList.remove('far');
-                s.classList.add('fas', 'text-warning');
-            } else {
-                s.classList.add('far');
-                s.classList.remove('fas', 'text-warning');
-            }
-        });
-    });
-});
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/book_detail.css?v=<?php echo time(); ?>">
 
-// Character counter
-document.getElementById('reviewText')?.addEventListener('input', function() {
-    document.getElementById('charCount').textContent = this.value.length;
-});
-
-// Submit review (placeholder functionality)
-function submitReview() {
-    const form = document.getElementById('reviewForm');
-    const formData = new FormData(form);
-    
-    if (formData.get('rating') == '0') {
-        alert('Please select a rating');
-        return;
-    }
-    
-    if (!formData.get('review_text').trim()) {
-        alert('Please write a review');
-        return;
-    }
-    
-    // Static demo - just show success message
-    alert('Review submitted successfully! (Demo mode - review not actually saved)');
-    document.querySelector('[data-bs-dismiss="modal"]').click();
-}
-
-// Add to favorites (placeholder functionality)
-function addToFavorites(bookId) {
-    alert('Added to favorites! (Demo mode - not actually saved)');
-}
-
-// Share book
-function shareBook() {
-    if (navigator.share) {
-        navigator.share({
-            title: '<?php echo htmlspecialchars($book['title']); ?>',
-            text: 'Check out this book!',
-            url: window.location.href
-        });
-    } else {
-        // Fallback - copy to clipboard
-        navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard!');
-    }
-}
-
-// Toggle description
-function toggleDescription() {
-    const desc = document.getElementById('bookDescription');
-    desc.classList.toggle('expanded');
-}
-</script>
-
-<style>
-.book-detail-cover {
-    max-height: 600px;
-    width: 100%;
-    object-fit: cover;
-}
-
-.book-description {
-    max-height: 200px;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-}
-
-.book-description.expanded {
-    max-height: none;
-}
-
-.star-rating-input .star {
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #ddd;
-    transition: color 0.2s;
-}
-
-.star-rating-input .star:hover {
-    color: #ffc107;
-}
-</style>
+<!-- Page-specific JavaScript -->
+<script src="assets/js/book_detail.js?v=<?php echo time(); ?>"></script>
 
 <?php include 'includes/footer.php'; ?>

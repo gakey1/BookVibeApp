@@ -1,19 +1,58 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
 
-$pageTitle = 'My Favorites - Book Review Website';
+$pageTitle = 'My Favorites - BookVibe';
 include 'includes/header.php';
 
-// Static favorites data using existing images
-$favoriteBooks = [
-    ['id' => 1, 'title' => '1984', 'author' => 'George Orwell', 'cover' => 'assets/images/books/1984.jpg', 'rating' => 4.5, 'reviews' => 2847, 'genre' => 'Dystopian Fiction', 'date_added' => 'October 15, 2024'],
-    ['id' => 3, 'title' => 'The Great Gatsby', 'author' => 'F. Scott Fitzgerald', 'cover' => 'assets/images/books/gatsby.jpg', 'rating' => 4.2, 'reviews' => 1892, 'genre' => 'Classic Literature', 'date_added' => 'October 12, 2024'],
-    ['id' => 2, 'title' => 'Atomic Habits', 'author' => 'James Clear', 'cover' => 'assets/images/books/atomic_habits.jpg', 'rating' => 4.8, 'reviews' => 3214, 'genre' => 'Self-Help', 'date_added' => 'October 8, 2024']
-];
+// Check if user is logged in
+if (!$isLoggedIn) {
+    header('Location: login.php');
+    exit;
+}
 
-// Check if user is logged in (simulate login for demo)
-$isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purposes
+// Database logic to fetch user's favorites
+require_once __DIR__ . '/../config/db.php'; 
+$db = Database::getInstance();
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch user's favorite books with book details
+$sql_favorites = "
+    SELECT 
+        f.favorite_id,
+        f.added_at as date_added,
+        b.*,
+        g.genre_name,
+        AVG(r.rating) as avg_rating,
+        COUNT(r.review_id) as review_count
+    FROM 
+        favorites f
+    JOIN 
+        books b ON f.book_id = b.book_id
+    LEFT JOIN 
+        genres g ON b.genre_id = g.genre_id
+    LEFT JOIN 
+        reviews r ON b.book_id = r.book_id
+    WHERE 
+        f.user_id = ?
+    GROUP BY 
+        f.favorite_id, f.added_at, b.book_id, g.genre_name
+    ORDER BY 
+        f.added_at DESC";
+
+$favoriteBooks = $db->fetchAll($sql_favorites, [$user_id]);
+
+$totalBooks = count($favoriteBooks);
+$uniqueGenres = 0;
+$avgRating = 0;
+
+if ($totalBooks > 0) {
+    $genres = array_unique(array_column($favoriteBooks, 'genre_name'));
+    $uniqueGenres = count($genres);
+    $ratings = array_filter(array_column($favoriteBooks, 'avg_rating'));
+    $avgRating = !empty($ratings) ? round(array_sum($ratings) / count($ratings), 1) : 0;
+}
 ?>
 
 <div class="container my-5">
@@ -28,56 +67,60 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
     <?php else: ?>
     
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <h1><i class="fas fa-heart text-danger me-2"></i>My Favorites</h1>
-            <p class="text-muted">Books you've saved for later reading</p>
+            <h1 class="mb-2">My Favorites</h1>
+            <p class="text-muted mb-0">Your personal collection of beloved books</p>
+            <small class="text-muted"><?php echo number_format($totalBooks); ?> books saved</small>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-purple" onclick="exportFavorites()">
+                <i class="fas fa-download me-2"></i>Export List
+            </button>
+        </div>
+    </div>
+    
+    <!-- Sort and Filter Controls -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex gap-3">
+            <div>
+                <label class="form-label mb-1">Sort by:</label>
+                <select class="form-select form-select-sm" style="width: auto;" id="sortFavorites">
+                    <option value="recent">Latest Added</option>
+                    <option value="oldest">Oldest Added</option>
+                    <option value="rating-high">Highest Rating</option>
+                    <option value="rating-low">Lowest Rating</option>
+                    <option value="title-az">Title A-Z</option>
+                    <option value="title-za">Title Z-A</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1">Genre:</label>
+                <select class="form-select form-select-sm" style="width: auto;" id="filterGenre">
+                    <option value="">All Genres</option>
+                    <option value="fiction">Fiction</option>
+                    <option value="romance">Romance</option>
+                    <option value="thriller">Thriller</option>
+                    <option value="sci-fi">Sci-Fi</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="mystery">Mystery</option>
+                    <option value="non-fiction">Non-Fiction</option>
+                    <option value="biography">Biography</option>
+                    <option value="history">History</option>
+                    <option value="adventure">Adventure</option>
+                </select>
+            </div>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary btn-sm active" id="gridView" onclick="toggleView('grid')">
-                <i class="fas fa-th"></i> Grid
+                <i class="fas fa-th"></i>
             </button>
             <button class="btn btn-outline-secondary btn-sm" id="listView" onclick="toggleView('list')">
-                <i class="fas fa-list"></i> List
+                <i class="fas fa-list"></i>
             </button>
         </div>
     </div>
 
-    <!-- Stats -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-primary"><?php echo count($favoriteBooks); ?></h4>
-                    <small class="text-muted">Favorite Books</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-success">2</h4>
-                    <small class="text-muted">Books Read</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-warning">1</h4>
-                    <small class="text-muted">Currently Reading</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-info">4.5</h4>
-                    <small class="text-muted">Avg Rating Given</small>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Favorites Content -->
     <?php if (empty($favoriteBooks)): ?>
@@ -92,205 +135,85 @@ $isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purpo
     </div>
     <?php else: ?>
     
-    <!-- Filter and Sort -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-search"></i></span>
-                <input type="text" class="form-control" placeholder="Search your favorites..." id="searchFavorites">
-            </div>
-        </div>
-        <div class="col-md-3">
-            <select class="form-select" id="sortFavorites">
-                <option value="recent">Recently Added</option>
-                <option value="title">Title A-Z</option>
-                <option value="author">Author A-Z</option>
-                <option value="rating">Highest Rated</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select class="form-select" id="filterGenre">
-                <option value="">All Genres</option>
-                <option value="classic">Classic Literature</option>
-                <option value="dystopian">Dystopian Fiction</option>
-                <option value="self-help">Self-Help</option>
-            </select>
-        </div>
-    </div>
 
     <!-- Favorites Grid -->
     <div class="row" id="favoritesContainer">
         <?php foreach ($favoriteBooks as $book): ?>
-        <div class="col-lg-4 col-md-6 mb-4 favorite-item" data-genre="<?php echo strtolower(str_replace(' ', '-', $book['genre'])); ?>">
-            <div class="card favorite-card h-100">
-                <div class="position-relative">
-                    <img src="<?php echo $book['cover']; ?>" class="card-img-top book-cover" alt="<?php echo htmlspecialchars($book['title']); ?>">
-                    <div class="book-overlay">
-                        <a href="book_detail.php?id=<?php echo $book['id']; ?>" class="btn btn-primary btn-sm">View Details</a>
-                    </div>
-                    <button class="btn btn-sm btn-danger remove-favorite" onclick="removeFavorite(<?php echo $book['id']; ?>)" title="Remove from favorites">
-                        <i class="fas fa-heart"></i>
-                    </button>
+        <div class="col-xl-2-4 col-lg-3 col-md-4 col-6 mb-4 favorite-item" 
+             data-genre="<?php echo strtolower(str_replace(' ', '-', $book['genre_name'])); ?>" 
+             data-date-added="<?php echo $book['date_added']; ?>"
+             id="favorite-<?php echo $book['book_id']; ?>">
+            <div class="book-card position-relative" onclick="window.location.href='book_detail.php?id=<?php echo $book['book_id']; ?>'">
+                <img src="assets/images/books/<?php echo htmlspecialchars($book['cover_image']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover">
+                <button class="btn btn-sm remove-favorite position-absolute" onclick="event.stopPropagation(); removeFavorite(<?php echo $book['book_id']; ?>, <?php echo $book['favorite_id']; ?>)" title="Remove from favorites" style="top: 10px; right: 10px; z-index: 10;">
+                    <i class="fas fa-heart text-danger"></i>
+                </button>
+                <h6 class="book-title"><?php echo htmlspecialchars($book['title']); ?></h6>
+                <p class="book-author"><?php echo htmlspecialchars($book['author']); ?></p>
+                <div class="book-rating" data-rating="<?php echo $book['avg_rating'] ? $book['avg_rating'] : 0; ?>">
+                    <!-- Stars will be updated by JavaScript -->
+                    <span class="rating-text"><?php echo $book['avg_rating'] ? number_format($book['avg_rating'], 1) : 'N/A'; ?> (<?php echo number_format($book['review_count']); ?>)</span>
                 </div>
-                <div class="card-body">
-                    <h6 class="book-title mb-2"><?php echo htmlspecialchars($book['title']); ?></h6>
-                    <p class="book-author text-muted mb-2"><?php echo htmlspecialchars($book['author']); ?></p>
-                    <p class="book-genre mb-2">
-                        <span class="badge bg-secondary"><?php echo htmlspecialchars($book['genre']); ?></span>
-                    </p>
-                    
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="rating">
-                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <i class="fas fa-star <?php echo $i <= $book['rating'] ? 'text-warning' : 'text-muted'; ?> small"></i>
-                            <?php endfor; ?>
-                            <small class="text-muted ms-1"><?php echo $book['rating']; ?></small>
-                        </div>
-                        <small class="text-muted"><?php echo number_format($book['reviews']); ?> reviews</small>
-                    </div>
-                    
-                    <small class="text-muted">Added: <?php echo $book['date_added']; ?></small>
-                </div>
-                <div class="card-footer bg-transparent">
-                    <div class="d-grid gap-2">
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-book-reader me-1"></i>Read
-                            </button>
-                            <button class="btn btn-outline-success btn-sm">
-                                <i class="fas fa-check me-1"></i>Mark as Read
-                            </button>
-                        </div>
-                    </div>
+                <div class="book-meta">
+                    <span class="genre-tag"><?php echo htmlspecialchars($book['genre_name']); ?></span>
+                    <span class="added-date">Added <?php echo date('M j', strtotime($book['date_added'])); ?></span>
                 </div>
             </div>
         </div>
         <?php endforeach; ?>
+    </div>
+    
+    <!-- Load More Button -->
+    <?php if (!empty($favoriteBooks) && count($favoriteBooks) >= 12): ?>
+    <div class="text-center mt-4" id="loadMoreContainer">
+        <button class="btn btn-outline-primary" onclick="loadMoreFavorites()">
+            Load More Books
+        </button>
+    </div>
+    <?php endif; ?>
+    <?php endif; ?>
+    
+    <!-- Reading Stats Section -->
+    <?php if (!empty($favoriteBooks)): ?>
+    <div class="mt-5">
+        <h4 class="text-center mb-4">Your Reading Stats</h4>
+        <div class="row text-center">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-item">
+                    <h2 class="text-primary mb-0"><?php echo $totalBooks; ?></h2>
+                    <small class="text-muted">Books Favorited</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-item">
+                    <h2 class="text-success mb-0"><?php echo $uniqueGenres; ?></h2>
+                    <small class="text-muted">Genres Explored</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-item">
+                    <h2 class="text-warning mb-0"><?php echo $avgRating; ?></h2>
+                    <small class="text-muted">Average Rating</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stat-item">
+                    <h2 class="text-info mb-0">24</h2>
+                    <small class="text-muted">Reviews Written</small>
+                </div>
+            </div>
+        </div>
     </div>
     <?php endif; ?>
     
     <?php endif; ?>
 </div>
 
-<script>
-// Search functionality
-document.getElementById('searchFavorites')?.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    const favorites = document.querySelectorAll('.favorite-item');
-    
-    favorites.forEach(item => {
-        const title = item.querySelector('.book-title').textContent.toLowerCase();
-        const author = item.querySelector('.book-author').textContent.toLowerCase();
-        
-        if (title.includes(searchTerm) || author.includes(searchTerm)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
 
-// Sort functionality
-document.getElementById('sortFavorites')?.addEventListener('change', function() {
-    const sortBy = this.value;
-    // Static demo - would implement sorting logic here
-    console.log('Sorting by:', sortBy);
-});
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/favorites.css?v=<?php echo time(); ?>">
 
-// Genre filter
-document.getElementById('filterGenre')?.addEventListener('change', function() {
-    const selectedGenre = this.value;
-    const favorites = document.querySelectorAll('.favorite-item');
-    
-    favorites.forEach(item => {
-        const genre = item.dataset.genre;
-        
-        if (!selectedGenre || genre === selectedGenre) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
-
-// Toggle view
-function toggleView(view) {
-    const gridView = document.getElementById('gridView');
-    const listView = document.getElementById('listView');
-    const container = document.getElementById('favoritesContainer');
-    
-    if (view === 'grid') {
-        gridView.classList.add('active');
-        listView.classList.remove('active');
-        container.className = 'row';
-        document.querySelectorAll('.favorite-item').forEach(item => {
-            item.className = 'col-lg-4 col-md-6 mb-4 favorite-item';
-        });
-    } else {
-        listView.classList.add('active');
-        gridView.classList.remove('active');
-        container.className = 'row';
-        document.querySelectorAll('.favorite-item').forEach(item => {
-            item.className = 'col-12 mb-3 favorite-item';
-        });
-    }
-}
-
-// Remove favorite
-function removeFavorite(bookId) {
-    if (confirm('Remove this book from your favorites?')) {
-        // Static demo - would make API call here
-        alert('Book removed from favorites! (Demo mode - not actually removed)');
-        // Could hide the element for demo:
-        // event.target.closest('.favorite-item').style.display = 'none';
-    }
-}
-</script>
-
-<style>
-.favorite-card {
-    transition: transform 0.2s;
-}
-
-.favorite-card:hover {
-    transform: translateY(-5px);
-}
-
-.remove-favorite {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.favorite-card:hover .remove-favorite {
-    opacity: 1;
-}
-
-.book-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.favorite-card:hover .book-overlay {
-    opacity: 1;
-}
-
-.book-cover {
-    height: 300px;
-    object-fit: cover;
-}
-</style>
+<!-- Page-specific JavaScript -->
+<script src="assets/js/favorites.js?v=<?php echo time(); ?>"></script>
 
 <?php include 'includes/footer.php'; ?>

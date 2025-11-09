@@ -1,74 +1,65 @@
 <?php 
 // Define app constant for config access
-define('BOOK_REVIEW_APP', true);
+define('BOOKVIBE_APP', true);
 
-$pageTitle = 'My Reviews - Book Review Website';
+$pageTitle = 'My Reviews - BookVibe';
 include 'includes/header.php';
+?>
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="assets/css/reviews.css?v=<?php echo time(); ?>">
+<?php
 
-// Static reviews data
-$myReviews = [
-    [
-        'id' => 1,
-        'book_id' => 1,
-        'book_title' => '1984',
-        'book_author' => 'George Orwell',
-        'book_cover' => 'assets/images/books/1984.jpg',
-        'rating' => 5,
-        'review_text' => 'Absolutely mind-blowing dystopian masterpiece! Orwell\'s vision of a totalitarian society is both terrifying and brilliant. The concepts of Big Brother, doublethink, and the Thought Police are as relevant today as they were when this was written. Winston Smith\'s journey is heartbreaking and the ending left me speechless. A must-read for everyone.',
-        'created_at' => '2024-10-25',
-        'is_public' => true,
-        'likes' => 23,
-        'helpful_votes' => 18
-    ],
-    [
-        'id' => 2,
-        'book_id' => 2,
-        'book_title' => 'Atomic Habits',
-        'book_author' => 'James Clear',
-        'book_cover' => 'assets/images/books/atomic_habits.jpg',
-        'rating' => 5,
-        'review_text' => 'This book completely changed how I think about building habits. Clear\'s approach is practical and scientifically backed. The 1% better every day concept is so simple yet powerful. I\'ve already implemented several strategies from this book and seen real results. Highly recommended for anyone looking to improve their life through better habits.',
-        'created_at' => '2024-10-20',
-        'is_public' => true,
-        'likes' => 15,
-        'helpful_votes' => 12
-    ],
-    [
-        'id' => 3,
-        'book_id' => 3,
-        'book_title' => 'The Great Gatsby',
-        'book_author' => 'F. Scott Fitzgerald',
-        'book_cover' => 'assets/images/books/gatsby.jpg',
-        'rating' => 4,
-        'review_text' => 'A beautiful exploration of the American Dream and its illusions. Fitzgerald\'s prose is absolutely stunning - every sentence feels like poetry. The symbolism throughout the novel is masterful, especially the green light. While I found some parts slow, the overall impact is undeniable. Nick Carraway is a fascinating narrator.',
-        'created_at' => '2024-10-15',
-        'is_public' => false,
-        'likes' => 8,
-        'helpful_votes' => 6
-    ],
-    [
-        'id' => 4,
-        'book_id' => 4,
-        'book_title' => 'Gone Girl',
-        'book_author' => 'Gillian Flynn',
-        'book_cover' => 'assets/images/books/gone_girl.jpg',
-        'rating' => 4,
-        'review_text' => 'What a psychological thriller! Flynn creates two of the most unreliable narrators I\'ve ever encountered. The twist in the middle completely flipped my understanding of the story. The exploration of marriage and media manipulation is brilliant. Some parts felt a bit too dark for my taste, but the craftsmanship is undeniable.',
-        'created_at' => '2024-10-10',
-        'is_public' => true,
-        'likes' => 31,
-        'helpful_votes' => 25
-    ]
-];
+// Check if user is logged in
+if (!$isLoggedIn) {
+    header('Location: login.php');
+    exit;
+}
 
-// Check if user is logged in (simulate login for demo)
-$isLoggedIn = isset($_SESSION['user_id']) || true; // Set to true for demo purposes
+// Database logic to fetch user's reviews
+require_once __DIR__ . '/../config/db.php'; 
+$db = Database::getInstance();
 
-// Calculate stats
+$user_id = $_SESSION['user_id'];
+
+// Fetch user's reviews with book details
+$sql_reviews = "
+    SELECT 
+        r.*,
+        b.title,
+        b.author,
+        b.cover_image,
+        g.genre_name
+    FROM 
+        reviews r
+    JOIN 
+        books b ON r.book_id = b.book_id
+    LEFT JOIN 
+        genres g ON b.genre_id = g.genre_id
+    WHERE 
+        r.user_id = ?
+    ORDER BY 
+        r.created_at DESC";
+
+$myReviews = $db->fetchAll($sql_reviews, [$user_id]);
+
+// Debug removed - data is working correctly
+
 $totalReviews = count($myReviews);
-$publicReviews = count(array_filter($myReviews, fn($r) => $r['is_public']));
-$totalLikes = array_sum(array_column($myReviews, 'likes'));
-$avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) / $totalReviews : 0;
+$avgRating = 0;
+$reviewsThisMonth = 0;
+
+if ($totalReviews > 0) {
+    $ratings = array_column($myReviews, 'rating');
+    $avgRating = round(array_sum($ratings) / count($ratings), 1);
+    
+    // Count reviews this month
+    $thisMonth = date('Y-m');
+    foreach ($myReviews as $review) {
+        if (date('Y-m', strtotime($review['created_at'])) === $thisMonth) {
+            $reviewsThisMonth++;
+        }
+    }
+}
 ?>
 
 <div class="container my-5">
@@ -85,12 +76,12 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1><i class="fas fa-star text-warning me-2"></i>My Reviews</h1>
+            <h1>My Reviews</h1>
             <p class="text-muted">Share your thoughts about the books you've read</p>
         </div>
-        <a href="browse.php" class="btn btn-primary">
+        <button class="btn btn-primary" onclick="showComingSoon(event)">
             <i class="fas fa-plus me-2"></i>Write New Review
-        </a>
+        </button>
     </div>
 
     <!-- Stats -->
@@ -106,15 +97,7 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h4 class="text-success"><?php echo $publicReviews; ?></h4>
-                    <small class="text-muted">Public Reviews</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-warning"><?php echo number_format($avgRating, 1); ?></h4>
+                    <h4 class="text-warning"><?php echo $avgRating; ?></h4>
                     <small class="text-muted">Avg Rating Given</small>
                 </div>
             </div>
@@ -122,8 +105,16 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h4 class="text-info"><?php echo $totalLikes; ?></h4>
-                    <small class="text-muted">Total Likes</small>
+                    <h4 class="text-success"><?php echo $reviewsThisMonth; ?></h4>
+                    <small class="text-muted">This Month</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h4 class="text-info"><?php echo $totalReviews > 0 ? date('M Y', strtotime($myReviews[0]['created_at'])) : 'N/A'; ?></h4>
+                    <small class="text-muted">Latest Review</small>
                 </div>
             </div>
         </div>
@@ -179,76 +170,57 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
     <?php else: ?>
     
     <!-- Reviews List -->
-    <div id="reviewsContainer">
+    <div id="reviewsContainer" class="row g-4">
         <?php foreach ($myReviews as $review): ?>
-        <div class="review-item mb-4" data-visibility="<?php echo $review['is_public'] ? 'public' : 'private'; ?>" data-rating="<?php echo $review['rating']; ?>">
-            <div class="card">
+        <div class="col-lg-4 col-md-6 review-item" data-visibility="<?php echo $review['is_public'] ? 'public' : 'private'; ?>" data-review-rating="<?php echo $review['rating']; ?>">
+            <div class="card h-100 review-item">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-2">
-                            <img src="<?php echo $review['book_cover']; ?>" alt="<?php echo htmlspecialchars($review['book_title']); ?>" 
-                                 class="img-fluid rounded shadow-sm">
-                        </div>
-                        <div class="col-md-10">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h5 class="mb-1">
-                                        <a href="book_detail.php?id=<?php echo $review['book_id']; ?>" class="text-decoration-none">
-                                            <?php echo htmlspecialchars($review['book_title']); ?>
-                                        </a>
-                                    </h5>
-                                    <p class="text-muted mb-2">by <?php echo htmlspecialchars($review['book_author']); ?></p>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" onclick="editReview(<?php echo $review['id']; ?>)">
-                                            <i class="fas fa-edit me-2"></i>Edit Review</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="toggleVisibility(<?php echo $review['id']; ?>)">
-                                            <i class="fas fa-<?php echo $review['is_public'] ? 'eye-slash' : 'eye'; ?> me-2"></i>
-                                            Make <?php echo $review['is_public'] ? 'Private' : 'Public'; ?></a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteReview(<?php echo $review['id']; ?>)">
-                                            <i class="fas fa-trash me-2"></i>Delete Review</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="rating me-3">
+                    <!-- Book Info -->
+                    <div class="d-flex mb-3">
+                        <img src="assets/images/books/<?php echo htmlspecialchars($review['cover_image']); ?>" alt="<?php echo htmlspecialchars($review['title']); ?>" 
+                             class="me-3" style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px;">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">
+                                <a href="book_detail.php?id=<?php echo $review['book_id']; ?>" class="text-decoration-none">
+                                    <?php echo htmlspecialchars($review['title']); ?>
+                                </a>
+                            </h6>
+                            <p class="text-muted mb-2 small">by <?php echo htmlspecialchars($review['author']); ?></p>
+                            <div class="book-rating">
+                                <div class="stars">
                                     <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <i class="fas fa-star <?php echo $i <= $review['rating'] ? 'text-warning' : 'text-muted'; ?>"></i>
+                                        <i class="fas fa-star star <?php echo $i <= $review['rating'] ? 'filled' : ''; ?>"></i>
                                     <?php endfor; ?>
                                 </div>
-                                <span class="badge <?php echo $review['is_public'] ? 'bg-success' : 'bg-secondary'; ?> me-2">
-                                    <?php echo $review['is_public'] ? 'Public' : 'Private'; ?>
-                                </span>
-                                <small class="text-muted">Written on <?php echo date('F j, Y', strtotime($review['created_at'])); ?></small>
                             </div>
-                            
-                            <div class="review-text mb-3">
-                                <p><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="review-stats">
-                                    <span class="me-3">
-                                        <i class="fas fa-thumbs-up text-primary me-1"></i>
-                                        <?php echo $review['likes']; ?> likes
-                                    </span>
-                                    <span>
-                                        <i class="fas fa-check-circle text-success me-1"></i>
-                                        <?php echo $review['helpful_votes']; ?> helpful
-                                    </span>
-                                </div>
-                                <div>
-                                    <a href="book_detail.php?id=<?php echo $review['book_id']; ?>" class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-eye me-1"></i>View Book
-                                    </a>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Review Content -->
+                    <div class="review-text mb-3">
+                        <p class="text-truncate-2"><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
+                    </div>
+                    
+                    <!-- Review Meta -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted"><?php echo date('M j, Y', strtotime($review['created_at'])); ?></small>
+                        <span class="badge <?php echo $review['is_public'] ? 'bg-success' : 'bg-secondary'; ?>">
+                            <?php echo $review['is_public'] ? 'Public' : 'Private'; ?>
+                        </span>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-thumbs-up me-1"></i><?php echo $review['helpful_count']; ?> helpful
+                        </small>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editReview(<?php echo $review['review_id']; ?>)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteReview(<?php echo $review['review_id']; ?>)">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -259,6 +231,35 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
     <?php endif; ?>
     
     <?php endif; ?>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteReviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-danger">
+                    <i class="fas fa-trash me-2"></i>Delete Review
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <h4>Are you sure?</h4>
+                <p class="text-muted mb-4">This will permanently delete your review. This action cannot be undone.</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <span class="badge bg-danger">Permanent Action</span>
+                    <span class="badge bg-secondary">Cannot be undone</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-2"></i>Delete Review
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Edit Review Modal -->
@@ -273,9 +274,9 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
                 <form id="editReviewForm">
                     <div class="mb-3">
                         <label class="form-label">Your Rating</label>
-                        <div class="star-rating-input" data-rating="0">
+                        <div class="star-rating-input manual-stars" data-input-rating="0">
                             <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <i class="far fa-star star" data-rating="<?php echo $i; ?>"></i>
+                                <i class="far fa-star star" data-star-value="<?php echo $i; ?>"></i>
                             <?php endfor; ?>
                         </div>
                         <input type="hidden" name="rating" id="editRatingInput" value="0">
@@ -308,161 +309,8 @@ $avgRating = $totalReviews > 0 ? array_sum(array_column($myReviews, 'rating')) /
     </div>
 </div>
 
-<script>
-// Search functionality
-document.getElementById('searchReviews')?.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    const reviews = document.querySelectorAll('.review-item');
-    
-    reviews.forEach(item => {
-        const title = item.querySelector('h5').textContent.toLowerCase();
-        const author = item.querySelector('.text-muted').textContent.toLowerCase();
-        const text = item.querySelector('.review-text').textContent.toLowerCase();
-        
-        if (title.includes(searchTerm) || author.includes(searchTerm) || text.includes(searchTerm)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
+<!-- Page-specific JavaScript -->
+<script src="assets/js/reviews.js?v=<?php echo time(); ?>"></script>
 
-// Filter by visibility
-document.getElementById('filterVisibility')?.addEventListener('change', function() {
-    const filter = this.value;
-    const reviews = document.querySelectorAll('.review-item');
-    
-    reviews.forEach(item => {
-        const visibility = item.dataset.visibility;
-        
-        if (filter === 'all' || visibility === filter) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
-
-// Filter by rating
-document.getElementById('filterRating')?.addEventListener('change', function() {
-    const rating = this.value;
-    const reviews = document.querySelectorAll('.review-item');
-    
-    reviews.forEach(item => {
-        const itemRating = item.dataset.rating;
-        
-        if (rating === 'all' || itemRating === rating) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
-
-// Sort functionality
-document.getElementById('sortReviews')?.addEventListener('change', function() {
-    const sortBy = this.value;
-    // Static demo - would implement sorting logic here
-    console.log('Sorting by:', sortBy);
-});
-
-// Edit review
-function editReview(reviewId) {
-    // Static demo - would load review data here
-    document.getElementById('editReviewText').value = 'Sample review text for editing...';
-    document.getElementById('editRatingInput').value = '4';
-    document.getElementById('editIsPublic').checked = true;
-    
-    // Update character count
-    document.getElementById('editCharCount').textContent = document.getElementById('editReviewText').value.length;
-    
-    // Initialize star rating
-    updateStarRating(4);
-    
-    const modal = new bootstrap.Modal(document.getElementById('editReviewModal'));
-    modal.show();
-}
-
-// Save review edit
-function saveReviewEdit() {
-    // Static demo - would make API call here
-    alert('Review updated successfully! (Demo mode - changes not actually saved)');
-    document.querySelector('[data-bs-dismiss="modal"]').click();
-}
-
-// Toggle visibility
-function toggleVisibility(reviewId) {
-    // Static demo - would make API call here
-    alert('Review visibility updated! (Demo mode - not actually changed)');
-}
-
-// Delete review
-function deleteReview(reviewId) {
-    if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-        // Static demo - would make API call here
-        alert('Review deleted! (Demo mode - not actually deleted)');
-    }
-}
-
-// Star rating for edit modal
-document.querySelectorAll('.star-rating-input .star').forEach(star => {
-    star.addEventListener('click', function() {
-        const rating = this.dataset.rating;
-        updateStarRating(rating);
-    });
-});
-
-function updateStarRating(rating) {
-    const container = document.querySelector('.star-rating-input');
-    container.dataset.rating = rating;
-    document.getElementById('editRatingInput').value = rating;
-    
-    container.querySelectorAll('.star').forEach((s, index) => {
-        if (index < rating) {
-            s.classList.remove('far');
-            s.classList.add('fas', 'text-warning');
-        } else {
-            s.classList.add('far');
-            s.classList.remove('fas', 'text-warning');
-        }
-    });
-}
-
-// Character counter for edit modal
-document.getElementById('editReviewText')?.addEventListener('input', function() {
-    document.getElementById('editCharCount').textContent = this.value.length;
-});
-</script>
-
-<style>
-.review-item {
-    transition: transform 0.2s;
-}
-
-.review-item:hover {
-    transform: translateY(-2px);
-}
-
-.review-text {
-    max-height: 150px;
-    overflow: hidden;
-    position: relative;
-}
-
-.review-stats i {
-    font-size: 0.875rem;
-}
-
-.star-rating-input .star {
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #ddd;
-    transition: color 0.2s;
-}
-
-.star-rating-input .star:hover {
-    color: #ffc107;
-}
-</style>
 
 <?php include 'includes/footer.php'; ?>

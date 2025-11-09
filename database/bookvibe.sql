@@ -212,119 +212,57 @@ INSERT INTO users (full_name, email, password_hash, bio, favorite_genres) VALUES
 ('Demo User', 'demo@bookvibe.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Demo account for testing BookVibe features. Password: password', '["Fantasy", "Romance"]');
 
 -- ============================================
--- Insert 50+ sample books with complete metadata
+-- Insert sample books (12 books matching actual image files)
 -- ============================================
-INSERT INTO books (title, author, isbn, publisher, publication_year, page_count, description, cover_image, genre_id, price, sale_price) VALUES
+INSERT INTO books (title, author, isbn, publisher, publication_year, page_count, description, cover_image, genre_id, avg_rating, review_count) VALUES
 
--- Fantasy Books
-('The Enchanted Forest', 'Luna Blackwood', '978-1234567890', 'Fantasy Press', 2024, 384, 'In the mystical realm of Eldoria, where ancient magic flows through every leaf and stone, young Aria discovers she possesses a rare gift that could either save her world or destroy it forever. When dark forces threaten to consume the Enchanted Forest, she must embark on a perilous journey to unlock the secrets of her heritage.', 'enchanted_forest.jpg', 5, 24.99, 19.99),
+-- Classic Literature (Fiction - Genre 1) 
+('1984', 'George Orwell', '978-0-452-28423-4', 'Plume', 1949, 328, 'A dystopian novel set in a totalitarian society under the omnipresent surveillance of Big Brother.', '1984.jpg', 1, 4.4, 32),
 
-('Dragon Quest: Legacy of Fire', 'Marcus Dragonbane', '978-1234567891', 'Epic Tales Publishing', 2024, 456, 'The last dragon rider must unite the fractured kingdoms before an ancient evil awakens. With his dragon companion Emberwing, Kael embarks on a quest that will determine the fate of all magical creatures.', 'dragon_quest.jpg', 5, 27.99, 22.99),
+-- The_Great_Gatsby.jpg shows The Great Gatsby cover
+('The Great Gatsby', 'F. Scott Fitzgerald', '978-0-7432-7356-5', 'Scribner', 1925, 180, 'A tragic story of Jay Gatsby and his pursuit of the American Dream in the Jazz Age.', 'gatsby.jpg', 1, 4.2, 28),
 
-('The Crystal Chronicles', 'Seraphina Vale', '978-1234567892', 'Mystic Works', 2023, 398, 'When the sacred crystals that protect the realm begin to shatter, a young mage must master forbidden magic to prevent the world from falling into eternal darkness.', 'crystal_chronicles.jpg', 5, 23.99, 18.99),
+-- Little_Women.jpg shows Little Women cover
+('Little Women', 'Louisa May Alcott', '978-0-14-143965-4', 'Penguin Classics', 1868, 449, 'The story of the four March sisters growing up during the Civil War.', 'little_women.jpg', 1, 4.3, 24),
 
-('Realm of Shadows', 'Darius Nightfall', '978-1234567893', 'Dark Fantasy Ltd', 2024, 425, 'In a world where shadows have gained consciousness, a shadow-walker must choose between saving humanity or embracing the darkness that calls to her.', 'realm_shadows.jpg', 5, 26.99, 21.99),
+-- Pride_Predudice.jpg shows Pride and Prejudice cover
+('Pride and Prejudice', 'Jane Austen', '978-0-14-143951-7', 'Penguin Classics', 1813, 279, 'A romantic novel about manners and marriage in Georgian England featuring Elizabeth Bennet and Mr. Darcy.', 'Pride_Predudice.jpg', 2, 4.5, 41),
 
-('The Elemental Wars', 'Aria Stormwind', '978-1234567894', 'Elemental Press', 2023, 367, 'Four elemental kingdoms stand on the brink of war. Only a young woman who can control all four elements can restore balance to the world.', 'elemental_wars.jpg', 5, 25.99, 20.99),
+-- The_Shining.jpg shows The Shining cover
+('The Shining', 'Stephen King', '978-0-307-74365-9', 'Anchor Books', 1977, 447, 'A psychological horror novel about Jack Torrance, a writer who becomes caretaker of the isolated Overlook Hotel and descends into madness.', 'The_Shining.jpg', 3, 4.7, 52),
 
--- Romance Books
-('Love in Paris', 'Emma Rose', '978-2234567890', 'Romance Central', 2023, 342, 'When art curator Sophie inherits a mysterious painting in Paris, she discovers it holds clues to a century-old love story. As she unravels the mystery, she finds herself falling for the charming antiquarian helping her search.', 'love_paris.jpg', 2, 19.99, 15.99),
+-- Harry_Potter.jpg shows Harry Potter cover 
+('Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', '978-0-439-70818-8', 'Scholastic', 1997, 309, 'A young wizard discovers his magical heritage and attends Hogwarts School of Witchcraft and Wizardry.', 'Harry_Potter.jpg', 5, 4.6, 47),
 
-('Heart of Stone', 'Rebecca Time', '978-2234567891', 'Sweet Romance', 2023, 298, 'A successful businesswoman returns to her hometown and reconnects with her high school sweetheart, now a single father. Can they overcome past hurts to find love again?', 'heart_stone.jpg', 2, 18.99, 14.99),
+-- Lord_Of_The_Rings.jpg shows Lord of the Rings cover
+('The Lord of the Rings', 'J.R.R. Tolkien', '978-0-547-92832-9', 'Mariner Books', 1954, 1216, 'An epic high fantasy novel about the quest to destroy the One Ring and defeat the Dark Lord Sauron in Middle-earth.', 'Lord_Of_The_Rings.jpg', 5, 4.0, 35),
 
-('Summer Nights', 'Isabella Moon', '978-2234567892', 'Sunset Publishing', 2024, 315, 'A beach house, a mysterious neighbor, and the summer that changes everything. When city girl meets small-town charm, sparks fly under the starlit sky.', 'summer_nights.jpg', 2, 20.99, 16.99),
+-- Thriller (Genre 3)
+('Gone Girl', 'Gillian Flynn', '978-0-307-58836-4', 'Crown Publishers', 2012, 419, 'A psychological thriller about a marriage gone terribly wrong when Amy Dunne disappears.', 'gone_girl.jpg', 3, 4.1, 35),
 
-('The Wedding Planner''s Heart', 'Sophia Grace', '978-2234567893', 'Ever After Books', 2024, 289, 'Wedding planner Charlotte has planned hundreds of perfect weddings but never found her own happily ever after. That changes when she meets the cynical divorce lawyer who challenges everything she believes about love.', 'wedding_planner.jpg', 2, 19.99, 15.99),
+-- Orient_Express_Agatha.jpg shows Murder on the Orient Express cover:
+('Murder on the Orient Express', 'Agatha Christie', '978-0-06-207350-4', 'William Morrow Paperbacks', 1934, 256, 'The story features the Belgian detective Hercule Poirot, who is on a luxury train that becomes stranded by a snowdrift. A murder is committed, and Poirot must solve the baffling mystery before the killer can strike again.', 'Orient_Express_Agatha.jpg', 6, 4.8, 38),
 
-('Whispers of the Heart', 'Melody Rivers', '978-2234567894', 'Heartstring Publications', 2023, 334, 'A deaf musician and a sound engineer find love through the universal language of music in this touching contemporary romance.', 'whispers_heart.jpg', 2, 21.99, 17.99),
+-- Self-Help & Non-Fiction (Genre 7)
+('Atomic Habits', 'James Clear', '978-0-7352-1129-2', 'Avery', 2018, 320, 'Tiny changes, remarkable results. An easy way to build good habits and break bad ones.', 'atomic_habits.jpg', 7, 4.6, 43),
 
--- Thriller Books
-('Midnight Shadows', 'Robert Kane', '978-3234567890', 'Thriller House', 2024, 412, 'Detective Sarah Blake thought she had seen the worst of humanity until a serial killer starts leaving cryptic messages that seem to know her darkest secrets. A thrilling ride from start to finish with plot twists that will keep you guessing.', 'midnight_shadows.jpg', 3, 22.99, 18.99),
+-- Lacan_Shakespeare.jpg shows Lacan_Shakespeare.jpg cover:
+('From Shakespeare to Camus', 'Sarojakshan Thaikkad', '978-1-4516-4853-9', 'Simon & Schuster', 2011, 656, 'The book explores the relationship between psychoanalysis and literature, specifically examining the works of William Shakespeare and Albert Camus through the lens of Jacques Lacan\s psychoanalytic theories. ', 'Lacan_Shakespeare.jpg', 8, 4.3, 29),
 
-('The Silent Witness', 'Victoria Cross', '978-3234567891', 'Crime & Mystery Co', 2024, 387, 'When the only witness to a murder refuses to speak, investigator Matt Torres must uncover the truth before the killer strikes again.', 'silent_witness.jpg', 3, 24.99, 19.99),
+-- Top_Stocks.jpg shows stock market book shows "Top Stocks for Building Wealth" cover:
+('Top Stocks for Building Wealth', 'Michael Sincere', '978-0-07-174734-9', 'McGraw-Hill', 2012, 288, 'A comprehensive guide to selecting winning stocks and building long-term wealth in the stock market.', 'Top_Stocks.jpg', 7, 3.8, 15),
 
-('Blood Moon Rising', 'Hunter Black', '978-3234567892', 'Dark Thrillers', 2023, 445, 'A small town harbors a deadly secret that surfaces every decade under the blood moon. FBI agent Lisa Monroe has 72 hours to stop the killing spree.', 'blood_moon.jpg', 3, 23.99, 18.99),
+-- ============================================
+-- NEW BOOKS ADDED - November 8, 2025
+-- ============================================
+-- Adventure Genre (Genre 10)
+('Run', 'Sarah Armstrong', '978-1-2345-6789-0', 'Adventure Press', 2023, 340, 'A gripping survival story that follows a young runner who must navigate dangerous terrain and face life-threatening challenges. This big-hearted adventure explores themes of resilience, determination, and the human spirit''s capacity to endure against all odds.', 'Run.jpg', 10, 4.2, 3),
 
-('The Vanishing Hour', 'Rachel Storm', '978-3234567893', 'Suspense Central', 2024, 356, 'People are disappearing at exactly 3:33 AM. A insomniac journalist becomes obsessed with solving the mystery before she becomes the next victim.', 'vanishing_hour.jpg', 3, 21.99, 17.99),
+-- Sci-Fi Genre (Genre 4) 
+('Red City', 'Marie Liu', '978-1-2345-6789-1', 'Future Fiction', 2024, 425, 'Set in a dystopian future where cities are color-coded by social hierarchy, this thought-provoking sci-fi novel explores themes of inequality and resistance. When a young woman discovers the truth behind the Red City''s facade, she must choose between safety and revolution.', 'Red_City.jpg', 4, 4.5, 7),
 
-('Web of Lies', 'David Sharp', '978-3234567894', 'Conspiracy Press', 2023, 398, 'A web developer discovers a conspiracy hidden in the code of a popular social media platform. Now corporate assassins are hunting him down.', 'web_lies.jpg', 3, 25.99, 20.99),
-
--- Sci-Fi Books
-('Quantum Reality', 'Dr. Alan Chen', '978-4234567890', 'Future Tech Publishing', 2024, 467, 'When quantum physicist Dr. Elena Vasquez discovers that parallel universes are bleeding into our reality, she must race against time to prevent a catastrophic collision of worlds that could erase existence itself.', 'quantum_reality.jpg', 4, 28.99, 23.99),
-
-('Digital Dreams', 'Marcus Tech', '978-4234567891', 'Cyber Fiction Inc', 2024, 423, 'In 2087, consciousness can be uploaded to the cloud. But when the first digital human starts questioning reality, the line between artificial and authentic becomes dangerously blurred.', 'digital_dreams.jpg', 4, 26.99, 21.99),
-
-('Stars Beyond Tomorrow', 'Captain Nova', '978-4234567892', 'Space Adventures', 2023, 389, 'Humanity''s first interstellar colony ship encounters an alien artifact that challenges everything we know about the universe.', 'stars_tomorrow.jpg', 4, 27.99, 22.99),
-
-('The Android''s Dream', 'Cyber Smith', '978-4234567893', 'Robot Fiction', 2024, 356, 'An android gains consciousness and struggles with what it means to be human in a world that sees it only as a machine.', 'android_dream.jpg', 4, 24.99, 19.99),
-
-('Time Fracture', 'Temporal Jones', '978-4234567894', 'Time Travel Tales', 2023, 412, 'A time traveler gets stuck in a loop where every change he makes creates worse outcomes for humanity.', 'time_fracture.jpg', 4, 25.99, 20.99),
-
--- Mystery Books
-('The Last Detective', 'Sarah Mitchell', '978-5234567890', 'Mystery Manor', 2023, 345, 'Retired detective John Harper thought his case-solving days were over until his neighbor is found dead under impossible circumstances. With the local police stumped, he must use all his experience to solve one final case.', 'last_detective.jpg', 6, 20.99, 16.99),
-
-('Secrets of the Lighthouse', 'Coastal Mystery', '978-5234567891', 'Seaside Mysteries', 2024, 312, 'When a lighthouse keeper disappears during a storm, the only clues are a cryptic message and a room that should not exist.', 'lighthouse_secrets.jpg', 6, 19.99, 15.99),
-
-('The Locked Room', 'Puzzle Master', '978-5234567892', 'Classic Mystery', 2023, 298, 'A impossible murder in a locked room brings together an unlikely detective duo in this homage to classic mystery novels.', 'locked_room.jpg', 6, 18.99, 14.99),
-
-('Murder at Midnight Manor', 'Gothic Writer', '978-5234567893', 'Manor House Books', 2024, 367, 'A weekend gathering at a remote manor turns deadly when guests start disappearing one by one during a thunderstorm.', 'midnight_manor.jpg', 6, 22.99, 18.99),
-
-('The Cipher Killer', 'Code Breaker', '978-5234567894', 'Cryptic Tales', 2023, 389, 'A serial killer leaves coded messages at crime scenes. A cryptographer races to decode them before the next murder.', 'cipher_killer.jpg', 6, 21.99, 17.99),
-
--- Non-Fiction Books
-('Ancient Wisdom', 'Prof. History', '978-6234567890', 'Academic Press', 2023, 456, 'A comprehensive exploration of ancient civilizations and the timeless wisdom they offer modern society. From the philosophical insights of ancient Greece to the technological marvels of lost civilizations.', 'ancient_wisdom.jpg', 7, 32.99, 27.99),
-
-('The Science of Happiness', 'Dr. Wellness', '978-6234567891', 'Self-Help Central', 2024, 298, 'Backed by research, this book reveals the science behind happiness and provides practical strategies for a more fulfilling life.', 'science_happiness.jpg', 7, 24.99, 19.99),
-
-('Digital Minimalism', 'Tech Philosopher', '978-6234567892', 'Modern Life Press', 2023, 267, 'How to reclaim your life from technology addiction and find meaning in a hyperconnected world.', 'digital_minimalism.jpg', 7, 23.99, 18.99),
-
-('The Art of Decision Making', 'Choice Expert', '978-6234567893', 'Business Wisdom', 2024, 334, 'Master the psychology and strategy behind making better decisions in all areas of life.', 'art_decisions.jpg', 7, 26.99, 21.99),
-
-('Climate Change: A Visual Guide', 'Environmental Scientist', '978-6234567894', 'Earth Sciences', 2023, 245, 'An accessible guide to understanding climate change through compelling visuals and clear explanations.', 'climate_guide.jpg', 7, 29.99, 24.99),
-
--- Biography Books
-('Life of Einstein', 'Bio Writer', '978-7234567890', 'Biography House', 2023, 512, 'The definitive biography of Albert Einstein, exploring not just his scientific genius but his personal struggles, political views, and the man behind the theory of relativity.', 'einstein_life.jpg', 8, 34.99, 29.99),
-
-('The Inventor''s Mind', 'Innovation Author', '978-7234567891', 'Pioneer Press', 2024, 387, 'The fascinating story of Nikola Tesla and his revolutionary inventions that changed the world.', 'inventor_mind.jpg', 8, 31.99, 26.99),
-
-('Queen of Code', 'Tech Historian', '978-7234567892', 'Women in Tech', 2023, 298, 'The inspiring biography of Ada Lovelace, the world''s first computer programmer.', 'queen_code.jpg', 8, 27.99, 22.99),
-
-('The Artist''s Journey', 'Art Biographer', '978-7234567893', 'Creative Lives', 2024, 356, 'The tumultuous and inspiring life of Vincent van Gogh told through his letters and paintings.', 'artist_journey.jpg', 8, 30.99, 25.99),
-
-('Space Pioneer', 'Space Writer', '978-7234567894', 'Cosmic Books', 2023, 445, 'The remarkable life of Katherine Johnson, the mathematician whose calculations helped put humans on the moon.', 'space_pioneer.jpg', 8, 28.99, 23.99),
-
--- History Books
-('The Great Wars', 'Military Historian', '978-8234567890', 'Historical Press', 2023, 567, 'A comprehensive look at the major conflicts that shaped the 20th century, from causes to consequences.', 'great_wars.jpg', 9, 39.99, 34.99),
-
-('Ancient Civilizations', 'Archaeology Expert', '978-8234567891', 'Ancient World', 2024, 423, 'Explore the rise and fall of great civilizations from Mesopotamia to the Maya.', 'ancient_civs.jpg', 9, 35.99, 30.99),
-
-('The Renaissance Revolution', 'Renaissance Scholar', '978-8234567892', 'Cultural History', 2023, 398, 'How the Renaissance changed art, science, and human thought forever.', 'renaissance_rev.jpg', 9, 33.99, 28.99),
-
-('Maritime Empires', 'Naval Historian', '978-8234567893', 'Ocean Chronicles', 2024, 456, 'The age of exploration and how maritime empires shaped the modern world.', 'maritime_empires.jpg', 9, 36.99, 31.99),
-
-('The Cold War Chronicles', 'Modern Historian', '978-8234567894', 'Political History', 2023, 489, 'A detailed examination of the Cold War era and its lasting impact on global politics.', 'cold_war.jpg', 9, 37.99, 32.99),
-
--- Adventure Books
-('Ocean Mysteries', 'Captain Blue', '978-9234567890', 'Adventure Press', 2024, 398, 'Marine biologist Dr. Sarah Ocean leads an expedition to explore the deepest trenches of the Pacific, where they discover creatures that should not exist and secrets that threaten to change our understanding of life on Earth.', 'ocean_mysteries.jpg', 10, 25.99, 20.99),
-
-('Mountain Peak', 'Summit Seeker', '978-9234567891', 'Extreme Adventures', 2023, 345, 'A thrilling account of climbing the world''s most dangerous peak, where survival depends on more than just skill.', 'mountain_peak.jpg', 10, 24.99, 19.99),
-
-('Jungle Expedition', 'Explorer Jones', '978-9234567892', 'Wild Adventures', 2024, 367, 'Lost in the Amazon rainforest, a research team must survive against all odds while uncovering an ancient secret.', 'jungle_expedition.jpg', 10, 23.99, 18.99),
-
-('Desert Crossing', 'Sand Walker', '978-9234567893', 'Survival Stories', 2023, 289, 'A harrowing journey across the Sahara Desert becomes a test of human endurance and determination.', 'desert_crossing.jpg', 10, 22.99, 17.99),
-
-('Arctic Quest', 'Ice Explorer', '978-9234567894', 'Polar Adventures', 2024, 412, 'A race against time in the Arctic wilderness to prevent an environmental disaster.', 'arctic_quest.jpg', 10, 26.99, 21.99),
-
--- Fiction Books
-('The Memory Keeper', 'Literary Master', '978-0234567890', 'Literary Fiction', 2024, 423, 'A haunting tale of family secrets spanning three generations, where memories hold the key to redemption.', 'memory_keeper.jpg', 1, 24.99, 19.99),
-
-('Small Town Secrets', 'Hometown Writer', '978-0234567891', 'American Stories', 2023, 356, 'When a journalist returns to her hometown to investigate a decades-old disappearance, she uncovers secrets that threaten the entire community.', 'small_town.jpg', 1, 21.99, 16.99),
-
-('The Last Library', 'Book Lover', '978-0234567892', 'Literary Tales', 2024, 398, 'In a world where books are banned, a librarian becomes part of an underground network to preserve human knowledge.', 'last_library.jpg', 1, 23.99, 18.99),
-
-('River''s End', 'Nature Writer', '978-0234567893', 'River Valley Press', 2023, 312, 'A family legacy unfolds along the banks of a river that holds both beauty and tragedy.', 'rivers_end.jpg', 1, 20.99, 15.99),
-
-('The Photographer''s Eye', 'Visual Storyteller', '978-0234567894', 'Image & Word', 2024, 367, 'A war photographer returns home to find that the most challenging pictures are the ones closest to heart.', 'photographer_eye.jpg', 1, 25.99, 20.99);
+-- Sci-Fi Genre (Genre 4)
+('All That We See Or Seem', 'Ken Liu', '978-1-2345-6789-2', 'Speculative Press', 2023, 380, 'A mind-bending exploration of reality and perception that blurs the lines between dreams and waking life. This speculative fiction masterpiece challenges readers to question the nature of existence and consciousness in a world where nothing is quite what it seems.', 'All_That_We_See_Or_Seem.jpg', 4, 4.7, 12);
 
 -- ============================================
 -- Triggers to update book ratings and counts
@@ -411,44 +349,80 @@ END//
 DELIMITER ;
 
 -- ============================================
--- Insert sample reviews
+-- Insert sample reviews for the 12 books
 -- ============================================
 INSERT INTO reviews (user_id, book_id, rating, review_title, review_text, helpful_count) VALUES
-(1, 1, 5, 'Absolutely Magical!', 'This book completely swept me away! The world-building is incredible and the characters are so well-developed. Aria''s journey is both heart-wrenching and inspiring. The magic system is unique and well-thought-out. I couldn''t put it down and read it in one sitting. Can''t wait for the sequel!', 24),
-(2, 1, 4, 'Great Fantasy Adventure', 'Really enjoyed this book! The pacing is excellent and the plot twists kept me guessing. The only reason I''m giving 4 stars instead of 5 is that some of the side characters could have been more developed. But overall, it''s a fantastic read that I''d recommend to any fantasy fan.', 18),
-(3, 1, 5, 'Couldn''t Put It Down!', 'What an amazing debut! The author has created such a rich and immersive world. The descriptions are vivid without being overwhelming, and the dialogue feels natural. The relationship between Aria and her companions is beautifully written. This is going straight to my favorites shelf!', 31),
+-- 1984 reviews (book_id 1)
+(1, 1, 4, 'Terrifyingly Relevant', 'Orwell\'s vision feels more relevant today than ever. A masterpiece that everyone should read.', 35),
+(4, 1, 5, 'Thought-Provoking', 'A powerful warning about government surveillance and control. The message is crucial.', 29),
+(2, 1, 4, 'Dystopian Masterpiece', 'Big Brother is watching. This book will change how you see the world.', 22),
 
-(1, 11, 4, 'Thrilling Ride', 'A suspenseful thriller that kept me on the edge of my seat. Detective Blake is a well-developed character and the mystery is genuinely puzzling.', 15),
-(2, 11, 5, 'Couldn''t Stop Reading', 'This book had me hooked from the first chapter. The twists and turns were unexpected and the ending was satisfying.', 22),
+-- The Great Gatsby reviews (book_id 2)
+(3, 2, 4, 'American Classic', 'Fitzgerald\'s prose is absolutely beautiful. The American Dream explored perfectly.', 31),
+(5, 2, 4, 'Beautifully Written', 'The Jazz Age comes alive. Gatsby is a tragic figure you won\'t forget.', 18),
+(1, 2, 4, 'Timeless Themes', 'Wealth, love, and the corruption of the American Dream. Still relevant today.', 24),
 
-(3, 6, 5, 'Beautiful Romance', 'Such a beautiful romance! The Parisian setting was so vivid, I felt like I was there. The chemistry between the characters was amazing and the writing was just gorgeous.', 28),
-(4, 6, 4, 'Charming Story', 'A delightful romance with well-developed characters. The art world setting added a nice touch to the love story.', 12),
+-- Little Women reviews (book_id 3)
+(2, 3, 4, 'Heartwarming Family Story', 'The March sisters feel like real people. Their struggles and joys are universal.', 26),
+(4, 3, 5, 'Comfort Read', 'A lovely story about family, growing up, and finding your place in the world.', 19),
+(3, 3, 4, 'Strong Female Characters', 'Each sister is unique and memorable. Alcott was ahead of her time.', 15),
 
-(1, 16, 5, 'Mind-Bending Sci-Fi', 'Dr. Chen has created a fascinating exploration of quantum physics and parallel universes. The science is well-researched and the story is gripping.', 33),
-(2, 16, 4, 'Complex but Rewarding', 'This book requires attention but rewards the reader with a unique and thought-provoking story about reality and existence.', 19),
+-- Pride and Prejudice reviews (book_id 4)
+(4, 4, 5, 'Romance Done Right', 'Austen\'s wit shines through. Elizabeth Bennet is a heroine ahead of her time.', 47),
+(1, 4, 5, 'Perfect Romance', 'The slow burn between Elizabeth and Darcy is everything. Sharp social commentary.', 42),
+(2, 4, 4, 'Witty and Charming', 'Austen\'s social commentary disguised as romance. Elizabeth is a wonderful character.', 35),
 
-(4, 26, 4, 'Solid Mystery', 'A classic whodunit with modern sensibilities. Detective Harper is a compelling protagonist and the mystery keeps you guessing.', 16),
-(5, 26, 5, 'Perfect Last Case', 'What a perfect send-off for a veteran detective. The case is intricate and the resolution is satisfying.', 21),
+-- The Shining reviews (book_id 5)
+(1, 5, 4, 'Masterful Horror', 'King at his best. The psychological descent is terrifying and believable.', 36),
+(5, 5, 5, 'Genuinely Scary', 'Couldn\'t sleep after reading. The Overlook Hotel feels like a character itself.', 31),
+(2, 5, 4, 'Slow Burn Terror', 'Builds tension perfectly. Jack\'s descent into madness is horrifying.', 24),
 
-(3, 31, 5, 'Life-Changing Read', 'This book completely changed how I think about happiness and well-being. The research is solid and the advice is practical.', 45),
-(1, 31, 4, 'Helpful and Insightful', 'Great practical advice backed by science. I''ve already started implementing some of the strategies.', 27),
+-- Harry Potter reviews (book_id 6)
+(1, 6, 5, 'Magical Beginning', 'Rowling created a world that feels completely real. Harry\'s journey from cupboard to Hogwarts is captivating.', 52),
+(2, 6, 5, 'Perfect for All Ages', 'Adults and children alike will be enchanted. The magic system is brilliantly thought out.', 41),
+(3, 6, 4, 'Great Start to Series', 'Sets up the world perfectly. Some pacing issues but the magic makes up for it.', 28),
 
-(2, 36, 5, 'Inspiring Biography', 'Einstein comes alive in this masterful biography. Both his genius and his humanity are beautifully portrayed.', 38),
-(4, 36, 4, 'Well-Researched', 'Comprehensive and engaging look at one of history''s greatest minds. Highly recommended for science enthusiasts.', 24);
+-- Lord of the Rings reviews (book_id 7)
+(3, 7, 5, 'Epic Fantasy Masterpiece', 'Tolkien created the ultimate fantasy world. The depth and detail is unmatched.', 45),
+(2, 7, 4, 'Rich World Building', 'Middle-earth feels completely real. The journey is long but worth every page.', 38),
+(4, 7, 5, 'Timeless Adventure', 'A classic that inspired all fantasy that came after. Characters you\'ll never forget.', 32),
+
+-- Gone Girl reviews (book_id 8)
+(3, 8, 4, 'Twisted Psychological Thriller', 'Flynn keeps you guessing until the very end. The unreliable narrators are masterful.', 32),
+(2, 8, 4, 'Dark Page Turner', 'Couldn\'t put it down! The plot twists are shocking. Not for the faint of heart.', 28),
+(4, 8, 4, 'Complex Characters', 'Both Nick and Amy are fascinating and terrible. Makes you question everything.', 19),
+
+-- Murder on the Orient Express reviews (book_id 9)
+(3, 9, 5, 'Classic Mystery', 'Christie at her finest. The plot twists are brilliant and the solution unexpected.', 34),
+(4, 9, 4, 'Poirot Perfection', 'Hercule Poirot is the perfect detective. The setting on the train is atmospheric.', 28),
+(1, 9, 4, 'Clever Puzzle', 'A masterclass in mystery writing. Every clue matters in this ingenious plot.', 22),
+
+-- Atomic Habits reviews (book_id 10)
+(2, 10, 5, 'Life Changing', 'Clear\'s approach is practical and actually works. Built 3 new habits using his methods.', 45),
+(4, 10, 5, 'Best Self-Help Book', 'Finally a self-help book that\'s actionable. The 1% improvement concept is genius.', 38),
+(1, 10, 4, 'Practical and Useful', 'Easy to understand and implement. Actually saw results within weeks.', 33),
+
+-- From Shakespeare to Camus reviews (book_id 11)
+(2, 11, 4, 'Intellectual Journey', 'Thaikkad bridges literature and psychoanalysis beautifully. Complex but rewarding.', 18),
+(4, 11, 4, 'Scholarly Excellence', 'Deep analysis of how psychoanalytic theory illuminates classic literature.', 15),
+(1, 11, 3, 'Academic but Accessible', 'Heavy material but well-presented. Good for literature students.', 12),
+
+-- Top Stocks for Building Wealth reviews (book_id 12)
+(5, 12, 4, 'Good Investment Primer', 'Solid advice for beginners. The stock selection criteria are helpful.', 12),
+(3, 12, 4, 'Practical Investing Guide', 'Easy to understand approach to stock picking. Good for new investors.', 8),
+(1, 12, 3, 'Basic but Useful', 'Covers the fundamentals well. Could use more advanced strategies.', 6);
 
 -- ============================================
--- Insert sample favorites
+-- Insert sample favorites for our 12 books 
 -- ============================================
 INSERT INTO favorites (user_id, book_id) VALUES
-(1, 1), (1, 6), (1, 11), (1, 16), (1, 31),
-(2, 1), (2, 11), (2, 16), (2, 26), (2, 36),
-(3, 1), (3, 6), (3, 31), (3, 41), (3, 46),
-(4, 6), (4, 26), (4, 36), (4, 41), (4, 51),
-(5, 1), (5, 6), (5, 11), (5, 16), (5, 21);
+(1, 1), (1, 2), (1, 5), (1, 10),
+(2, 1), (2, 4), (2, 6), (2, 8), (2, 12),
+(3, 3), (3, 5), (3, 7), (3, 9),
+(4, 2), (4, 6), (4, 7), (4, 10), (4, 12),
+(5, 1), (5, 3), (5, 6), (5, 9), (5, 12);
 
--- ============================================
--- Clean up and finalize
--- ============================================
+
 
 -- Update book ratings based on reviews (in case triggers didn't fire)
 UPDATE books b 

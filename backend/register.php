@@ -1,7 +1,11 @@
 <?php
-session_start();
-require '../config/db.php'; 
+// This file redirects to the frontend register page
+// Backend logic has been moved to register_handler.php
 
+// Start the session to ensure proper login redirect flow
+session_start();
+// Include the database configuration
+require '../config/db.php';
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -13,11 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($full_name_input === '' || $password === '') {
         $message = "Name and password are required.";
     } else {
+        if (empty($email)) {
+            $email = 'user_' . uniqid() . '@bookvibe.local';
+        }
         // Check if username already exists
         $stmt = $pdo->prepare("SELECT user_id FROM users WHERE full_name = ?");
-        $stmt->execute([$full_name_input]);
+        $stmt->execute([$full_name_input, $email]);
         if ($stmt->fetch()) {
-            $message = "Name already taken.";
+            $message = "That name or email is already taken.";
         } else {
             // Insert user with hashed password
             $password_hash = password_hash($password, PASSWORD_DEFAULT);

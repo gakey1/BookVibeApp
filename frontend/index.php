@@ -3,6 +3,10 @@
 define('BOOKVIBE_APP', true);
 
 $pageTitle = 'BookVibe - Discover Your Next Great Read';
+
+// Include database connection
+require_once '../config/db.php';
+
 include 'includes/header.php';
 
 // Initialize data arrays
@@ -11,17 +15,30 @@ $recentReviews = [];
 $genres = [];
 
 try {
-    $db = Database::getInstance();
+    // Get trending books (highest rated with good review count)
+    $trendingBooks = $pdo->prepare("
+        SELECT b.book_id as id, b.title, b.author, b.cover_image as cover, 
+               b.avg_rating as rating, b.review_count as reviews,
+               g.genre_name as genre
+        FROM books b
+        LEFT JOIN genres g ON b.genre_id = g.genre_id
+        WHERE b.review_count >= 1
+        ORDER BY (b.avg_rating * 0.7) + (LOG(b.review_count + 1) * 0.3) DESC
+        LIMIT 5
+    ");
+    $trendingBooks->execute();
+    $trendingBooks = $trendingBooks->fetchAll(PDO::FETCH_ASSOC);
     
-    // Temporarily force static data to show book covers
-    // TODO: Update database books with proper cover_image values
-    $trendingBooks = [];
+    // Process book covers
+    foreach ($trendingBooks as $index => $book) {
+        $trendingBooks[$index]['cover'] = 'assets/images/books/' . $book['cover'];
+    }
     
     // Get recent reviews
-    $recentReviews = $db->fetchAll("
+    $recentReviews = $pdo->prepare("
         SELECT r.rating, r.review_text as excerpt, r.created_at,
                u.full_name as user, u.profile_picture as avatar,
-               b.title as book
+               b.title as book, b.book_id
         FROM reviews r
         JOIN users u ON r.user_id = u.user_id
         JOIN books b ON r.book_id = b.book_id
@@ -29,52 +46,34 @@ try {
         ORDER BY r.created_at DESC
         LIMIT 3
     ");
+    $recentReviews->execute();
+    $recentReviews = $recentReviews->fetchAll(PDO::FETCH_ASSOC);
     
-    // Process reviews
+    // Process reviews with avatar fallback
     foreach ($recentReviews as &$review) {
-        $review['avatar'] = $review['avatar'] ? 'assets/images/profiles/' . $review['avatar'] : 'https://via.placeholder.com/50';
+        if ($review['avatar'] && $review['avatar'] !== 'default.jpg' && $review['avatar'] !== 'default.svg' && $review['avatar'] !== '') {
+            $review['avatar'] = 'assets/images/profiles/' . $review['avatar'];
+        } else {
+            $review['avatar'] = 'assets/images/profiles/default.svg';
+        }
         $review['time'] = timeAgo($review['created_at']);
-        $review['excerpt'] = substr($review['excerpt'], 0, 150) . '...';
+        $review['excerpt'] = strlen($review['excerpt']) > 150 ? substr($review['excerpt'], 0, 150) . '...' : $review['excerpt'];
     }
     
     // Get genres with book counts
-    $genres = $db->fetchAll("
-        SELECT genre_name as name, genre_icon as icon, 
-               (SELECT COUNT(*) FROM books WHERE genre_id = g.genre_id) as count
-        FROM genres g
-        ORDER BY genre_name ASC
+    $genres = $pdo->prepare("
+        SELECT genre_name as name, genre_icon as icon, book_count as count
+        FROM genres
+        WHERE book_count > 0
+        ORDER BY display_order ASC, genre_name ASC
         LIMIT 6
     ");
+    $genres->execute();
+    $genres = $genres->fetchAll(PDO::FETCH_ASSOC);
     
 } catch (Exception $e) {
-    // Fallback to static data if database fails
+    // Log error but continue with empty arrays
     error_log("Database error on homepage: " . $e->getMessage());
-}
-
-// Use static data with actual book covers if database query returned empty or failed
-if (empty($trendingBooks)) {
-    $trendingBooks = [
-        ['id' => 1, 'title' => '1984', 'author' => 'George Orwell', 'cover' => 'assets/images/books/1984.jpg', 'rating' => 4.9, 'reviews' => 2847, 'genre' => 'Dystopian Fiction'],
-        ['id' => 2, 'title' => 'Atomic Habits', 'author' => 'James Clear', 'cover' => 'assets/images/books/atomic_habits.jpg', 'rating' => 4.7, 'reviews' => 1923, 'genre' => 'Self-Help'],
-        ['id' => 3, 'title' => 'The Great Gatsby', 'author' => 'F. Scott Fitzgerald', 'cover' => 'assets/images/books/gatsby.jpg', 'rating' => 4.5, 'reviews' => 3214, 'genre' => 'Classic Literature'],
-        ['id' => 4, 'title' => 'Gone Girl', 'author' => 'Gillian Flynn', 'cover' => 'assets/images/books/gone_girl.jpg', 'rating' => 4.3, 'reviews' => 2156, 'genre' => 'Psychological Thriller'],
-        ['id' => 5, 'title' => 'Little Women', 'author' => 'Louisa May Alcott', 'cover' => 'assets/images/books/little_women.jpg', 'rating' => 4.1, 'reviews' => 1678, 'genre' => 'Coming-of-Age']
-    ];
-}
-
-// Fallback data for other sections if needed
-if (empty($recentReviews)) {
-    $recentReviews = [
-        ['user' => 'Demo User', 'avatar' => 'assets/images/profiles/default.jpg', 'book' => 'Sample Book', 'rating' => 5, 'excerpt' => 'Great book! Really enjoyed reading it...', 'time' => '2 hours ago']
-    ];
-}
-
-if (empty($genres)) {
-    $genres = [
-        ['name' => 'Romance', 'icon' => 'fa-heart', 'count' => 2341],
-        ['name' => 'Thriller', 'icon' => 'fa-mask', 'count' => 1876],
-        ['name' => 'Fantasy', 'icon' => 'fa-dragon', 'count' => 2987]
-    ];
 }
 
 // Time ago function
@@ -97,10 +96,10 @@ function timeAgo($datetime) {
                 <p class="mb-4">Join thousands of readers exploring, reviewing, and collecting their favorite books in one beautiful platform.</p>
                 <div class="d-flex gap-3">
                     <a href="browse.php" class="btn btn-light btn-lg">
-                        <i class="fas fa-compass me-2"></i>Explore Books
+                        Explore Books
                     </a>
                     <?php if (!$isLoggedIn): ?>
-                    <a href="../backend/register.php" class="btn btn-outline-light btn-lg">
+                    <a href="register.php" class="btn btn-outline-light btn-lg">
                         <i class="fas fa-users me-2"></i>Join Community
                     </a>
                     <?php endif; ?>
@@ -111,8 +110,8 @@ function timeAgo($datetime) {
                     <!-- Decorative book images using actual covers -->
                     <img src="assets/images/books/1984.jpg" 
                          class="hero-book" style="left: 50px; top: 20px; transform: rotate(-10deg);" alt="1984">
-                    <img src="assets/images/books/google_iICQDwAAQBAJ.jpg" 
-                         class="hero-book" style="left: 200px; top: 0; transform: rotate(5deg);" alt="Featured Book">
+                    <img src="assets/images/books/atomic_habits.jpg" 
+                         class="hero-book" style="left: 200px; top: 0; transform: rotate(5deg);" alt="Atomic Habits">
                     <img src="assets/images/books/gatsby.jpg" 
                          class="hero-book" style="left: 350px; top: 30px; transform: rotate(-8deg);" alt="The Great Gatsby">
                 </div>
@@ -201,7 +200,9 @@ function timeAgo($datetime) {
             <div class="col-lg-4 col-md-6">
                 <div class="review-card">
                     <div class="review-header">
-                        <img src="<?php echo $review['avatar']; ?>" alt="<?php echo $review['user']; ?>" class="review-avatar">
+                        <img src="<?php echo $review['avatar']; ?>" alt="<?php echo $review['user']; ?>" class="review-avatar"
+                             onerror="this.src='assets/images/profiles/default.svg'"
+                             style="background: #f8f9fa; border: 1px solid #e9ecef;">
                         <div>
                             <div class="review-user"><?php echo $review['user']; ?></div>
                             <div class="review-date"><?php echo $review['time']; ?></div>
@@ -285,14 +286,38 @@ function timeAgo($datetime) {
             <div class="col-lg-6 text-center">
                 <h3>Stay Updated</h3>
                 <p class="text-muted mb-4">Get the latest book recommendations and reviews delivered to your inbox</p>
-                <form class="d-flex gap-2">
-                    <input type="email" class="form-control form-control-custom" placeholder="Enter your email">
+                <form class="d-flex gap-2" id="newsletterForm">
+                    <input type="email" class="form-control form-control-custom" id="newsletterEmail" placeholder="Enter your email" required>
                     <button type="submit" class="btn btn-primary-custom">Subscribe</button>
                 </form>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Newsletter Success Modal -->
+<div class="modal fade" id="newsletterSuccessModal" tabindex="-1" aria-labelledby="newsletterSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="newsletterSuccessModalLabel" style="color: var(--primary-purple);">Welcome to BookVibe!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-envelope fa-3x mb-3" style="color: var(--primary-purple);"></i>
+                <h4>Successfully Subscribed!</h4>
+                <p class="text-muted mb-4">Thank you for subscribing to our newsletter! You'll receive the latest book recommendations and reviews delivered straight to your inbox.</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <span class="badge bg-success">Subscribed</span>
+                    <span class="badge" style="background: var(--primary-purple);">Welcome!</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn" style="background: var(--primary-purple); color: white;" data-bs-dismiss="modal">Start Exploring!</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Custom CSS for 5-column layout -->
 <style>
@@ -303,5 +328,39 @@ function timeAgo($datetime) {
     }
 }
 </style>
+
+<script>
+// Newsletter subscription handler
+document.addEventListener('DOMContentLoaded', function() {
+    const newsletterForm = document.getElementById('newsletterForm');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('newsletterEmail');
+            const email = emailInput.value.trim();
+            
+            if (!email || !email.includes('@')) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Please enter a valid email address', 'error');
+                } else {
+                    alert('Please enter a valid email address');
+                }
+                return;
+            }
+            
+            // Show success modal
+            const modal = new bootstrap.Modal(document.getElementById('newsletterSuccessModal'));
+            modal.show();
+            
+            // Clear the form
+            emailInput.value = '';
+            
+            // Optional: You can add actual newsletter subscription logic here
+            // For now, it's just a visual confirmation
+        });
+    }
+});
+</script>
 
 <?php include 'includes/footer.php'; ?>

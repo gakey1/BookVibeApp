@@ -1,6 +1,6 @@
 /**
  * BookVibe - Main JavaScript
- * Basic functionality for enhanced user experience
+ * Basic functionality for user experience
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -168,39 +168,57 @@ function formatNumber(num) {
 }
 
 /**
- * Create star rating display
+ * Create star rating display with proper half-star support
  * @param {number} rating - Rating value (0-5)
  * @param {boolean} showNumber - Whether to show numeric rating
  * @returns {string} HTML string for star rating
  */
 function createStarRating(rating, showNumber = true) {
     const fullStars = Math.floor(rating);
-    const hasHalfStar = rating - fullStars >= 0.5;
+    const decimal = rating - fullStars;
+    const hasHalfStar = decimal >= 0.3 && decimal < 0.8;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     
     let html = '<span class="star-rating">';
     
     // Full stars
     for (let i = 0; i < fullStars; i++) {
-        html += '<i class="fas fa-star"></i>';
+        html += '<i class="fas fa-star star filled"></i>';
     }
     
-    // Half star
+    // Half star (only show if rating is between .3 and .8)
     if (hasHalfStar) {
-        html += '<i class="fas fa-star-half-alt"></i>';
+        html += '<i class="fas fa-star star half-filled"></i>';
     }
     
     // Empty stars
     for (let i = 0; i < emptyStars; i++) {
-        html += '<i class="far fa-star"></i>';
+        html += '<i class="far fa-star star empty"></i>';
     }
     
     if (showNumber) {
-        html += ` <span class="ms-1">${rating.toFixed(1)}</span>`;
+        html += ` <span class="rating-number ms-1">${rating.toFixed(1)}</span>`;
     }
     
     html += '</span>';
     return html;
+}
+
+/**
+ * Update existing star rating elements on the page
+ * @param {string} selector - CSS selector for rating containers
+ */
+function updateStarRatings(selector = '[data-rating]') {
+    document.querySelectorAll(selector).forEach(element => {
+        // Skip manual star inputs (like in review modals)
+        if (element.classList.contains('manual-stars') || element.classList.contains('star-rating-input')) {
+            return;
+        }
+        const rating = parseFloat(element.dataset.rating);
+        if (rating && rating > 0) {
+            element.innerHTML = createStarRating(rating, false);
+        }
+    });
 }
 
 /**
@@ -223,29 +241,41 @@ function debounce(func, wait) {
 
 // Star Rating System
 function initializeStarRatings() {
+    // Initialize interactive star rating inputs
     const ratingContainers = document.querySelectorAll('.star-rating-input');
     
     ratingContainers.forEach(container => {
-        const stars = container.querySelectorAll('.star-btn');
-        const input = container.querySelector('input[type="hidden"]');
+        const stars = container.querySelectorAll('.star-btn, .star');
+        const input = container.querySelector('input[type="hidden"]') || 
+                     container.parentElement.querySelector('input[type="hidden"]');
         
-        stars.forEach((star, index) => {
-            star.addEventListener('click', () => {
-                const rating = index + 1;
-                input.value = rating;
-                updateStarDisplay(stars, rating);
+        // Skip if this is a manual star rating (book detail modal)
+        if (container.classList.contains('manual-stars')) {
+            return;
+        }
+        
+        if (input && stars.length > 0) {
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    const rating = index + 1;
+                    input.value = rating;
+                    updateStarDisplay(stars, rating);
+                });
+                
+                star.addEventListener('mouseenter', () => {
+                    updateStarDisplay(stars, index + 1);
+                });
             });
             
-            star.addEventListener('mouseenter', () => {
-                updateStarDisplay(stars, index + 1);
+            container.addEventListener('mouseleave', () => {
+                const currentRating = parseInt(input.value) || 0;
+                updateStarDisplay(stars, currentRating);
             });
-        });
-        
-        container.addEventListener('mouseleave', () => {
-            const currentRating = parseInt(input.value) || 0;
-            updateStarDisplay(stars, currentRating);
-        });
+        }
     });
+    
+    // Initialize display-only star ratings
+    updateStarRatings();
 }
 
 function updateStarDisplay(stars, rating) {
@@ -260,7 +290,7 @@ function updateStarDisplay(stars, rating) {
     });
 }
 
-// Enhanced Form Validation
+// Form Validation
 function initializeFormValidation() {
     const forms = document.querySelectorAll('.needs-validation');
     
@@ -309,35 +339,126 @@ function validateInput(input) {
 // Favorites System
 function initializeFavorites() {
     const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    const heartIcons = document.querySelectorAll('.heart-icon');
     
     favoriteButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
             const bookId = this.dataset.bookId;
             const isFavorited = this.classList.contains('favorited');
             
             if (isFavorited) {
-                removeFavorite(bookId, this);
+                // Note: removeFavorite function temporarily commented out
+                // This functionality is now handled by individual pages (e.g. favorites.php)
+                // For other pages, we'll use the heart icon toggle instead
+                console.warn('removeFavorite called - this functionality is handled by individual pages');
             } else {
                 addFavorite(bookId, this);
             }
         });
     });
+    
+    // Handle heart icon clicks on book cards
+    heartIcons.forEach(icon => {
+        icon.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const bookId = this.dataset.bookId;
+            const isFavorited = this.classList.contains('favorited');
+            
+            toggleHeartIcon(this, !isFavorited, bookId);
+        });
+    });
+}
+
+function toggleHeartIcon(icon, addFavorite, bookId) {
+    if (addFavorite) {
+        icon.classList.add('favorited');
+        icon.innerHTML = '<i class="fas fa-heart text-danger"></i>';
+        
+        // AJAX call to add favorite
+        $.ajax({
+            url: '../backend/api/favorites.php',
+            method: 'POST',
+            data: JSON.stringify({book_id: bookId, action: 'add'}),
+            contentType: 'application/json',
+            success: function() {
+                showNotification('Added to favorites!', 'success');
+            },
+            error: function() {
+                icon.classList.remove('favorited');
+                icon.innerHTML = '<i class="far fa-heart"></i>';
+                showNotification('Please login to add favorites', 'warning');
+            }
+        });
+    } else {
+        icon.classList.remove('favorited');
+        icon.innerHTML = '<i class="far fa-heart"></i>';
+        
+        // AJAX call to remove favorite
+        $.ajax({
+            url: '../backend/api/favorites.php',
+            method: 'POST',
+            data: JSON.stringify({book_id: bookId, action: 'remove'}),
+            contentType: 'application/json',
+            success: function() {
+                showNotification('Removed from favorites', 'info');
+            },
+            error: function() {
+                icon.classList.add('favorited');
+                icon.innerHTML = '<i class="fas fa-heart text-danger"></i>';
+            }
+        });
+    }
 }
 
 function addFavorite(bookId, button) {
-    // For now simulate adding to favorites
     button.classList.add('favorited');
-    button.innerHTML = '<i class="fas fa-heart"></i> Favorited';
-    showNotification('Added to favorites!', 'success');
+    button.innerHTML = '<i class="fas fa-heart text-danger"></i> Favorited';
+    
+    $.ajax({
+        url: '../backend/api/favorites.php',
+        method: 'POST',
+        data: JSON.stringify({book_id: bookId, action: 'add'}),
+        contentType: 'application/json',
+        success: function() {
+            showNotification('Added to favorites!', 'success');
+        },
+        error: function() {
+            button.classList.remove('favorited');
+            button.innerHTML = '<i class="far fa-heart"></i> Add to Favorites';
+            showNotification('Please login to add favorites', 'warning');
+        }
+    });
 }
 
+/* 
+ * Original removeFavorite function - commented out
+ * Using custom modal in favorites.php instead of generic confirm dialog
+ */
+
+/*
 function removeFavorite(bookId, button) {
     if (confirm('Remove this book from favorites?')) {
         button.classList.remove('favorited');
         button.innerHTML = '<i class="far fa-heart"></i> Add to Favorites';
-        showNotification('Removed from favorites', 'info');
+        
+        $.ajax({
+            url: '../backend/api/favorites.php',
+            method: 'POST',
+            data: JSON.stringify({book_id: bookId, action: 'remove'}),
+            contentType: 'application/json',
+            success: function() {
+                showNotification('Removed from favorites', 'info');
+            },
+            error: function() {
+                button.classList.add('favorited');
+                button.innerHTML = '<i class="fas fa-heart text-danger"></i> Favorited';
+            }
+        });
     }
 }
+*/
 
 // Password Strength Indicator
 function initializePasswordStrength() {
@@ -384,7 +505,7 @@ function updatePasswordStrengthDisplay(strength, bar, text) {
     }
 }
 
-// Enhanced Mobile Menu
+// Mobile Menu
 function initializeMobileMenu() {
     const menuToggle = document.querySelector('.navbar-toggler');
     const mobileMenu = document.querySelector('#navbarNav');
@@ -427,7 +548,7 @@ function initializeCharacterCounter() {
     });
 }
 
-// Enhanced Tooltips
+// Tooltips
 function initializeTooltips() {
     const tooltips = document.querySelectorAll('[data-tooltip]');
     
@@ -462,8 +583,9 @@ function initializeTooltips() {
 window.BookVibe = {
     showNotification,
     addFavorite,
-    removeFavorite,
+    // removeFavorite, // Commented out - handled by individual pages now
     createStarRating,
+    updateStarRatings,
     formatNumber,
     debounce
 };
