@@ -53,6 +53,8 @@ if ($totalBooks > 0) {
     $ratings = array_filter(array_column($favoriteBooks, 'avg_rating'));
     $avgRating = !empty($ratings) ? round(array_sum($ratings) / count($ratings), 1) : 0;
 }
+
+$totalReviews = $db->fetch("SELECT COUNT(*) as cnt FROM reviews WHERE user_id=?", [$user_id])['cnt'];
 ?>
 
 <div class="container my-5">
@@ -135,7 +137,6 @@ if ($totalBooks > 0) {
     </div>
     <?php else: ?>
     
-
     <!-- Favorites Grid -->
     <div class="row" id="favoritesContainer">
         <?php foreach ($favoriteBooks as $book): ?>
@@ -198,7 +199,7 @@ if ($totalBooks > 0) {
             </div>
             <div class="col-md-3 col-6 mb-3">
                 <div class="stat-item">
-                    <h2 class="text-info mb-0">24</h2>
+                    <h2 class="text-info mb-0"><?php echo $totalReviews; ?></h2>
                     <small class="text-muted">Reviews Written</small>
                 </div>
             </div>

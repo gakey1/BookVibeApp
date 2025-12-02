@@ -76,7 +76,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response['success'] = false;
                 $response['message'] = 'Failed to remove from favorites.';
             }
-        } else {
+        }
+        
+        // Get updated total favorites count
+        $totalFavorites = $db->fetch("SELECT COUNT(*) as cnt FROM favorites WHERE user_id=?", [$user_id])['cnt'];
+
+        $response['data'] = [
+            'book_id' => $book_id,
+            'action' => $action,
+            'total_favorites' => $totalFavorites
+        ];
+        
+        else {
             http_response_code(400);
             $response['message'] = 'Invalid action. Use "add" or "remove".';
         }
