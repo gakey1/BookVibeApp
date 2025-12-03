@@ -7,10 +7,12 @@
 // Environment Detection Logic
 function detectEnvironment() {
     // Check for InfinityFree/production hosting
+    $host_name = $_SERVER['HTTP_HOST'] ?? '';
     $isProduction = (
-        strpos($_SERVER['HTTP_HOST'] ?? '', 'infinityfree') !== false ||
-        strpos($_SERVER['HTTP_HOST'] ?? '', 'epizy') !== false ||
-        strpos(__DIR__, 'htdocs') !== false && !is_dir('/Applications/MAMP/') && !is_dir('C:/xampp/')
+        strpos($host_name, 'infinityfree') !== false ||
+        strpos($host_name, 'infinityfreeapp') !== false ||
+        strpos($host_name, 'epizy') !== false ||
+        strpos($host_name, 'bookvibe') !== false
     );
 
     // Check for MAMP indicators
