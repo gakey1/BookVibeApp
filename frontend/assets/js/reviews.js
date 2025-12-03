@@ -145,3 +145,26 @@ function updateStarRating(rating) {
 document.getElementById('editReviewText')?.addEventListener('input', function() {
     document.getElementById('editCharCount').textContent = this.value.length;
 });
+
+// Submit new review
+function submitNewReview(bookId, rating, reviewText) {
+    fetch('backend/review_submit.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            book_id: bookId,
+            rating: rating,
+            review_text: reviewText
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(err => console.error('Error submitting review:', err));
+}

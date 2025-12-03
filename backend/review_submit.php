@@ -10,7 +10,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
->>>>>>> b8696e1a5a10513beff36c4b272bc18476960997
 // Set JSON header for API response
 header('Content-Type: application/json');
 $response = ['success' => false, 'message' => ''];
@@ -52,8 +51,19 @@ if ($stmt_check->fetch()) {
 
 // Insert Review into Database
 try {
-    $stmt = $pdo->prepare("INSERT INTO reviews (book_id, user_id, rating, review_text, created_at) VALUES (?, ?, ?, ?, NOW())");
-    $stmt->execute([$book_id, $user_id, $rating, $comment]);
+    $stmt = $pdo->prepare("INSERT INTO reviews (book_id, user_id, rating, review_title, review_text, is_public, helpful_count, created_at) 
+    VALUES (?, ?, ?, ?, ?, 1, 0, NOW())");
+    $stmt->execute([$book_id, $user_id, $rating, '', $comment]);
+    
+    // Log activity
+    $log = $pdo->prepare("
+        INSERT INTO activity_log (user_id, activity_type, description)
+        VALUES (?, 'review', ?)
+    ");
+    $log->execute([
+        $user_id,
+        "Submitted a review for book ID $book_id"
+    ]);
 
     $response['success'] = true;
     $response['message'] = 'Review successfully submitted!';
