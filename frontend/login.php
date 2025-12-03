@@ -2,6 +2,13 @@
 // Frontend login page - presentation layer only
 session_start();
 
+// Clear any existing session if user is just visiting the login page (not submitting)
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    session_unset();
+    session_destroy();
+    session_start();
+}
+
 // Handle the backend authentication logic
 require '../backend/login_handler.php';
 

@@ -1,6 +1,5 @@
 <?php
-// Registration logic handler  
-// @Tracy I Separated your backend logic from presentation layer for separation of concerns
+// Registration logic handler
 
 require_once '../config/db.php';
 
@@ -12,8 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
-    // Hey Tracy - Had to fix this: empty emails were causing duplicate key errors
-    // Since email is optional but database requires NOT NULL, generate unique placeholder
+    // Generate placeholder email if not provided
     if (empty($email)) {
         $email = 'user_' . time() . '_' . rand(1000, 9999) . '@noemail.local';
     }
