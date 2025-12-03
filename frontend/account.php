@@ -62,6 +62,11 @@ $readingStats = [
     'reading_streak' => 0 
 ];
 
+// Fetch last 10 user activities
+$recentActivities = $db->fetchAll(
+    "SELECT * FROM activity_log WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
+    [$user_id]
+);
 
 ?>
 
@@ -192,6 +197,7 @@ $readingStats = [
                         <div class="card-header">
                             <h5><i class="fas fa-clock text-purple me-2"></i>Recent Activity</h5>
                         </div>
+                        <!--
                         <div class="card-body">
                             <div class="activity-item mb-3">
                                 <i class="fas fa-star text-purple me-2"></i>
@@ -209,6 +215,31 @@ $readingStats = [
                                 <small class="text-muted ms-2">1 week ago</small>
                             </div>
                         </div>
+                    -->
+                        
+                        <div class="card-body">
+                        <?php if (!empty($recentActivities)): ?>
+                            <?php foreach ($recentActivities as $activity): ?>
+                                <div class="activity-item mb-3">
+                                    <?php
+                                        switch($activity['activity_type']) {
+                                            case 'review': $icon = 'fas fa-star text-purple'; break;
+                                            case 'favorite_add': $icon = 'fas fa-heart text-purple-light'; break;
+                                            case 'favorite_remove': $icon = 'fas fa-heart-broken text-danger'; break;
+                                            case 'finished_reading': $icon = 'fas fa-book text-purple-dark'; break;
+                                            default: $icon = 'fas fa-info-circle'; 
+                                        }
+                                    ?>
+                                    <i class="<?php echo $icon; ?> me-2"></i>
+                                    <span><?php echo htmlspecialchars($activity['description']); ?></span>
+                                    <small class="text-muted ms-2"><?php echo date('M j, Y', strtotime($activity['created_at'])); ?></small>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="text-muted">No recent activity yet.</p>
+                        <?php endif; ?>
+                        </div>
+
                     </div>
                 </div>
                 <div class="col-md-4">
