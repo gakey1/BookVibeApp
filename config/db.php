@@ -6,6 +6,13 @@
 
 // Environment Detection Logic
 function detectEnvironment() {
+    // Check for InfinityFree/production hosting
+    $isProduction = (
+        strpos($_SERVER['HTTP_HOST'] ?? '', 'infinityfree') !== false ||
+        strpos($_SERVER['HTTP_HOST'] ?? '', 'epizy') !== false ||
+        strpos(__DIR__, 'htdocs') !== false && !is_dir('/Applications/MAMP/') && !is_dir('C:/xampp/')
+    );
+
     // Check for MAMP indicators
     $isMAMP = (
         strpos(__DIR__, '/MAMP/') !== false ||
@@ -21,6 +28,7 @@ function detectEnvironment() {
         file_exists('/opt/lampp/etc/httpd.conf')
     );
 
+    if ($isProduction) return 'PRODUCTION';
     if ($isMAMP) return 'MAMP';
     if ($isXAMPP) return 'XAMPP';
 
@@ -32,30 +40,38 @@ function detectEnvironment() {
 $environment = detectEnvironment();
 
 switch ($environment) {
+    case 'PRODUCTION':
+        $host = 'sql100.infinityfree.com';
+        $port = '3306';
+        $user = 'if0_40591059';
+        $pass = 'OTDpamspKaEU2qA';
+        $db = 'if0_40591059_bookvibe';
+        break;
+
     case 'MAMP':
         $host = 'localhost';
-        $port = '8889'; // MAMP default MySQL port
+        $port = '8889';
         $user = 'root';
-        $pass = 'root'; // MAMP default password
+        $pass = 'root';
+        $db = 'bookvibe';
         break;
 
     case 'XAMPP':
         $host = 'localhost';
-        $port = '3307'; // XAMPP MySQL port
+        $port = '3307';
         $user = 'root';
-        $pass = ''; // XAMPP default (no password)
+        $pass = '';
+        $db = 'bookvibe';
         break;
 
     default:
-        // Fallback - try common settings
         $host = 'localhost';
         $port = '3307';
         $user = 'root';
         $pass = '';
+        $db = 'bookvibe';
         break;
 }
-
-$db = 'bookvibe';
 $charset = 'utf8mb4';
 $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 
