@@ -54,6 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $response['success'] = true;
                 $response['message'] = 'Book added to favorites successfully.';
+                
+                // Log activity
+                $sql_log = "INSERT INTO activity_log (user_id, activity_type, description)
+                            VALUES (?, 'favorite_add', ?)";
+                $db->execute($sql_log, [
+                    $user_id,
+                    "Added book ID $book_id to favorites"
+                ]);
             }
         } else if ($action === 'remove') {
             // Remove from favorites
@@ -68,6 +76,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$still_exists) {
                     $response['success'] = true;
                     $response['message'] = 'Book removed from favorites.';
+                    
+                    // Log activity
+                    $sql_log = "INSERT INTO activity_log (user_id, activity_type, description)
+                                VALUES (?, 'favorite_remove', ?)";
+                    $db->execute($sql_log, [
+                        $user_id,
+                        "Removed book ID $book_id from favorites"
+                    ]);
+
                 } else {
                     $response['success'] = false;
                     $response['message'] = 'Book was not in your favorites.';
@@ -80,6 +97,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(400);
             $response['message'] = 'Invalid action. Use "add" or "remove".';
         }
+
+        
+        // Get updated total favorites count
+        $totalFavorites = $db->fetch("SELECT COUNT(*) as cnt FROM favorites WHERE user_id=?", [$user_id])['cnt'];
+
+        $response['data'] = [
+            'book_id' => $book_id,
+            'action' => $action,
+            'total_favorites' => $totalFavorites
+        ];
+
 
     } catch (Exception $e) {
         // Handle database errors
