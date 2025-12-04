@@ -258,6 +258,84 @@ GET /api/books.php?action=covers&book_id=X  # Get cover URLs
 - **Backup System**: Scheduled database and file backups
 
 
+## Deployment (Production Hosting)
+
+### Live Site
+- **URL**: bookvibe.infinityfreeapp.com
+- **Hosting**: InfinityFree (Free PHP/MySQL hosting)
+
+### InfinityFree Setup Instructions
+
+1. **Create Account**
+   - Sign up at infinityfree.com
+   - Create a new hosting account with your subdomain
+
+2. **Database Setup**
+   - Go to Control Panel > MySQL Databases
+   - Note your database credentials (host, name, user, password)
+   - Open phpMyAdmin from the control panel
+   - Import `database/bookvibe_infinityfree.sql` (simplified version without triggers/views)
+
+3. **File Upload**
+   - Go to Control Panel > File Manager
+   - Navigate to `htdocs` folder
+   - Upload all project files maintaining folder structure:
+     ```
+     htdocs/
+     ├── backend/
+     ├── config/
+     ├── database/
+     └── frontend/
+     ```
+
+4. **Create Root Redirect**
+   - Create `index.php` in `htdocs` root:
+     ```php
+     <?php header('Location: frontend/'); exit; ?>
+     ```
+
+5. **Update Database Config**
+   - Edit `config/db.php` PRODUCTION case with your credentials:
+     ```php
+     case 'PRODUCTION':
+         $host = 'your-sql-host.infinityfree.com';
+         $port = '3306';
+         $user = 'your_username';
+         $pass = 'your_password';
+         $db = 'your_database_name';
+         break;
+     ```
+
+### InfinityFree Limitations
+
+- **Connection Limits**: Free hosting allows ~3-5 concurrent database connections
+- **Error**: "Too many connections" appears under heavy use
+- **Solution**: Use local server for demos; production site for proof of deployment
+- **File Size**: 10MB max upload per file
+- **No SSH**: File uploads via File Manager or FTP only
+
+### Alternative Hosting Options
+
+| Provider | Type | Database | Notes |
+|----------|------|----------|-------|
+| InfinityFree | Free | MySQL | Connection limits |
+| 000webhost | Free | MySQL | Ads on free tier |
+| Heroku | Free/Paid | PostgreSQL | Requires code changes |
+| DigitalOcean | Paid | MySQL | Full control, $5/month |
+| Hostinger | Paid | MySQL | Good student pricing |
+
+### Local vs Production
+
+The `config/db.php` auto-detects environment:
+
+| Environment | Detection | Database |
+|-------------|-----------|----------|
+| MAMP | `/Applications/MAMP/` exists | localhost:8889 |
+| XAMPP | `/xampp/` in path or `/opt/lampp/` exists | localhost:3306 |
+| Production | Hostname contains `infinityfree` or `bookvibe` | Remote MySQL |
+
+No code changes needed when moving between environments.
+
 ## Academic Project
 
 This is a collaborative academic project for Advanced Web unit, demonstrating modern web development practices, team collaboration, and full-stack development skills. 

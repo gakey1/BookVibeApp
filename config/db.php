@@ -80,6 +80,8 @@ $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_PERSISTENT => false,
+    PDO::ATTR_EMULATE_PREPARES => false,
 ];
 
 try {
@@ -165,4 +167,10 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
     session_start();
 }
+
+// Close connection when script ends (helps with connection limits on free hosting)
+register_shutdown_function(function() {
+    global $pdo;
+    $pdo = null;
+});
 ?> 
