@@ -314,15 +314,6 @@ GET /api/books.php?action=covers&book_id=X  # Get cover URLs
 - **File Size**: 10MB max upload per file
 - **No SSH**: File uploads via File Manager or FTP only
 
-### Alternative Hosting Options
-
-| Provider | Type | Database | Notes |
-|----------|------|----------|-------|
-| InfinityFree | Free | MySQL | Connection limits |
-| 000webhost | Free | MySQL | Ads on free tier |
-| Heroku | Free/Paid | PostgreSQL | Requires code changes |
-| DigitalOcean | Paid | MySQL | Full control, $5/month |
-| Hostinger | Paid | MySQL | Good student pricing |
 
 ### Local vs Production
 
@@ -334,7 +325,7 @@ The `config/db.php` auto-detects environment:
 | XAMPP | `/xampp/` in path or `/opt/lampp/` exists | localhost:3306 |
 | Production | Hostname contains `infinityfree` or `bookvibe` | Remote MySQL |
 
-No code changes needed when moving between environments.
+No code changes is needed when moving between environments.
 
 ## Academic Project
 
